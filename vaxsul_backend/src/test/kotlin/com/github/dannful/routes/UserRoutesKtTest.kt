@@ -1,0 +1,188 @@
+package com.github.dannful.routes
+
+import com.github.dannful.core.Scenario
+import com.github.dannful.domain.model.Credentials
+import com.github.dannful.domain.model.Research
+import com.github.dannful.domain.model.ResearchStatus
+import com.github.dannful.domain.model.Role
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.server.config.*
+import io.ktor.server.testing.*
+import kotlinx.datetime.LocalDateTime
+import kotlin.test.Test
+import kotlin.test.assertEquals
+
+class UserRoutesKtTest {
+
+    @Test
+    fun `When creates user, returns 200 (OK)`() = testApplication {
+        environment {
+            config = ApplicationConfig("test-application.conf")
+        }
+        val scenario = Scenario()
+        scenario.setupClient(this, Role.RESEARCHER)
+
+        val testResearch = Research(
+            startDate = LocalDateTime(
+                year = 2024,
+                monthNumber = 1,
+                dayOfMonth = 1,
+                hour = 1,
+                minute = 1,
+                second = 1
+            ),
+            status = ResearchStatus.PAUSED
+        )
+        val newResearchResponse = scenario.httpClient.post("/researches/new") {
+            contentType(ContentType.Application.Json)
+            setBody(
+                testResearch
+            )
+        }
+        val research = scenario.researchService.getResearch(1)
+
+        assertEquals(HttpStatusCode.OK, newResearchResponse.status)
+        assertEquals(testResearch, research)
+    }
+
+    @Test
+    fun `When gets all users, returns 200 (OK)`() = testApplication {
+        environment {
+            config = ApplicationConfig("test-application.conf")
+        }
+        val scenario = Scenario()
+        scenario.setupClient(this)
+        val user = scenario.addUser()
+
+        val getUsers = scenario.httpClient.get("/users")
+
+        assertEquals(HttpStatusCode.OK, getUsers.status)
+        assertEquals(listOf(user), getUsers.body())
+    }
+
+    @Test
+    fun `When gets user by ID, returns 200 (OK)`() = testApplication {
+        environment {
+            config = ApplicationConfig("test-application.conf")
+        }
+        val scenario = Scenario()
+        scenario.setupClient(this)
+        val user = scenario.addUser()
+
+        val getNewUserResponse = scenario.httpClient.get("/users/1")
+
+        assertEquals(HttpStatusCode.OK, getNewUserResponse.status)
+        assertEquals(user, getNewUserResponse.body())
+    }
+
+    @Test
+    fun `When there is no valid user for given ID, returns 400 (Bad Request)`() = testApplication {
+        environment {
+            config = ApplicationConfig("test-application.conf")
+        }
+        val scenario = Scenario()
+        scenario.setupClient(this)
+
+        val getUserResponse = scenario.httpClient.get("/users/1")
+
+        assertEquals(HttpStatusCode.BadRequest, getUserResponse.status)
+    }
+
+    @Test
+    fun `When client is not authorized and deletes user, returns 401 (Unauthorized)`() = testApplication {
+        environment {
+            config = ApplicationConfig("test-application.conf")
+        }
+        val scenario = Scenario()
+        scenario.setupClient(this, Role.USER)
+        scenario.addUser()
+
+        val deleteUserRequest = scenario.httpClient.delete("/users/1")
+
+        assertEquals(HttpStatusCode.Unauthorized, deleteUserRequest.status)
+    }
+
+    @Test
+    fun `When client is authorized and deletes user, returns 200 (OK)`() = testApplication {
+        environment {
+            config = ApplicationConfig("test-application.conf")
+        }
+        val scenario = Scenario()
+        scenario.setupClient(this)
+        scenario.addUser()
+        val deleteUserResponse = scenario.httpClient.delete("/users/1")
+        val usersCount = scenario.userService.getUsers().count()
+
+        assertEquals(HttpStatusCode.OK, deleteUserResponse.status)
+        assertEquals(0, usersCount)
+    }
+
+    @Test
+    fun `When client provides non-existent credentials, returns 400 (Bad Request)`() = testApplication {
+        environment {
+            config = ApplicationConfig("test-application.conf")
+        }
+        val scenario = Scenario()
+        scenario.setupClient(this, Role.USER)
+
+        val loginRequest = scenario.httpClient.post("/login") {
+            contentType(ContentType.Application.Json)
+            setBody(
+                Credentials(
+                    username = "a",
+                    password = "a"
+                )
+            )
+        }
+
+        assertEquals(HttpStatusCode.BadRequest, loginRequest.status)
+    }
+
+    @Test
+    fun `When client provides incorrect login credentials, returns 400 (Bad Request)`() = testApplication {
+        environment {
+            config = ApplicationConfig("test-application.conf")
+        }
+        val scenario = Scenario()
+        scenario.setupClient(this, Role.USER)
+        val testUser = scenario.addUser()
+
+        val loginRequest = scenario.httpClient.post("/login") {
+            contentType(ContentType.Application.Json)
+            setBody(
+                Credentials(
+                    username = testUser.username,
+                    password = testUser.password.reversed()
+                )
+            )
+        }
+
+        assertEquals(HttpStatusCode.BadRequest, loginRequest.status)
+    }
+
+    @Test
+    fun `When client provides correct login credentials, returns 200 (OK) with JWT`() = testApplication {
+        environment {
+            config = ApplicationConfig("test-application.conf")
+        }
+        val scenario = Scenario()
+        scenario.setupClient(this, Role.USER)
+        val testUser = scenario.addUser()
+
+        val loginRequest = scenario.httpClient.post("/login") {
+            contentType(ContentType.Application.Json)
+            setBody(
+                Credentials(
+                    username = testUser.email,
+                    password = testUser.password
+                )
+            )
+        }
+
+        assertEquals(HttpStatusCode.OK, loginRequest.status)
+        assert(loginRequest.bodyAsText().isNotBlank())
+    }
+}
