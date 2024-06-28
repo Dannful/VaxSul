@@ -37,6 +37,7 @@ class DbVaccineService(
                 amountInStock = vaccine.amountInStock
                 researchId =
                     if (vaccine.researchId != null) EntityID(id = vaccine.researchId, table = Researches) else null
+                sellable = vaccine.sellable
             }
         }
     }

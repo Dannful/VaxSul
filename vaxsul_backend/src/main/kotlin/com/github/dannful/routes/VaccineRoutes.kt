@@ -8,10 +8,11 @@ import io.ktor.resources.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
-import io.ktor.server.resources.*
+import io.ktor.server.resources.post;
+import io.ktor.server.resources.get;
+import io.ktor.server.resources.delete;
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.server.routing.post
 import kotlinx.serialization.Serializable
 import org.koin.ktor.ext.inject
 
