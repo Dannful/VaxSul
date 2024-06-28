@@ -8,9 +8,9 @@ import io.ktor.resources.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
-import io.ktor.server.resources.post;
-import io.ktor.server.resources.get;
-import io.ktor.server.resources.delete;
+import io.ktor.server.resources.post
+import io.ktor.server.resources.get
+import io.ktor.server.resources.delete
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
@@ -51,9 +51,11 @@ fun Application.vaccineRoutes() {
 @Resource("/vaccines")
 private class Vaccines {
 
+    @Suppress("unused")
     @Resource("{id}")
     class Vaccine(val parent: Vaccines = Vaccines(), val id: Int)
 
+    @Suppress("unused")
     @Resource("/new")
     class New(val parent: Vaccines = Vaccines())
 }

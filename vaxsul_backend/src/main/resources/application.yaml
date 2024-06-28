@@ -7,7 +7,7 @@ ktor:
 
 auth:
   jwt:
-    secret: $JWT_STANDARD
+    secret: $JWT_SECRET
     issuer: "http://0.0.0.0:8080/"
     audience: "http://0.0.0.0:8080/"
     realm: "Access to VacSul"
