@@ -13,7 +13,7 @@ the engine behind this project's backend.
 1. Ensure you have [jdk11](https://www.oracle.com/java/technologies/javase/jdk11-archive-downloads.html) installed.
 2. Set up a [PostgreSQL](https://www.postgresql.org/download/) instance. If you have [Docker](https://www.docker.com/get-started/) installed, you can run
 
-        docker run -d --pull_policy=always --restart=always -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=vaxsul
+        docker run -d --pull=always --restart=always -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=vaxsul -p 5432:5432 --expose 5432 --name postgres postgres
 3. Inside `vaxsul_backend`, run
 
         source .env && ./gradlew run
