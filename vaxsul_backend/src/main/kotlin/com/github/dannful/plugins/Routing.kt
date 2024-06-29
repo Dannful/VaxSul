@@ -1,5 +1,6 @@
 package com.github.dannful.plugins
 
+import com.github.dannful.routes.healthRoute
 import com.github.dannful.routes.researchRoutes
 import com.github.dannful.routes.userRoutes
 import com.github.dannful.routes.vaccineRoutes
@@ -12,4 +13,5 @@ fun Application.configureRouting() {
     userRoutes()
     vaccineRoutes()
     researchRoutes()
+    healthRoute()
 }

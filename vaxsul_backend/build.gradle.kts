@@ -56,4 +56,5 @@ dependencies {
 
     implementation("io.insert-koin:koin-ktor:$koin_version")
     implementation("io.insert-koin:koin-logger-slf4j:$koin_version")
+    testImplementation("io.ktor:ktor-server-test-host-jvm:2.3.12")
 }
