@@ -1,16 +1,13 @@
 package com.github.dannful.routes
 
 import com.github.dannful.core.Scenario
-import com.github.dannful.domain.model.Credentials
 import com.github.dannful.domain.model.Role
 import com.github.dannful.domain.model.User
 import io.ktor.client.call.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
-import kotlin.math.log
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
