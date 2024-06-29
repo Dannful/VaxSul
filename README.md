@@ -29,4 +29,12 @@ the engine behind this project's backend.
 ### Backend
 Inside `vaxsul_backend`, run
 
-    source .env && ./gradlew test 
+    source .env && ./gradlew test
+
+## Building
+
+### Backend
+Inside `vaxsul_backend`, run
+
+    ./gradlew buildFatJar
+and the JAR file will be generated at `build/libs/app.jar`.
