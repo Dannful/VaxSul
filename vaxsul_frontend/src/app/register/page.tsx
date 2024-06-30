@@ -1,27 +1,28 @@
 "use client";
-import { useLoginMutation } from "@/service/vaxsul";
-import { useState } from "react";
-import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
-import { SerializedError } from "@reduxjs/toolkit";
 import { sha256 } from "@/lib/encryption";
+import { useRegisterMutation } from "@/service/vaxsul";
+import { SerializedError } from "@reduxjs/toolkit";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-export default function Login() {
+export default function Register() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [login, result] = useLoginMutation();
+  const [register, result] = useRegisterMutation();
+  const router = useRouter();
   return (
     <form
       className="max-w-sm mx-auto flex justify-center items-center h-screen"
       onSubmit={async (e) => {
         e.preventDefault();
-        login({
+        register({
           username: username,
           password: await sha256(password),
         })
           .unwrap()
-          .then((token) => {
-            alert(token);
-          });
+          .catch()
+          .then(() => router.push("/login"));
       }}
     >
       <div className="w-full">
@@ -99,7 +100,7 @@ function getMessageForStatusCode(error: FetchBaseQueryError | SerializedError) {
     typeof (error as FetchBaseQueryError).status === "number" &&
     ((error as FetchBaseQueryError).status as number) == 400
   ) {
-    return "Usuário ou senha inválida.";
+    return "Usuário já existente. Por favor, utilize algo diferente.";
   }
   return "Erro ao processar sua requisição. Por favor, tente novamente mais tarde.";
 }

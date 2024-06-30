@@ -48,6 +48,25 @@ fun Application.userRoutes() {
                 call.respond(HttpStatusCode.OK)
             }
         }
+        post<Register> {
+            val credentials = call.receiveNullable<Credentials>() ?: run {
+                call.respond(HttpStatusCode.BadRequest, "Username and password are required")
+                return@post
+            }
+            if (userService.getUserByEmail(credentials.username) != null) {
+                call.respond(HttpStatusCode.BadRequest, "User already exists")
+                return@post
+            }
+            userService.addUser(
+                User(
+                    email = credentials.username,
+                    password = credentials.password,
+                    username = credentials.username,
+                    role = Role.USER
+                )
+            )
+            call.respond(HttpStatusCode.OK)
+        }
         post<Login> {
             val credentials = call.receiveNullable<Credentials>() ?: run {
                 call.respond(HttpStatusCode.BadRequest, "Username and password are required")
@@ -87,7 +106,9 @@ fun Application.userRoutes() {
     }
 }
 
-@Serializable
+@Resource("/register")
+private class Register
+
 @Resource("/users")
 private class Users {
 

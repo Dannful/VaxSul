@@ -5,12 +5,14 @@ import com.github.dannful.domain.model.Credentials
 import com.github.dannful.domain.model.Research
 import com.github.dannful.domain.model.ResearchStatus
 import com.github.dannful.domain.model.Role
+import com.github.dannful.plugins.configureRouting
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
+import kotlinx.coroutines.delay
 import kotlinx.datetime.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -184,5 +186,47 @@ class UserRoutesKtTest {
 
         assertEquals(HttpStatusCode.OK, loginRequest.status)
         assert(loginRequest.bodyAsText().isNotBlank())
+    }
+
+    @Test
+    fun `When client provides correct register credentials, returns 200 (OK)`() = testApplication {
+        environment {
+            config = ApplicationConfig("test-application.conf")
+        }
+        val scenario = Scenario()
+        scenario.setupClient(this)
+        val request = scenario.httpClient.post("/register") {
+            contentType(ContentType.Application.Json)
+            setBody(
+                Credentials(
+                    username = "romano2@email.com",
+                    password = "password"
+                )
+            )
+        }
+
+        assertEquals(HttpStatusCode.OK, request.status)
+        assertEquals(1, scenario.userService.getUsers().count())
+    }
+
+    @Test
+    fun `When client provides register credentials with existing username, returns 400 (Bad request)`() = testApplication {
+        environment {
+            config = ApplicationConfig("test-application.conf")
+        }
+        val scenario = Scenario()
+        scenario.setupClient(this)
+        val user = scenario.addUser()
+        val request = scenario.httpClient.post("/register") {
+            contentType(ContentType.Application.Json)
+            setBody(
+                Credentials(
+                    username = user.email,
+                    password = user.password
+                )
+            )
+        }
+
+        assertEquals(HttpStatusCode.BadRequest, request.status)
     }
 }

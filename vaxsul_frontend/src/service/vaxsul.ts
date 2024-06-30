@@ -15,7 +15,15 @@ export const vaxSulApi = createApi({
         responseHandler: "text",
       }),
     }),
+    register: builder.mutation<string, Credentials>({
+      query: (credentials: Credentials) => ({
+        url: "register",
+        method: "POST",
+        body: credentials,
+        responseHandler: "text",
+      }),
+    }),
   }),
 });
 
-export const { useLoginMutation } = vaxSulApi;
+export const { useLoginMutation, useRegisterMutation } = vaxSulApi;

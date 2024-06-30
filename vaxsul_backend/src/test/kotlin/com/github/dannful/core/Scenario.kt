@@ -70,6 +70,7 @@ class Scenario {
                     credentials {
                         BasicAuthCredentials(username = "adm", password = "123")
                     }
+                    sendWithoutRequest { true }
                 }
             }
         }
@@ -85,6 +86,7 @@ class Scenario {
                     credentials {
                         BasicAuthCredentials(username = "adm", password = "123")
                     }
+                    sendWithoutRequest { true }
                 }
             }
         }
