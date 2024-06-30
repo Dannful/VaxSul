@@ -2,6 +2,7 @@
 1. [Recommended IDEs](#recommended-ides)
 2. [Running a local dev setup](#running-a-local-dev-setup)
 3. [Testing](#testing)
+4. [Building](#building)
 
 ## Recommended IDEs
 It is highly advised to use [IntelliJ IDEA](https://www.jetbrains.com/idea/download) for the backend, since its maintainers also develop [Ktor](https://ktor.io/),
