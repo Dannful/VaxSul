@@ -5,8 +5,13 @@
 4. [Building](#building)
 
 ## Recommended IDEs
-It is highly advised to use [IntelliJ IDEA](https://www.jetbrains.com/idea/download) for the backend, since its maintainers also develop [Ktor](https://ktor.io/),
+
+### Backend
+It is highly advised to use [IntelliJ IDEA](https://www.jetbrains.com/idea/download), since its maintainers also develop [Ktor](https://ktor.io/),
 the engine behind this project's backend.
+
+### Frontend
+Most popular IDEs are fine, such as [VSCode](https://code.visualstudio.com/) with [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) or [WebStorm](https://www.jetbrains.com/webstorm/).
 
 ## Running a local dev setup
 
