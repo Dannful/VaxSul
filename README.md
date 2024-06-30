@@ -10,14 +10,19 @@ the engine behind this project's backend.
 ## Running a local dev setup
 
 ### Manually 
-1. Ensure you have [jdk11](https://www.oracle.com/java/technologies/javase/jdk11-archive-downloads.html) installed.
+1. Ensure you have [jdk11](https://www.oracle.com/java/technologies/javase/jdk11-archive-downloads.html) and [Node.js](https://nodejs.org/en) installed.
 2. Set up a [PostgreSQL](https://www.postgresql.org/download/) instance. If you have [Docker](https://www.docker.com/get-started/) installed, you can run
-
-        docker run -d --pull=always --restart=always -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=vaxsul -p 5432:5432 --expose 5432 --name postgres postgres
+ 
+       docker run -d --pull=always --restart=always -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=vaxsul -p 5432:5432 --expose 5432 --name postgres postgres
 3. Inside `vaxsul_backend`, run
 
-        source .env && ./gradlew run
+       source .env && ./gradlew run
     to start the server at port `8080`.
+4. Inside `vaxsul_frontend`, run
+
+       npm ci
+       npm run dev
+   to start the client at port `3000`.
 
 ### Using Docker
 1. Inside project root, run
@@ -38,3 +43,9 @@ Inside `vaxsul_backend`, run
 
     ./gradlew buildFatJar
 and the JAR file will be generated at `build/libs/app.jar`.
+
+### Frontend
+Inside `vaxsul_frontend`, run
+
+    npm run build
+to build the client.
