@@ -22,7 +22,6 @@ services:
       retries: 5
 
   server:
-#    container_name: vaxsul_server
     restart: always
     depends_on:
       - db
