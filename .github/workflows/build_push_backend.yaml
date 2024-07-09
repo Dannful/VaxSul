@@ -9,6 +9,7 @@ on:
           - Major
           - Minor
           - Patch
+          - None
 env:
   MAJOR: ${{ vars.BACKEND_VERSION_MAJOR }}
   MINOR: ${{ vars.BACKEND_VERSION_MINOR }}
@@ -44,6 +45,7 @@ jobs:
           TOKEN: ${{ secrets.VAXSUL_TOKEN }}
         run: |
           case ${{ inputs.version }} in
+              None) ;;
               Major)  echo "MAJOR=$((MAJOR+1))" >> $GITHUB_ENV
                       echo "MINOR=0" >> $GITHUB_ENV
                       echo "PATCH=0" >> $GITHUB_ENV
