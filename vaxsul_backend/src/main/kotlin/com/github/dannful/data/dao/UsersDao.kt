@@ -11,14 +11,18 @@ class UsersDao(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<UsersDao>(Users)
 
     var email by Users.email
-    var username by Users.username
+    var name by Users.name
     var password by Users.password
     var role by Users.role
+    var state by Users.state
+    var city by Users.city
 
     fun toUser(): User = User(
         email = email,
-        username = username,
+        name = name,
         password = password,
-        role = role
+        role = role,
+        state = state,
+        city = city
     )
 }

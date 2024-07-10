@@ -13,12 +13,11 @@ import com.github.dannful.domain.service.ResearchService
 import com.github.dannful.domain.service.UserService
 import com.github.dannful.domain.service.VaccineService
 import io.ktor.client.*
-import io.ktor.client.plugins.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.cookies.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.config.*
@@ -73,48 +72,35 @@ class Scenario {
                     sendWithoutRequest { true }
                 }
             }
+            install(HttpCookies)
         }
     }
 
     suspend fun setupClient(applicationTestBuilder: ApplicationTestBuilder, role: Role) {
-        val client = applicationTestBuilder.createClient {
+        httpClient = applicationTestBuilder.createClient {
             install(ContentNegotiation) {
                 json()
             }
-            install(Auth) {
-                basic {
-                    credentials {
-                        BasicAuthCredentials(username = "adm", password = "123")
-                    }
-                    sendWithoutRequest { true }
-                }
-            }
+            install(HttpCookies)
         }
         userService.addUser(
             User(
                 email = "test@email.com",
-                username = "test",
+                name = "test",
                 password = "test",
-                role = role
+                role = role,
+                state = "RS",
+                city = "Itapema"
             )
         )
-        val authToken = client.post("/login") {
+        httpClient.post("/login") {
             contentType(ContentType.Application.Json)
             setBody(
                 Credentials(
-                    username = "test@email.com",
+                    email = "test@email.com",
                     password = "test"
                 )
             )
-        }.bodyAsText()
-        client.close()
-        httpClient = applicationTestBuilder.createClient {
-            defaultRequest {
-                header(HttpHeaders.Authorization, "Bearer $authToken")
-            }
-            install(ContentNegotiation) {
-                json()
-            }
         }
     }
 
@@ -149,9 +135,11 @@ class Scenario {
     suspend fun addUser(): User {
         val user = User(
             email = "romano@email.com",
-            username = "romano",
+            name = "romano",
             password = "test",
-            role = Role.USER
+            role = Role.USER,
+            state = "RS",
+            city = "Haddonfield"
         )
         userService.addUser(user)
         return user

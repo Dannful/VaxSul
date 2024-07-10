@@ -1,18 +1,13 @@
 package com.github.dannful.routes
 
 import com.github.dannful.core.Scenario
-import com.github.dannful.domain.model.Credentials
-import com.github.dannful.domain.model.Research
-import com.github.dannful.domain.model.ResearchStatus
-import com.github.dannful.domain.model.Role
-import com.github.dannful.plugins.configureRouting
+import com.github.dannful.domain.model.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
-import kotlinx.coroutines.delay
 import kotlinx.datetime.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -134,7 +129,7 @@ class UserRoutesKtTest {
             contentType(ContentType.Application.Json)
             setBody(
                 Credentials(
-                    username = "a",
+                    email = "a",
                     password = "a"
                 )
             )
@@ -156,7 +151,7 @@ class UserRoutesKtTest {
             contentType(ContentType.Application.Json)
             setBody(
                 Credentials(
-                    username = testUser.username,
+                    email = testUser.name,
                     password = testUser.password.reversed()
                 )
             )
@@ -178,7 +173,7 @@ class UserRoutesKtTest {
             contentType(ContentType.Application.Json)
             setBody(
                 Credentials(
-                    username = testUser.email,
+                    email = testUser.email,
                     password = testUser.password
                 )
             )
@@ -198,9 +193,12 @@ class UserRoutesKtTest {
         val request = scenario.httpClient.post("/register") {
             contentType(ContentType.Application.Json)
             setBody(
-                Credentials(
-                    username = "romano2@email.com",
-                    password = "password"
+                User(
+                    name = "test",
+                    password = "test",
+                    email = "test@test.com",
+                    state = "RS",
+                    city = "Haddonfield"
                 )
             )
         }
@@ -210,23 +208,24 @@ class UserRoutesKtTest {
     }
 
     @Test
-    fun `When client provides register credentials with existing username, returns 400 (Bad request)`() = testApplication {
-        environment {
-            config = ApplicationConfig("test-application.conf")
-        }
-        val scenario = Scenario()
-        scenario.setupClient(this)
-        val user = scenario.addUser()
-        val request = scenario.httpClient.post("/register") {
-            contentType(ContentType.Application.Json)
-            setBody(
-                Credentials(
-                    username = user.email,
-                    password = user.password
+    fun `When client provides register credentials with existing username, returns 400 (Bad request)`() =
+        testApplication {
+            environment {
+                config = ApplicationConfig("test-application.conf")
+            }
+            val scenario = Scenario()
+            scenario.setupClient(this)
+            val user = scenario.addUser()
+            val request = scenario.httpClient.post("/register") {
+                contentType(ContentType.Application.Json)
+                setBody(
+                    Credentials(
+                        email = user.email,
+                        password = user.password
+                    )
                 )
-            )
-        }
+            }
 
-        assertEquals(HttpStatusCode.BadRequest, request.status)
-    }
+            assertEquals(HttpStatusCode.BadRequest, request.status)
+        }
 }

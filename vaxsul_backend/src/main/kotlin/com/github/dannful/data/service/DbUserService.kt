@@ -23,9 +23,11 @@ class DbUserService(
         newSuspendedTransaction(context = dispatcherProvider.io, db = database) {
             UsersDao.new {
                 email = user.email
-                username = user.username
+                name = user.name
                 password = user.password
                 role = user.role
+                state = user.state
+                city = user.city
             }
         }
     }

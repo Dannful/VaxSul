@@ -11,7 +11,12 @@ object Constants {
     const val JWT_RESEARCHER = "auth-researcher-token"
     const val JWT_RESEARCH_LEAD = "auth-research-lead-token"
 
-    const val JWT_CLAIM_USERNAME_FIELD_NAME = "username"
+    const val SESSION_STANDARD = "auth-standard-token-session"
+    const val SESSION_MANAGER = "auth-manager-token-session"
+    const val SESSION_RESEARCHER = "auth-researcher-token-session"
+    const val SESSION_RESEARCH_LEAD = "auth-research-lead-token-session"
+
+    const val JWT_CLAIM_EMAIL_FIELD_NAME = "email"
     const val JWT_CLAIM_PASSWORD_FIELD_NAME = "password"
     const val JWT_CLAIM_ROLE_FIELD_NAME = "role"
 }

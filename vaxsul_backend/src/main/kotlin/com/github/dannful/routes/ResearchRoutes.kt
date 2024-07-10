@@ -8,9 +8,9 @@ import io.ktor.resources.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
-import io.ktor.server.resources.post;
-import io.ktor.server.resources.get;
-import io.ktor.server.resources.delete;
+import io.ktor.server.resources.post
+import io.ktor.server.resources.get
+import io.ktor.server.resources.delete
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
@@ -20,13 +20,18 @@ fun Application.researchRoutes() {
     val researchService: ResearchService by inject()
 
     routing {
-        authenticate(Constants.JWT_RESEARCH_LEAD) {
+        authenticate(Constants.JWT_RESEARCH_LEAD, Constants.SESSION_RESEARCH_LEAD) {
             delete<Researches.Research> {
                 researchService.deleteResearch(it.id)
                 call.respond(HttpStatusCode.OK)
             }
         }
-        authenticate(Constants.JWT_RESEARCH_LEAD, Constants.JWT_RESEARCHER) {
+        authenticate(
+            Constants.JWT_RESEARCH_LEAD,
+            Constants.JWT_RESEARCHER,
+            Constants.SESSION_RESEARCH_LEAD,
+            Constants.SESSION_RESEARCHER
+        ) {
             post<Researches.New> {
                 val vaccine = call.receiveNullable<Research>() ?: run {
                     call.respond(HttpStatusCode.BadRequest)

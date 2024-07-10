@@ -20,7 +20,7 @@ fun Application.vaccineRoutes() {
     val vaccineService: VaccineService by inject()
 
     routing {
-        authenticate(Constants.JWT_MANAGER) {
+        authenticate(Constants.JWT_MANAGER, Constants.SESSION_MANAGER) {
             get<Vaccines> {
                 this.call.respond(HttpStatusCode.OK, vaccineService.getVaccines())
             }

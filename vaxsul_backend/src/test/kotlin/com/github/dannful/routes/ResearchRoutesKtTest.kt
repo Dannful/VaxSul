@@ -19,13 +19,15 @@ class ResearchRoutesKtTest {
             config = ApplicationConfig("test-application.conf")
         }
         val scenario = Scenario()
-        scenario.setupClient(this)
         val testUser = User(
-            username = "test",
+            name = "test",
             password = "test",
             email = "test@test.com",
-            role = Role.USER
+            role = Role.USER,
+            state = "RS",
+            city = "Haddonfield"
         )
+        scenario.setupClient(this)
         val newUserResponse = scenario.httpClient.post("/users/new") {
             contentType(ContentType.Application.Json)
             setBody(

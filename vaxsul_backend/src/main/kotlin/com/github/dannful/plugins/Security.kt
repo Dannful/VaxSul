@@ -12,9 +12,6 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.response.*
-import io.ktor.server.sessions.*
-import org.koin.core.qualifier.named
-import org.koin.core.qualifier.qualifier
 import org.koin.ktor.ext.inject
 
 fun Application.configureSecurity() {
@@ -47,9 +44,44 @@ fun Application.configureSecurity() {
         jwt(Constants.JWT_RESEARCH_LEAD) {
             configureJWT(userService = userService, jwtData = jwtData, role = Role.RESEARCH_LEAD)
         }
+        session<UserSession>(Constants.SESSION_STANDARD) {
+            configureJWT(userService = userService, jwtData = jwtData, role = Role.USER)
+        }
+        session<UserSession>(Constants.SESSION_MANAGER) {
+            configureJWT(userService = userService, jwtData = jwtData, role = Role.SALES_MANAGER)
+        }
+        session<UserSession>(Constants.SESSION_RESEARCHER) {
+            configureJWT(userService = userService, jwtData = jwtData, role = Role.RESEARCHER)
+        }
+        session<UserSession>(Constants.SESSION_RESEARCH_LEAD) {
+            configureJWT(userService = userService, jwtData = jwtData, role = Role.RESEARCH_LEAD)
+        }
     }
-    install(Sessions) {
-        cookie<UserSession>(Constants.AUTH_SESSION_COOKIE)
+}
+
+private fun SessionAuthenticationProvider.Config<UserSession>.configureJWT(
+    userService: UserService,
+    jwtData: JWTData,
+    role: Role
+) {
+    validate { session ->
+        try {
+            val token = JWT.require(Algorithm.HMAC256(jwtData.secret)).withAudience(jwtData.audience)
+                .withIssuer(jwtData.issuer)
+                .build().verify(session.token)
+            val username = token.getClaim(Constants.JWT_CLAIM_EMAIL_FIELD_NAME).asString()
+            val password = token.getClaim(Constants.JWT_CLAIM_PASSWORD_FIELD_NAME).asString()
+            val assignedRole =
+                Role.valueOf(token.getClaim(Constants.JWT_CLAIM_ROLE_FIELD_NAME).asString())
+            val user = userService.getUserByEmail(username) ?: return@validate null
+            if (password == user.password && assignedRole == role && user.role == assignedRole) {
+                UserIdPrincipal(username)
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null
+        }
     }
 }
 
@@ -63,7 +95,7 @@ private fun JWTAuthenticationProvider.Config.configureJWT(userService: UserServi
             .build()
     )
     validate { jwtCredential ->
-        val username = jwtCredential.payload.getClaim(Constants.JWT_CLAIM_USERNAME_FIELD_NAME).asString()
+        val username = jwtCredential.payload.getClaim(Constants.JWT_CLAIM_EMAIL_FIELD_NAME).asString()
         val password = jwtCredential.payload.getClaim(Constants.JWT_CLAIM_PASSWORD_FIELD_NAME).asString()
         val assignedRole = Role.valueOf(jwtCredential.payload.getClaim(Constants.JWT_CLAIM_ROLE_FIELD_NAME).asString())
         val user = userService.getUserByEmail(username) ?: return@validate null

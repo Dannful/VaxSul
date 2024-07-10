@@ -15,7 +15,6 @@ import io.ktor.server.resources.post
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
-import kotlinx.serialization.Serializable
 import org.koin.ktor.ext.inject
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -49,21 +48,16 @@ fun Application.userRoutes() {
             }
         }
         post<Register> {
-            val credentials = call.receiveNullable<Credentials>() ?: run {
-                call.respond(HttpStatusCode.BadRequest, "Username and password are required")
+            val user = call.receiveNullable<User>() ?: run {
+                call.respond(HttpStatusCode.BadRequest, "Invalid user schema")
                 return@post
             }
-            if (userService.getUserByEmail(credentials.username) != null) {
+            if (userService.getUserByEmail(user.name) != null) {
                 call.respond(HttpStatusCode.BadRequest, "User already exists")
                 return@post
             }
             userService.addUser(
-                User(
-                    email = credentials.username,
-                    password = credentials.password,
-                    username = credentials.username,
-                    role = Role.USER
-                )
+                user
             )
             call.respond(HttpStatusCode.OK)
         }
@@ -72,7 +66,7 @@ fun Application.userRoutes() {
                 call.respond(HttpStatusCode.BadRequest, "Username and password are required")
                 return@post
             }
-            val user = userService.getUserByEmail(credentials.username) ?: run {
+            val user = userService.getUserByEmail(credentials.email) ?: run {
                 call.respond(HttpStatusCode.BadRequest, "User not found")
                 return@post
             }
@@ -87,7 +81,7 @@ fun Application.userRoutes() {
                 .withIssuer(
                     jwtData.issuer
                 )
-                .withClaim(Constants.JWT_CLAIM_USERNAME_FIELD_NAME, credentials.username)
+                .withClaim(Constants.JWT_CLAIM_EMAIL_FIELD_NAME, credentials.email)
                 .withClaim(Constants.JWT_CLAIM_PASSWORD_FIELD_NAME, credentials.password)
                 .withClaim(Constants.JWT_CLAIM_ROLE_FIELD_NAME, user.role.name)
                 .withExpiresAt(Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5)))
@@ -98,7 +92,8 @@ fun Application.userRoutes() {
                 )
             call.sessions.set(
                 UserSession(
-                    email = credentials.username
+                    email = credentials.email,
+                    token = token
                 )
             )
             call.respond(HttpStatusCode.OK, token)
