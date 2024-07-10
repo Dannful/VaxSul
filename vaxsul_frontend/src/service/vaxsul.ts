@@ -1,4 +1,5 @@
 import { Credentials } from "@/types/credentials";
+import { User } from "@/types/user";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const vaxSulApi = createApi({
@@ -15,8 +16,8 @@ export const vaxSulApi = createApi({
         responseHandler: "text",
       }),
     }),
-    register: builder.mutation<string, Credentials>({
-      query: (credentials: Credentials) => ({
+    register: builder.mutation<string, User>({
+      query: (credentials: User) => ({
         url: "register",
         method: "POST",
         body: credentials,

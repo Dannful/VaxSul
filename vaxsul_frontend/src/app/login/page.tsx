@@ -4,39 +4,52 @@ import { useState } from "react";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { SerializedError } from "@reduxjs/toolkit";
 import { sha256 } from "@/lib/encryption";
-import Image from 'next/image';
-import vaxsulLogo from '../images/vaxsul.jpg';
-import Link from 'next/link';
+import Image from "next/image";
+import vaxsulLogo from "../images/vaxsul.jpg";
+import Link from "next/link";
 
 export default function Login() {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [login, result] = useLoginMutation();
 
   return (
-    <div className="min-h-screen flex flex-col relative" style={{ background: "#1e426f", backgroundImage: "linear-gradient(to right, #1e426f 50%, #33639e)" }}>
+    <div
+      className="min-h-screen flex flex-col relative"
+      style={{
+        background: "#1e426f",
+        backgroundImage: "linear-gradient(to right, #1e426f 50%, #33639e)",
+      }}
+    >
       <div className="flex justify-end p-4 items-center">
         <span className="text-white mr-2">Não tem uma conta?</span>
         <Link href="/register">
-          <button
-            className="text-white bg-white bg-opacity-20 hover:bg-opacity-30 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out"
-          >
+          <button className="text-white bg-white bg-opacity-20 hover:bg-opacity-30 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out">
             Cadastrar
           </button>
         </Link>
       </div>
       <div className="flex flex-grow items-center justify-between mx-24">
         <div className="flex items-center justify-start w-1/3">
-          <Image src={vaxsulLogo} alt="Vaxsul Logo" width={300} height={300} className="object-contain" />
+          <Image
+            src={vaxsulLogo}
+            alt="Vaxsul Logo"
+            width={300}
+            height={300}
+            className="object-contain"
+          />
         </div>
-        <div className="absolute inset-y-20 left-1/2 bg-gray-400 w-px opacity-20 transform -translate-x-1/2"></div> {}
+        <div className="absolute inset-y-20 left-1/2 bg-gray-400 w-px opacity-20 transform -translate-x-1/2"></div>{" "}
+        {}
         <div className="w-2/5 bg-white bg-opacity-30 p-10 rounded-lg shadow-lg">
-          <h2 className="text-2xl font-bold text-gray-200 mb-6 text-center">Bem-vindo</h2>
+          <h2 className="text-2xl font-bold text-gray-200 mb-6 text-center">
+            Bem-vindo
+          </h2>
           <form
             onSubmit={async (e) => {
               e.preventDefault();
               login({
-                username: username,
+                email: email,
                 password: await sha256(password),
               })
                 .unwrap()
@@ -66,8 +79,8 @@ export default function Login() {
                 className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3 placeholder-gray-500"
                 placeholder="example@email.com"
                 required
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="mb-6">
@@ -100,7 +113,10 @@ export default function Login() {
                   Lembrar-me
                 </label>
               </div>
-              <Link href="/forgot-password" className="text-sm text-blue-200 hover:underline">
+              <Link
+                href="/forgot-password"
+                className="text-sm text-blue-200 hover:underline"
+              >
                 Esqueceu a senha?
               </Link>
             </div>
@@ -113,7 +129,8 @@ export default function Login() {
           </form>
         </div>
       </div>
-      <div className="absolute inset-y-20 left-1/2 bg-gray-400 w-px opacity-40 transform -translate-x-1/2"></div> { }
+      <div className="absolute inset-y-20 left-1/2 bg-gray-400 w-px opacity-40 transform -translate-x-1/2"></div>{" "}
+      {}
     </div>
   );
 }

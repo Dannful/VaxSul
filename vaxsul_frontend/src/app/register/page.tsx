@@ -2,22 +2,23 @@
 import { sha256 } from "@/lib/encryption";
 import { useRegisterMutation } from "@/service/vaxsul";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import Link from 'next/link';
+import { FormEvent, FormEventHandler, useState } from "react";
+import Link from "next/link";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { SerializedError } from "@reduxjs/toolkit";
 
 export default function Register() {
-  const [fullName, setFullName] = useState('');
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [state, setState] = useState('');
-  const [city, setCity] = useState('');
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [state, setState] = useState("");
+  const [city, setCity] = useState("");
 
   const [register, result] = useRegisterMutation();
   const router = useRouter();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
@@ -26,12 +27,12 @@ export default function Register() {
     }
 
     register({
-      username: username,
       password: await sha256(password),
-      fullName: fullName,
+      name: fullName,
       email: email,
       state: state,
       city: city,
+      role: "USER",
     })
       .unwrap()
       .then(() => router.push("/login"))
@@ -39,34 +40,35 @@ export default function Register() {
         console.error("Erro ao registrar:", error);
       });
 
-    setFullName('');
-    setUsername('');
-    setEmail('');
-    setPassword('');
-    setConfirmPassword('');
-    setState('');
-    setCity('');
+    setFullName("");
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+    setState("");
+    setCity("");
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center"
-      style={{ background: 'linear-gradient(to bottom, rgba(30, 66, 111, 0.9), rgba(30, 66, 111, 0.5))' }}>
+    <div
+      className="min-h-screen flex flex-col items-center justify-center"
+      style={{
+        background:
+          "linear-gradient(to bottom, rgba(30, 66, 111, 0.9), rgba(30, 66, 111, 0.5))",
+      }}
+    >
       <div className="absolute top-0 right-0 p-4 flex items-center">
-        <span className="text-white mr-2">Já tem uma conta?</span>
+        <span className="text-white mr-2">Já possui uma conta?</span>
         <Link href="/login">
-          <button
-            className="text-white bg-white bg-opacity-20 hover:bg-opacity-30 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out"
-          >
-            Entrra
+          <button className="text-white bg-white bg-opacity-20 hover:bg-opacity-30 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out">
+            Entra
           </button>
         </Link>
       </div>
       <div className="w-4/5 max-w-lg bg-white bg-opacity-30 p-6 rounded-lg shadow-lg mt-10 mb-20">
-        <h2 className="text-2xl font-bold text-gray-200 mb-6 text-center">Cadastro</h2>
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-4"
-        >
+        <h2 className="text-2xl font-bold text-gray-200 mb-6 text-center">
+          Cadastro
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
           {result.isError && (
             <div
               className="p-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
@@ -130,7 +132,7 @@ export default function Register() {
               htmlFor="confirmPassword"
               className="text-sm font-medium text-gray-200 mb-1"
             >
-              Confirme a Senha
+              Confirme a senha
             </label>
             <input
               type="password"
@@ -195,7 +197,7 @@ export default function Register() {
   );
 }
 
-function getMessageForStatusCode(error) {
+function getMessageForStatusCode(error: FetchBaseQueryError | SerializedError) {
   if (
     "status" in error &&
     typeof error.status === "number" &&
