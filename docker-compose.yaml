@@ -49,11 +49,11 @@ services:
       - 3000:3000
     expose:
       - 3000
+    environment:
+      NEXT_PUBLIC_VAXSUL_SERVER_URL: http://server:8080
     build:
       context: ./vaxsul_frontend
       dockerfile: Dockerfile
-      args:
-        SERVER_URL: http://server:8080
 
 networks:
   default:

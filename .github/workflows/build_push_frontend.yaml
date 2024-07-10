@@ -92,4 +92,4 @@ jobs:
         env:
           REPO: ${{ steps.login-ecr.outputs.registry }}/vaxsul_frontend
         working-directory: ./vaxsul_frontend
-        run: docker buildx build -t $REPO:${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }} -t $REPO:latest --push --build-arg SERVER_URL=${{ secrets.SERVER_URL }} .
+        run: docker buildx build -t $REPO:${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }} -t $REPO:latest --push .
