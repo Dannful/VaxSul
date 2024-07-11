@@ -56,7 +56,7 @@ export default function Register() {
           "linear-gradient(to bottom, rgba(30, 66, 111, 0.9), rgba(30, 66, 111, 0.5))",
       }}
     >
-      <div className="absolute top-0 right-0 p-4 flex items-center">
+      <div className="absolute top-0 right-0 p-5 flex items-center">
         <span className="text-white mr-2">Já possui uma conta?</span>
         <Link href="/login">
           <button className="text-white bg-white bg-opacity-20 hover:bg-opacity-30 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out">
@@ -64,7 +64,7 @@ export default function Register() {
           </button>
         </Link>
       </div>
-      <div className="w-4/5 max-w-lg bg-white bg-opacity-30 p-6 rounded-lg shadow-lg mt-10 mb-20">
+      <div className="w-4/5 max-w-lg bg-white bg-opacity-30 p-6 rounded-lg shadow-lg mt-20 mb-20">
         <h2 className="text-2xl font-bold text-gray-200 mb-6 text-center">
           Cadastro
         </h2>
