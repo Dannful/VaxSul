@@ -29,13 +29,9 @@ export default function Login() {
         </Link>
       </div>
       <div className="md:container md:mx-auto md:grid md:grid-flow-row justify-center p-4">
-        <Image
-          src={vaxsulLogo}
-          alt="Vaxsul Logo"
-          width={300}
-          height={300}
-          className="object-center"
-        />
+        <div className="flex flex-grow justify-center">
+          <Image src={vaxsulLogo} alt="Vaxsul Logo" className="w-64" />
+        </div>
         <div className="bg-white justify-center bg-opacity-30 p-9 rounded-lg shadow-lg">
           <div className="text-2xl font-bold text-gray-200 mb-6 text-center">
             Bem-vindo
