@@ -33,13 +33,9 @@ export default function Login() {
       <div className="flex flex-col md:flex-row flex-grow items-center justify-between mx-4 md:mx-24 mt-12 md:mt-0 space-y-3 md:space-y-0">
         <div className="flex items-center justify-center w-full md:w-1/3 mb-6 md:mb-0 md:order-2 order-1">
           <div className="md:ml-4">
-            <Image
-              src={vaxsulLogo}
-              alt="Vaxsul Logo"
-              width={300}
-              height={300}
-              className="object-contain"
-            />
+            <div className="flex flex-grow justify-center">
+              <Image src={vaxsulLogo} alt="Vaxsul Logo" className="w-64" />
+            </div>
           </div>
         </div>
         <div className="hidden md:block absolute inset-y-20 left-1/2 bg-gray-400 w-px opacity-20 transform -translate-x-1/2"></div>
