@@ -5,7 +5,7 @@ export const VaccineSchema = z.object({
   dose: z.number(),
   pricePerUnit: z.number(),
   amountInStock: z.number(),
-  researchId: z.number().optional(),
+  researchId: z.number().optional().nullable(),
   sellable: z.boolean(),
   name: z.string(),
   description: z.string(),

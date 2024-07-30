@@ -18,7 +18,7 @@ export default function ProductCatalog() {
       maximumPrice: undefined,
       minimumPrice: undefined,
     });
-  });
+  }, [search]);
 
   if (searchResult.isLoading || searchResult.isUninitialized) {
     return <LoadingWidget />;

@@ -28,7 +28,7 @@ export const vaxSulApi = createApi({
     }),
     searchVaccine: builder.mutation<Vaccine[], VaccineSearch>({
       query: (vaccineSearch) => ({
-        url: "vaccines/q",
+        url: "vaccines",
         params: {
           minimumPrice: vaccineSearch.minimumPrice,
           maximumPrice: vaccineSearch.maximumPrice,

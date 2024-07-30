@@ -19,6 +19,7 @@ class VaccinesDao(id: EntityID<Int>) : IntEntity(id) {
     var sellable by Vaccines.sellable
 
     fun toVaccine() = Vaccine(
+        id = id.value,
         pricePerUnit = pricePerUnit,
         amountInStock = amountInStock,
         sellable = sellable,
