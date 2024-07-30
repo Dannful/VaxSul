@@ -23,7 +23,10 @@ class VaccineRoutesKtTest {
         val testVaccine = Vaccine(
             pricePerUnit = 1.0f,
             amountInStock = 3,
-            sellable = false
+            sellable = false,
+            name = "romano",
+            description = "romano",
+            dose = 1
         )
         val newVaccineResponse = scenario.httpClient.post("/vaccines/new") {
             contentType(ContentType.Application.Json)
@@ -109,5 +112,35 @@ class VaccineRoutesKtTest {
         val vaccinesCount = scenario.researchService.getResearches().count()
         assertEquals(HttpStatusCode.OK, deleteVaccineRequest.status)
         assertEquals(0, vaccinesCount)
+    }
+
+    @Test
+    fun `When searches vaccine by name, returns 200 (OK)`() = testApplication {
+        environment {
+            config = ApplicationConfig("test-application.conf")
+        }
+        val scenario = Scenario()
+        scenario.setupClient(this)
+        val vaccine = scenario.addVaccine()
+
+        val getNewVaccineResponse = scenario.httpClient.get("/vaccines/q?name=romano")
+
+        assertEquals(HttpStatusCode.OK, getNewVaccineResponse.status)
+        assertEquals(vaccine, getNewVaccineResponse.body())
+    }
+
+    @Test
+    fun `When searches vaccine by price, returns 200 (OK)`() = testApplication {
+        environment {
+            config = ApplicationConfig("test-application.conf")
+        }
+        val scenario = Scenario()
+        scenario.setupClient(this)
+        val vaccine = scenario.addVaccine()
+
+        val getNewVaccineResponse = scenario.httpClient.get("/vaccines/q?minimumPrice=0&maximumPrice=1")
+
+        assertEquals(HttpStatusCode.OK, getNewVaccineResponse.status)
+        assertEquals(vaccine, getNewVaccineResponse.body())
     }
 }

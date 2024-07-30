@@ -126,7 +126,10 @@ class Scenario {
         val vaccine = Vaccine(
             pricePerUnit = 1.0f,
             amountInStock = 3,
-            sellable = true
+            sellable = true,
+            name = "romano",
+            description = "romano",
+            dose = 1
         )
         vaccineService.addVaccine(vaccine)
         return vaccine

@@ -1,40 +1,45 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-
-// Simulação dos dados de vacinas que viriam do backend 
-const mockVaccines = [
-  { id: 1, name: "Vacina A", description: "Descrição da Vacina A", dose: "Unica" },
-  { id: 2, name: "Vacina B", description: "Descrição da Vacina B", dose: "Unica" },
-  { id: 3, name: "Vacina C", description: "Descrição da Vacina C", dose: "Unica" },
-  { id: 4, name: "Vacina D", description: "Descrição da Vacina D", dose: "Unica" },
-  { id: 5, name: "Vacina E", description: "Descrição da Vacina E", dose: "Unica" },
-  { id: 6, name: "Vacina F", description: "Descrição da Vacina F", dose: "Unica" },
-  { id: 7, name: "Vacina G", description: "Descrição da Vacina G", dose: "Unica" },
-  { id: 8, name: "Vacina H", description: "Descrição da Vacina H", dose: "Unica" },
-  { id: 9, name: "Vacina I", description: "Descrição da Vacina I", dose: "Unica" },
-  { id: 10, name: "Vacina J", description: "Descrição da Vacina J", dose: "Unica" },
-];
+import { useSearchVaccineMutation } from "@/service/vaxsul";
+import { LoadingWidget } from "../components/LoadingWidget";
+import { ErrorWidget } from "../components/ErrorWidget";
 
 export default function ProductCatalog() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [products, setProducts] = useState([]);
   const [filterMenuVisible, setFilterMenuVisible] = useState(false);
   const [accountMenuVisible, setAccountMenuVisible] = useState(false);
+  const [filter, setFilter] = useState("");
+  const [search, searchResult] = useSearchVaccineMutation();
 
   useEffect(() => {
-    // Simula a chamada para buscar produtos (não é necessário com dados mockados)
-    setProducts(mockVaccines);
-  }, []);
+    search({
+      name: undefined,
+      maximumPrice: undefined,
+      minimumPrice: undefined,
+    });
+  });
 
-  const filteredProducts = products.filter(
+  if (searchResult.isLoading || searchResult.isUninitialized) {
+    return <LoadingWidget />;
+  }
+
+  if (searchResult.isError) {
+    return (
+      <ErrorWidget message="Erro ao carregar o catálogo. Por favor, tente novamente mais tarde ou contate o dev lixo que fez essa página." />
+    );
+  }
+
+  const vaccines = searchResult.data;
+
+  const filteredProducts = vaccines.filter(
     (product) =>
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchTerm.toLowerCase())
+      product.description.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const handleLoadMore = () => {
-    // Colocar logica de carregar mais produtos
+    // TODO: Colocar lógica de carregar mais produtos
   };
 
   const toggleAccountMenu = () => {
@@ -50,14 +55,25 @@ export default function ProductCatalog() {
       <div className="flex flex-1">
         <aside className="bg-gray-800 text-white w-32 h-screen flex flex-col items-center">
           <div className="p-2 flex items-center justify-center">
-            <h2 className="text-lg font-semibold text-green-400 pb-2">VaxSul</h2>
+            <h2 className="text-lg font-semibold text-green-400 pb-2">
+              VaxSul
+            </h2>
           </div>
           <hr className="border-green-400 w-full mb-4" />
           <nav className="mt-2 w-full flex-grow">
             <Link href="/outra-rota">
               <div className="flex items-center px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-700 cursor-pointer">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M13.707 10.293a1 1 0 000-1.414L10.414 6.88a1 1 0 10-1.414 1.414L11.586 10l-2.586 2.586a1 1 0 101.414 1.414l3.293-3.293a1 1 0 000-1.414z" clipRule="evenodd" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-2"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M13.707 10.293a1 1 0 000-1.414L10.414 6.88a1 1 0 10-1.414 1.414L11.586 10l-2.586 2.586a1 1 0 101.414 1.414l3.293-3.293a1 1 0 000-1.414z"
+                    clipRule="evenodd"
+                  />
                 </svg>
                 <span className="text-sm">Rotas</span>
               </div>
@@ -106,7 +122,12 @@ export default function ProductCatalog() {
                 className="text-white bg-white bg-opacity-20 hover:bg-opacity-30 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out flex items-center"
                 onClick={toggleAccountMenu}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-2"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
                   <path
                     fillRule="evenodd"
                     d="M10 0a5 5 0 00-5 5c0 2.757 2.243 5 5 5s5-2.243 5-5a5 5 0 00-5-5zm0 7a2 2 0 100-4 2 2 0 000 4z"
@@ -143,20 +164,40 @@ export default function ProductCatalog() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
               {/* Listagem de Vacinas */}
               {filteredProducts.map((product) => (
-                <div key={product.id} className="bg-white bg-opacity-30 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300 ease-in-out">
+                <div
+                  key={product.id}
+                  className="bg-white bg-opacity-30 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300 ease-in-out"
+                >
                   <div className="p-6">
-                    <h3 className="text-lg text-blue-500 font-semibold pb-2">{product.name}</h3>
-                    <p className="text-sm text-gray-700 mb-4">{product.description}</p>
+                    <h3 className="text-lg text-blue-500 font-semibold pb-2">
+                      {product.name}
+                    </h3>
+                    <p className="text-sm text-gray-700 mb-4">
+                      {product.description}
+                    </p>
                     <div className="flex justify-between items-center">
                       <div className="flex items-center space-x-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 100-12 6 6 0 000 12zm0-10a2 2 0 110 4 2 2 0 010-4z" clipRule="evenodd" />
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5 text-gray-500"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 100-12 6 6 0 000 12zm0-10a2 2 0 110 4 2 2 0 010-4z"
+                            clipRule="evenodd"
+                          />
                           <path d="M10 6a2 2 0 100 4 2 2 0 000-4z" />
                         </svg>
-                        <span className="text-sm text-gray-500">{product.dose}</span>
+                        <span className="text-sm text-gray-500">
+                          {product.dose}
+                        </span>
                       </div>
                       <Link href={`/vaccine/${product.id}`}>
-                        <button className="text-xs text-white bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded-full focus:outline-none">Detalhes</button>
+                        <button className="text-xs text-white bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded-full focus:outline-none">
+                          Detalhes
+                        </button>
                       </Link>
                     </div>
                   </div>
@@ -164,7 +205,7 @@ export default function ProductCatalog() {
               ))}
             </div>
 
-            {filteredProducts.length < products.length && (
+            {filteredProducts.length < vaccines.length && (
               <button
                 onClick={handleLoadMore}
                 className="text-white bg-white bg-opacity-20 hover:bg-opacity-30 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out"
