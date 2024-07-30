@@ -123,10 +123,10 @@ class VaccineRoutesKtTest {
         scenario.setupClient(this)
         val vaccine = scenario.addVaccine()
 
-        val getNewVaccineResponse = scenario.httpClient.get("/vaccines/q?name=romano")
+        val getNewVaccineResponse = scenario.httpClient.get("/vaccines?name=romano")
 
         assertEquals(HttpStatusCode.OK, getNewVaccineResponse.status)
-        assertEquals(vaccine, getNewVaccineResponse.body())
+        assertEquals(vaccine, getNewVaccineResponse.body<List<Vaccine>>().first())
     }
 
     @Test
@@ -138,9 +138,24 @@ class VaccineRoutesKtTest {
         scenario.setupClient(this)
         val vaccine = scenario.addVaccine()
 
-        val getNewVaccineResponse = scenario.httpClient.get("/vaccines/q?minimumPrice=0&maximumPrice=1")
+        val getNewVaccineResponse = scenario.httpClient.get("/vaccines?minimumPrice=0&maximumPrice=1")
 
         assertEquals(HttpStatusCode.OK, getNewVaccineResponse.status)
-        assertEquals(vaccine, getNewVaccineResponse.body())
+        assertEquals(vaccine, getNewVaccineResponse.body<List<Vaccine>>().first())
+    }
+
+    @Test
+    fun `When searches invalid vaccine, returns 200 (OK) with empty list`() = testApplication {
+        environment {
+            config = ApplicationConfig("test-application.conf")
+        }
+        val scenario = Scenario()
+        scenario.setupClient(this)
+        scenario.addVaccine()
+
+        val getNewVaccineResponse = scenario.httpClient.get("/vaccines?minimumPrice=3&maximumPrice=6")
+
+        assertEquals(HttpStatusCode.OK, getNewVaccineResponse.status)
+        assertEquals(emptyList(), getNewVaccineResponse.body<List<Vaccine>>())
     }
 }

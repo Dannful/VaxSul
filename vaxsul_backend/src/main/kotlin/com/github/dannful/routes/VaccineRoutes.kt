@@ -21,8 +21,8 @@ fun Application.vaccineRoutes() {
     val vaccineService: VaccineService by inject()
 
     routing {
-        get<Vaccines.Query> { query ->
-            val vaccineQuery = query.vaccineQuery
+        get<Vaccines> { query ->
+            val vaccineQuery = VaccineQuery(name = query.name, minimumPrice = query.minimumPrice, maximumPrice = query.maximumPrice)
             if ((vaccineQuery.minimumPrice ?: 0f) < 0) {
                 call.respond(HttpStatusCode.BadRequest, "Minimum price must be positive")
                 return@get
@@ -34,9 +34,6 @@ fun Application.vaccineRoutes() {
             call.respond(HttpStatusCode.OK, vaccineService.search(vaccineQuery))
         }
         authenticate(Constants.JWT_MANAGER, Constants.SESSION_MANAGER) {
-            get<Vaccines> {
-                this.call.respond(HttpStatusCode.OK, vaccineService.getVaccines())
-            }
             get<Vaccines.Vaccine> {
                 val vaccine = vaccineService.getVaccineById(it.id) ?: run {
                     call.respond(HttpStatusCode.BadRequest, "Vaccine #${it.id} not found")
@@ -63,7 +60,7 @@ fun Application.vaccineRoutes() {
 
 @Serializable
 @Resource("/vaccines")
-private class Vaccines {
+private class Vaccines(val name: String? = null, val minimumPrice: Float? = null, val maximumPrice: Float? = null) {
 
     @Suppress("unused")
     @Resource("{id}")
@@ -72,11 +69,4 @@ private class Vaccines {
     @Suppress("unused")
     @Resource("/new")
     class New(val parent: Vaccines = Vaccines())
-
-    @Suppress("unused")
-    @Resource("/q")
-    class Query(
-        val parent: Vaccines = Vaccines(),
-        val vaccineQuery: VaccineQuery
-    )
 }
