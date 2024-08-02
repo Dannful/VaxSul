@@ -32,6 +32,8 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       ADMIN_USER: ${ADMIN_USER}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      COOKIE_ENCRYPT_KEY: ${COOKIE_ENCRYPT_KEY}
+      COOKIE_SIGNATURE: ${COOKIE_SIGNATURE}
     build:
       context: ./vaxsul_backend
       dockerfile: Dockerfile
