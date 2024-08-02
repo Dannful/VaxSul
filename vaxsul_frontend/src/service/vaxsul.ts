@@ -8,6 +8,8 @@ export const vaxSulApi = createApi({
   reducerPath: "vaxSulApi",
   baseQuery: fetchBaseQuery({
     baseUrl: env("NEXT_PUBLIC_VAXSUL_SERVER_URL"),
+    credentials: "include",
+    mode: "cors",
   }),
   endpoints: (builder) => ({
     login: builder.mutation<string, Credentials>({

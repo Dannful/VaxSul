@@ -1,5 +1,6 @@
 package com.github.dannful.routes
 
+import com.github.dannful.domain.model.UserSession
 import com.github.dannful.domain.model.Vaccine
 import com.github.dannful.domain.model.VaccineQuery
 import com.github.dannful.domain.service.VaccineService
@@ -14,6 +15,7 @@ import io.ktor.server.resources.get
 import io.ktor.server.resources.delete
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.sessions.*
 import kotlinx.serialization.Serializable
 import org.koin.ktor.ext.inject
 
@@ -54,7 +56,6 @@ fun Application.vaccineRoutes() {
                 call.respond(HttpStatusCode.OK)
             }
         }
-
     }
 }
 

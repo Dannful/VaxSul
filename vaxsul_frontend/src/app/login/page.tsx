@@ -7,11 +7,13 @@ import { sha256 } from "@/lib/encryption";
 import Image from "next/image";
 import vaxsulLogo from "../images/vaxsul.jpg";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [login, result] = useLoginMutation();
+  const router = useRouter();
 
   return (
     <div
@@ -46,14 +48,12 @@ export default function Login() {
           <form
             onSubmit={async (e) => {
               e.preventDefault();
-              login({
+              const loginResult = await login({
                 email: email,
                 password: await sha256(password),
-              })
-                .unwrap()
-                .then((token) => {
-                  alert(token);
-                });
+              });
+              if (loginResult.error) return;
+              router.push("/vaccine");
             }}
             className="grid grid-flow-row gap-3"
           >
@@ -132,9 +132,7 @@ export default function Login() {
   );
 }
 
-function getMessageForStatusCode(
-  error: FetchBaseQueryError | SerializedError
-) {
+function getMessageForStatusCode(error: FetchBaseQueryError | SerializedError) {
   if (
     "status" in error &&
     typeof (error as FetchBaseQueryError).status === "number" &&

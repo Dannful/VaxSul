@@ -13,10 +13,8 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: vaxsul
-    volumes:
-      - db_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -41,7 +39,6 @@ services:
       dockerfile: Dockerfile
 
   client:
-    container_name: vaxsul_client
     restart: always
     depends_on:
       - server
@@ -50,7 +47,7 @@ services:
     expose:
       - 3000
     environment:
-      NEXT_PUBLIC_VAXSUL_SERVER_URL: http://server:8080
+      NEXT_PUBLIC_VAXSUL_SERVER_URL: ${VAXSUL_SERVER_URL}
     build:
       context: ./vaxsul_frontend
       dockerfile: Dockerfile
@@ -58,6 +55,3 @@ services:
 networks:
   default:
     name: vaxsul
-
-volumes:
-  db_data: null

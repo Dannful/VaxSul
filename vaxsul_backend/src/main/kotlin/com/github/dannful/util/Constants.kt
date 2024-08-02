@@ -1,5 +1,7 @@
 package com.github.dannful.util
 
+import java.util.concurrent.TimeUnit
+
 object Constants {
 
     const val AUTH_SESSION_COOKIE = "user-session"
@@ -19,4 +21,5 @@ object Constants {
     const val JWT_CLAIM_EMAIL_FIELD_NAME = "email"
     const val JWT_CLAIM_PASSWORD_FIELD_NAME = "password"
     const val JWT_CLAIM_ROLE_FIELD_NAME = "role"
+    const val SESSION_DURATION_SECONDS = 5 * 60L
 }

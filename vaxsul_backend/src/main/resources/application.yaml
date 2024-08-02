@@ -11,6 +11,9 @@ auth:
     issuer: "http://0.0.0.0:8080/"
     audience: "http://0.0.0.0:8080/"
     realm: "Access to VacSul"
+  cookie:
+    encrypt_key: $COOKIE_ENCRYPT_KEY
+    sign_key: $COOKIE_SIGNATURE
   admin:
     user: $ADMIN_USER
     password: $ADMIN_PASSWORD

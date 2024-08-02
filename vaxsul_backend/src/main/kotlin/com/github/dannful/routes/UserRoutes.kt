@@ -84,7 +84,7 @@ fun Application.userRoutes() {
                 .withClaim(Constants.JWT_CLAIM_EMAIL_FIELD_NAME, credentials.email)
                 .withClaim(Constants.JWT_CLAIM_PASSWORD_FIELD_NAME, credentials.password)
                 .withClaim(Constants.JWT_CLAIM_ROLE_FIELD_NAME, user.role.name)
-                .withExpiresAt(Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5)))
+                .withExpiresAt(Date(System.currentTimeMillis() + Constants.SESSION_DURATION_SECONDS * 1000))
                 .sign(
                     Algorithm.HMAC256(
                         jwtData.secret

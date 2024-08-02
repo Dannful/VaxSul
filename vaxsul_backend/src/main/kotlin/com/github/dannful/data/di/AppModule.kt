@@ -10,6 +10,8 @@ import com.github.dannful.domain.service.ResearchService
 import com.github.dannful.domain.service.UserService
 import com.github.dannful.domain.service.VaccineService
 import io.ktor.server.application.*
+import io.ktor.server.sessions.*
+import io.ktor.util.*
 import org.jetbrains.exposed.sql.Database
 import org.koin.dsl.module
 
@@ -40,6 +42,13 @@ fun appModule(environment: ApplicationEnvironment) = module {
             audience = environment.config.property("auth.jwt.audience").getString(),
             realm = environment.config.property("auth.jwt.realm").getString(),
             secret = environment.config.property("auth.jwt.secret").getString(),
+        )
+    }
+
+    single {
+        SessionTransportTransformerEncrypt(
+            hex(environment.config.property("auth.cookie.encrypt_key").getString()),
+            hex(environment.config.property("auth.cookie.sign_key").getString())
         )
     }
 

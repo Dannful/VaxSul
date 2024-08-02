@@ -26,19 +26,18 @@ export default function Register() {
       return;
     }
 
-    register({
+    const registerResult = await register({
       password: await sha256(password),
       name: fullName,
       email: email,
       state: state,
       city: city,
       role: "USER",
-    })
-      .unwrap()
-      .then(() => router.push("/login"))
-      .catch((error) => {
-        console.error("Erro ao registrar:", error);
-      });
+    });
+    if (registerResult.error) {
+      console.error("Erro ao registrar: ", registerResult.error);
+    }
+    router.push("/login");
 
     setFullName("");
     setEmail("");
