@@ -120,7 +120,7 @@ class VaccineRoutesKtTest {
             config = ApplicationConfig("test-application.conf")
         }
         val scenario = Scenario()
-        scenario.setupClient(this)
+        scenario.setupClient(this, role = Role.USER)
         val vaccine = scenario.addVaccine()
 
         val getNewVaccineResponse = scenario.httpClient.get("/vaccines?name=romano")
@@ -135,7 +135,7 @@ class VaccineRoutesKtTest {
             config = ApplicationConfig("test-application.conf")
         }
         val scenario = Scenario()
-        scenario.setupClient(this)
+        scenario.setupClient(this, role = Role.USER)
         val vaccine = scenario.addVaccine()
 
         val getNewVaccineResponse = scenario.httpClient.get("/vaccines?minimumPrice=0&maximumPrice=1")
@@ -150,7 +150,7 @@ class VaccineRoutesKtTest {
             config = ApplicationConfig("test-application.conf")
         }
         val scenario = Scenario()
-        scenario.setupClient(this)
+        scenario.setupClient(this, role = Role.USER)
         scenario.addVaccine()
 
         val getNewVaccineResponse = scenario.httpClient.get("/vaccines?minimumPrice=3&maximumPrice=6")
