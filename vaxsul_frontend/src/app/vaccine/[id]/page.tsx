@@ -7,12 +7,15 @@ import { ErrorWidget } from '../../components/ErrorWidget';
 
 export default function VaccineDetails() {
   const { id } = useParams();
+  const validId = !Array.isArray(id) && id;
 
-  if (!id || Array.isArray(id)) {
+  const { data: vaccine, error, isLoading } = useGetVaccineByIdQuery(Number(validId), {
+    skip: !validId,
+  });
+
+  if (!validId) {
     return <p>Vacina não encontrada.</p>;
   }
-
-  const { data: vaccine, error, isLoading } = useGetVaccineByIdQuery(Number(id));
 
   if (isLoading) return <LoadingWidget />;
   if (error) return <ErrorWidget message="Erro ao carregar os detalhes da vacina." />;
