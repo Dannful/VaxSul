@@ -12,6 +12,7 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import org.koin.ktor.ext.inject
 
 fun Application.configureSecurity() {
@@ -107,5 +108,11 @@ private fun JWTAuthenticationProvider.Config.configureJWT(userService: UserServi
     }
     challenge { _, _ ->
         call.respond(HttpStatusCode.Unauthorized, "Token is not valid or has expired")
+    }
+}
+
+fun Route.authRole(role: Role, build: Route.() -> Unit): Route {
+    return authenticate(*role.getParentRoles().map { it.authString }.toTypedArray().flatten().toTypedArray()) {
+        build()
     }
 }

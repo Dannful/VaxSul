@@ -1,16 +1,15 @@
 package com.github.dannful.routes
 
 import com.github.dannful.domain.model.Research
+import com.github.dannful.domain.model.Role
 import com.github.dannful.domain.service.ResearchService
-import com.github.dannful.util.Constants
+import com.github.dannful.plugins.authRole
 import io.ktor.http.*
 import io.ktor.resources.*
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
 import io.ktor.server.request.*
+import io.ktor.server.resources.*
 import io.ktor.server.resources.post
-import io.ktor.server.resources.get
-import io.ktor.server.resources.delete
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
@@ -20,18 +19,13 @@ fun Application.researchRoutes() {
     val researchService: ResearchService by inject()
 
     routing {
-        authenticate(Constants.JWT_RESEARCH_LEAD, Constants.SESSION_RESEARCH_LEAD) {
+        authRole(Role.RESEARCH_LEAD) {
             delete<Researches.Research> {
                 researchService.deleteResearch(it.id)
                 call.respond(HttpStatusCode.OK)
             }
         }
-        authenticate(
-            Constants.JWT_RESEARCH_LEAD,
-            Constants.JWT_RESEARCHER,
-            Constants.SESSION_RESEARCH_LEAD,
-            Constants.SESSION_RESEARCHER
-        ) {
+        authRole(Role.RESEARCHER) {
             post<Researches.New> {
                 val vaccine = call.receiveNullable<Research>() ?: run {
                     call.respond(HttpStatusCode.BadRequest)
@@ -58,9 +52,11 @@ fun Application.researchRoutes() {
 @Resource("/researches")
 class Researches {
 
+    @Suppress("unused")
     @Resource("{id}")
     class Research(val parent: Researches = Researches(), val id: Int)
 
+    @Suppress("unused")
     @Resource("/new")
     class New(val parent: Researches = Researches())
 }
