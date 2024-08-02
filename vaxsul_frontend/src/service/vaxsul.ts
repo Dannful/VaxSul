@@ -35,9 +35,13 @@ export const vaxSulApi = createApi({
           minimumPrice: vaccineSearch.minimumPrice,
           maximumPrice: vaccineSearch.maximumPrice,
           name: vaccineSearch.name,
+          id: vaccineSearch.id,
         },
       }),
       transformResponse: (response) => VaccineSchema.array().parse(response),
+    }),
+    getVaccineById: builder.query<Vaccine, number>({
+      query: (id) => `vaccines/${id}`,
     }),
   }),
 });
@@ -46,4 +50,5 @@ export const {
   useLoginMutation,
   useRegisterMutation,
   useSearchVaccineMutation,
+  useGetVaccineByIdQuery
 } = vaxSulApi;

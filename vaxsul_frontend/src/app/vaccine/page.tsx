@@ -1,9 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { useSearchVaccineMutation } from "@/service/vaxsul";
 import { LoadingWidget } from "../components/LoadingWidget";
 import { ErrorWidget } from "../components/ErrorWidget";
+import Link from "next/link";
 
 export default function ProductCatalog() {
   const [searchTerm, setSearchTerm] = useState("");
