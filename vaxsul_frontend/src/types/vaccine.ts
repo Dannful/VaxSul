@@ -15,6 +15,7 @@ export const VaccineSearchSchema = z.object({
   minimumPrice: z.number().optional(),
   maximumPrice: z.number().optional(),
   name: z.string().optional(),
+  id: z.number().optional(),
 });
 
 export type Vaccine = z.infer<typeof VaccineSchema>;

@@ -2,7 +2,6 @@ services:
   db:
     container_name: postgres
     image: postgres
-    restart: always
     pull_policy: always
     expose:
       - 5432
@@ -14,13 +13,12 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: vaxsul
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
   server:
-    restart: always
     depends_on:
       - db
     ports:
@@ -39,7 +37,6 @@ services:
       dockerfile: Dockerfile
 
   client:
-    restart: always
     depends_on:
       - server
     ports:
