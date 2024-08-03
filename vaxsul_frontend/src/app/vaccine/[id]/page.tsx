@@ -14,12 +14,12 @@ export default function VaccineDetails() {
   });
 
   if (!validId) {
-    return <p>Vacina não encontrada.</p>;
+    return <p className="text-black">Vacina não encontrada.</p>;
   }
 
   if (isLoading) return <LoadingWidget />;
   if (error) return <ErrorWidget message="Erro ao carregar os detalhes da vacina." />;
-  if (!vaccine) return <p>Vacina não encontrada.</p>;
+  if (!vaccine) return <p className="text-black">Vacina não encontrada.</p>;
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -28,9 +28,9 @@ export default function VaccineDetails() {
       </header>
       <main className="flex-1 p-6">
         <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-2xl font-semibold mb-4">{vaccine.name}</h2>
-          <p className="text-lg mb-4">Descrição: {vaccine.description}</p>
-          <p className="text-lg mb-4">Dose: {vaccine.dose}</p>
+          <h2 className="text-2xl font-semibold mb-4 text-black">{vaccine.name}</h2>
+          <p className="text-lg mb-4 text-black">Descrição: {vaccine.description}</p>
+          <p className="text-lg mb-4 text-black">Dose: {vaccine.dose}</p>
         </div>
       </main>
       <footer className="bg-gray-700 text-white text-center p-4">
