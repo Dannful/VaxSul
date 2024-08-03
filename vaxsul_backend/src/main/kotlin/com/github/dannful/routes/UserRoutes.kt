@@ -17,7 +17,6 @@ import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
 import org.koin.ktor.ext.inject
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 fun Application.userRoutes() {
     val userService: UserService by inject()
@@ -59,6 +58,14 @@ fun Application.userRoutes() {
             userService.addUser(
                 user
             )
+            call.respond(HttpStatusCode.OK)
+        }
+        post<Logout> {
+            call.sessions.get<UserSession>() ?: run {
+                call.respond(HttpStatusCode.BadRequest, "User is not logged in")
+                return@post
+            }
+            call.sessions.clear<UserSession>()
             call.respond(HttpStatusCode.OK)
         }
         post<Login> {
@@ -108,11 +115,16 @@ private class Register
 private class Users {
 
     @Resource("{id}")
+    @Suppress("unused")
     class User(val parent: Users = Users(), val id: Int)
 
     @Resource("/new")
+    @Suppress("unused")
     class New(val parent: Users = Users())
 }
 
 @Resource("/login")
 private class Login
+
+@Resource("/logout")
+private class Logout

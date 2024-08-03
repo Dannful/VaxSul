@@ -1,9 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useSearchVaccineMutation } from "@/service/vaxsul";
+import { useLogoutMutation, useSearchVaccineMutation } from "@/service/vaxsul";
 import { LoadingWidget } from "../components/LoadingWidget";
 import { ErrorWidget } from "../components/ErrorWidget";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function ProductCatalog() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -11,6 +12,8 @@ export default function ProductCatalog() {
   const [accountMenuVisible, setAccountMenuVisible] = useState(false);
   const [filter, setFilter] = useState("");
   const [search, searchResult] = useSearchVaccineMutation();
+  const [logout, logoutResult] = useLogoutMutation();
+  const router = useRouter();
 
   useEffect(() => {
     search({
@@ -51,7 +54,10 @@ export default function ProductCatalog() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div
+      className="flex flex-col min-h-screen"
+      onClick={() => setAccountMenuVisible(false)}
+    >
       <div className="flex flex-1">
         <aside className="bg-gray-800 text-white w-32 h-screen flex flex-col items-center">
           <div className="p-2 flex items-center justify-center">
@@ -120,7 +126,10 @@ export default function ProductCatalog() {
             <div className="relative">
               <button
                 className="text-white bg-white bg-opacity-20 hover:bg-opacity-30 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out flex items-center"
-                onClick={toggleAccountMenu}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  toggleAccountMenu();
+                }}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -142,19 +151,31 @@ export default function ProductCatalog() {
                 Conta
               </button>
               {accountMenuVisible && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-10">
-                  <a
-                    href="/profile"
-                    className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-                  >
-                    Ver Perfil
-                  </a>
-                  <a
-                    href="/logout"
-                    className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-                  >
-                    Sair
-                  </a>
+                <div className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                  <ul className="py-2 text-sm text-gray-700 dark:text-gray-200">
+                    <li>
+                      <button
+                        className="btn w-full text-left block px-4 py-2 text-gray-800 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                        }}
+                      >
+                        Ver Perfil
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        className="btn w-full text-left block px-4 py-2 text-gray-800 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                        onClick={async (event) => {
+                          event.stopPropagation();
+                          await logout();
+                          router.push("/login");
+                        }}
+                      >
+                        Sair
+                      </button>
+                    </li>
+                  </ul>
                 </div>
               )}
             </div>

@@ -20,6 +20,12 @@ export const vaxSulApi = createApi({
         responseHandler: "text",
       }),
     }),
+    logout: builder.mutation<void, void>({
+      query: () => ({
+        url: "logout",
+        method: "POST",
+      }),
+    }),
     register: builder.mutation<string, User>({
       query: (credentials: User) => ({
         url: "register",
@@ -48,7 +54,8 @@ export const vaxSulApi = createApi({
 
 export const {
   useLoginMutation,
+  useLogoutMutation,
   useRegisterMutation,
   useSearchVaccineMutation,
-  useGetVaccineByIdQuery
+  useGetVaccineByIdQuery,
 } = vaxSulApi;

@@ -228,4 +228,30 @@ class UserRoutesKtTest {
 
             assertEquals(HttpStatusCode.BadRequest, request.status)
         }
+
+    @Test
+    fun `When client logs out of session, returns 200 (OK)`() =
+        testApplication {
+            environment {
+                config = ApplicationConfig("test-application.conf")
+            }
+            val scenario = Scenario()
+            scenario.setupClient(this, role = Role.USER)
+            val response = scenario.httpClient.post("/logout")
+
+            assertEquals(HttpStatusCode.OK, response.status)
+        }
+
+    @Test
+    fun `When client logs out without session, returns 400 (Bad Request)`() =
+        testApplication {
+            environment {
+                config = ApplicationConfig("test-application.conf")
+            }
+            val scenario = Scenario()
+            scenario.setupClient(this)
+            val response = scenario.httpClient.post("/logout")
+
+            assertEquals(HttpStatusCode.BadRequest, response.status)
+        }
 }
