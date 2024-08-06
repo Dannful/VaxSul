@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useLogoutMutation, useSearchVaccineMutation } from "@/service/vaxsul";
+import { useSearchVaccineMutation } from "@/service/vaxsul";
 import { LoadingWidget } from "../components/LoadingWidget";
 import { ErrorWidget } from "../components/ErrorWidget";
 import Link from "next/link";
@@ -12,8 +12,8 @@ export default function ProductCatalog() {
   const [accountMenuVisible, setAccountMenuVisible] = useState(false);
   const [filter, setFilter] = useState("");
   const [search, searchResult] = useSearchVaccineMutation();
-  const [logout, logoutResult] = useLogoutMutation();
   const router = useRouter();
+  const [visibleCount, setVisibleCount] = useState(20);
 
   useEffect(() => {
     search({
@@ -37,12 +37,13 @@ export default function ProductCatalog() {
 
   const filteredProducts = vaccines.filter(
     (product) =>
+      product.sellable === true &&
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.description.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  ).slice(0, visibleCount);
 
   const handleLoadMore = () => {
-    // TODO: Colocar lógica de carregar mais produtos
+    setVisibleCount(prevCount => prevCount + 10);
   };
 
   const toggleAccountMenu = () => {
@@ -53,19 +54,6 @@ export default function ProductCatalog() {
     setFilterMenuVisible(!filterMenuVisible);
   };
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      document.cookie.split(";").forEach((c) => {
-        document.cookie = c.replace(/^ +/, "").replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`);
-      });
-      localStorage.clear();
-      sessionStorage.clear();
-      router.push("/login");
-    } catch (error) {
-      console.error("Erro ao sair:", error);
-    }
-  };
 
   return (
     <div
@@ -139,13 +127,6 @@ export default function ProductCatalog() {
             </div>
 
             <div className="flex items-center space-x-4">
-              <Link href="/cart">
-                <button
-                  className="text-white bg-white bg-opacity-20 hover:bg-opacity-30 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out"
-                >
-                  Carrinho
-                </button>
-              </Link>
               <div className="relative">
                 <button
                   className="text-white bg-white bg-opacity-20 hover:bg-opacity-30 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out flex items-center"
@@ -190,9 +171,7 @@ export default function ProductCatalog() {
                         <button
                           className="btn w-full text-left block px-4 py-2 text-gray-800 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                           onClick={async (event) => {
-                            event.stopPropagation();
-                            await logout();
-                            router.push("/login");
+                            router.push("/logout");
                           }}
                         >
                           Sair

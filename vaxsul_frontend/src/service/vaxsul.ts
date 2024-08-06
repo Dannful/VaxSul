@@ -58,9 +58,4 @@ export const {
   useRegisterMutation,
   useSearchVaccineMutation,
   useGetVaccineByIdQuery,
-  /*
-  useGetCartItemsMutation,
-  useUpdateCartItemQuantityMutation,
-  useRemoveCartItemMutation
-  */
 } = vaxSulApi;
