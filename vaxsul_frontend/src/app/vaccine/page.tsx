@@ -53,6 +53,20 @@ export default function ProductCatalog() {
     setFilterMenuVisible(!filterMenuVisible);
   };
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+      document.cookie.split(";").forEach((c) => {
+        document.cookie = c.replace(/^ +/, "").replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`);
+      });
+      localStorage.clear();
+      sessionStorage.clear();
+      router.push("/login");
+    } catch (error) {
+      console.error("Erro ao sair:", error);
+    }
+  };
+
   return (
     <div
       className="flex flex-col min-h-screen"
@@ -109,13 +123,13 @@ export default function ProductCatalog() {
                     {/* Criar uma função de filtro para os filtros*/}
                     <button
                       onClick={() => setFilter("filtro1")}
-                      className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
                       Filtro 1
                     </button>
                     <button
                       onClick={() => setFilter("filtro2")}
-                      className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
                       Filtro 2
                     </button>
@@ -123,61 +137,71 @@ export default function ProductCatalog() {
                 )}
               </div>
             </div>
-            <div className="relative">
-              <button
-                className="text-white bg-white bg-opacity-20 hover:bg-opacity-30 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out flex items-center"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  toggleAccountMenu();
-                }}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-2"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
+
+            <div className="flex items-center space-x-4">
+              <Link href="/cart">
+                <button
+                  className="text-white bg-white bg-opacity-20 hover:bg-opacity-30 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out"
                 >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 0a5 5 0 00-5 5c0 2.757 2.243 5 5 5s5-2.243 5-5a5 5 0 00-5-5zm0 7a2 2 0 100-4 2 2 0 000 4z"
-                    clipRule="evenodd"
-                  />
-                  <path
-                    fillRule="evenodd"
-                    d="M18 18a1 1 0 01-1-1c0-3.859-3.141-7-7-7s-7 3.141-7 7a1 1 0 01-1 1H0a2 2 0 002 2h16a2 2 0 002-2h-1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                Conta
-              </button>
-              {accountMenuVisible && (
-                <div className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                  <ul className="py-2 text-sm text-gray-700 dark:text-gray-200">
-                    <li>
-                      <button
-                        className="btn w-full text-left block px-4 py-2 text-gray-800 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                        }}
-                      >
-                        Ver Perfil
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        className="btn w-full text-left block px-4 py-2 text-gray-800 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                        onClick={async (event) => {
-                          event.stopPropagation();
-                          await logout();
-                          router.push("/login");
-                        }}
-                      >
-                        Sair
-                      </button>
-                    </li>
-                  </ul>
-                </div>
-              )}
+                  Carrinho
+                </button>
+              </Link>
+              <div className="relative">
+                <button
+                  className="text-white bg-white bg-opacity-20 hover:bg-opacity-30 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out flex items-center"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    toggleAccountMenu();
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 mr-2"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 0a5 5 0 00-5 5c0 2.757 2.243 5 5 5s5-2.243 5-5a5 5 0 00-5-5zm0 7a2 2 0 100-4 2 2 0 000 4z"
+                      clipRule="evenodd"
+                    />
+                    <path
+                      fillRule="evenodd"
+                      d="M18 18a1 1 0 01-1-1c0-3.859-3.141-7-7-7s-7 3.141-7 7a1 1 0 01-1 1H0a2 2 0 002 2h16a2 2 0 002-2h-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Conta
+                </button>
+                {accountMenuVisible && (
+                  <div className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <ul className="py-2 text-sm text-gray-700 dark:text-gray-200">
+                      <li>
+                        <button
+                          className="btn w-full text-left block px-4 py-2 text-gray-800 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                          }}
+                        >
+                          Ver Perfil
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className="btn w-full text-left block px-4 py-2 text-gray-800 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                          onClick={async (event) => {
+                            event.stopPropagation();
+                            await logout();
+                            router.push("/login");
+                          }}
+                        >
+                          Sair
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -237,7 +261,6 @@ export default function ProductCatalog() {
           </div>
         </div>
       </div>
-
       <footer className="bg-gray-700 text-white text-center p-2">
         © 2024 VaxSul. Todos os direitos reservados.
       </footer>
