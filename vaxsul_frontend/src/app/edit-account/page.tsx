@@ -1,17 +1,18 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function EditAccount() {
   const router = useRouter();
-  
+
   // placeholders
   const [user, setUser] = useState({
     fullName: "Nome do Usuário",
     email: "email@exemplo.com",
     state: "Estado",
     city: "Cidade",
-    role: "Papel"
+    role: "Papel",
   });
 
   const handleChange = (e) => {
@@ -27,98 +28,125 @@ export default function EditAccount() {
 
   const handleCancel = () => {
     // Volta para a página anterior
-    router.back();
-  }
+    router.push("/vaccine");
+  };
 
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center"
-      style={{
-        background:
-          "linear-gradient(to bottom, rgba(30, 66, 111, 0.9), rgba(30, 66, 111, 0.5))",
-      }}
-    >
-      <div className="w-4/5 max-w-lg bg-white bg-opacity-30 p-8 rounded-lg shadow-lg mt-20 mb-20">
-        <h2 className="text-2xl font-bold text-gray-200 mb-6 text-center">
-          Editar Informações do Usuário
-        </h2>
-        <div className="space-y-6">
-          <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-200 mb-2">
-              Nome Completo
-            </label>
-            <input
-              type="text"
-              name="fullName"
-              value={user.fullName}
-              onChange={handleChange}
-              className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg p-4"
-            />
+    <div className="flex flex-col min-h-screen">
+      <div className="flex flex-1">
+        <aside className="bg-gray-800 text-white w-32 flex flex-col items-center h-screen sticky top-0">
+          <div className="p-2 flex items-center justify-center">
+            <h2 className="text-lg font-semibold text-green-400 pb-2">Perfil</h2>
           </div>
-          <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-200 mb-2">
-              E-mail
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={user.email}
-              onChange={handleChange}
-              className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg p-4"
-            />
-          </div>
-          <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-200 mb-2">
-              Estado
-            </label>
-            <input
-              type="text"
-              name="state"
-              value={user.state}
-              onChange={handleChange}
-              className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg p-4"
-            />
-          </div>
-          <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-200 mb-2">
-              Cidade
-            </label>
-            <input
-              type="text"
-              name="city"
-              value={user.city}
-              onChange={handleChange}
-              className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg p-4"
-            />
-          </div>
-          <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-200 mb-2">
-              Papel
-            </label>
-            <input
-              type="text"
-              name="role"
-              value={user.role}
-              onChange={handleChange}
-              className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg p-4"
-            />
-          </div>
-          <div className="flex justify-between mt-10">
-            <button
-              onClick={handleCancel}
-              className="text-white bg-[#4a90e2] bg-opacity-90 hover:bg-opacity-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out transform hover:scale-105"
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={handleSave}
-              className="text-white bg-[#9dca46] bg-opacity-90 hover:bg-opacity-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out transform hover:scale-105"
-            >
-              Salvar
-            </button>
+          <hr className="border-green-400 w-full mb-4" />
+          <nav className="mt-2 w-full flex-grow">
+          <Link href="/outra-rota">
+              <div className="flex items-center px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-700 cursor-pointer">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-2"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M13.707 10.293a1 1 0 000-1.414L10.414 6.88a1 1 0 10-1.414 1.414L11.586 10l-2.586 2.586a1 1 0 101.414 1.414l3.293-3.293a1 1 0 000-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span className="text-sm">Rotas</span>
+              </div>
+            </Link>
+          </nav>
+        </aside>
+
+        <div className="flex-1 bg-gray-200 relative pb-16 flex justify-center items-start">
+          <div className="w-4/5 max-w-lg bg-white bg-opacity-30 p-8 rounded-lg shadow-lg mt-10">
+            <h2 className="text-2xl font-bold text-gray-700 mb-6 text-center">
+              Editar Informações do Usuário
+            </h2>
+            <div className="space-y-6">
+              <div className="flex flex-col">
+                <label className="text-sm font-medium text-gray-700 mb-2">
+                  Nome Completo
+                </label>
+                <input
+                  type="text"
+                  name="fullName"
+                  value={user.fullName}
+                  onChange={handleChange}
+                  className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg p-4"
+                />
+              </div>
+              <div className="flex flex-col">
+                <label className="text-sm font-medium text-gray-700 mb-2">
+                  E-mail
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={user.email}
+                  onChange={handleChange}
+                  className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg p-4"
+                />
+              </div>
+              <div className="flex flex-col">
+                <label className="text-sm font-medium text-gray-700 mb-2">
+                  Estado
+                </label>
+                <input
+                  type="text"
+                  name="state"
+                  value={user.state}
+                  onChange={handleChange}
+                  className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg p-4"
+                />
+              </div>
+              <div className="flex flex-col">
+                <label className="text-sm font-medium text-gray-700 mb-2">
+                  Cidade
+                </label>
+                <input
+                  type="text"
+                  name="city"
+                  value={user.city}
+                  onChange={handleChange}
+                  className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg p-4"
+                />
+              </div>
+              <div className="flex flex-col">
+                <label className="text-sm font-medium text-gray-700 mb-2">
+                  Papel
+                </label>
+                <input
+                  type="text"
+                  name="role"
+                  value={user.role}
+                  onChange={handleChange}
+                  className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg p-4"
+                />
+              </div>
+              <div className="flex justify-between mt-10">
+                <button
+                  onClick={handleCancel}
+                  className="text-white bg-[#4a90e2] bg-opacity-90 hover:bg-opacity-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out transform hover:scale-105"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleSave}
+                  className="text-white bg-[#9dca46] bg-opacity-90 hover:bg-opacity-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out transform hover:scale-105"
+                >
+                  Salvar
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+      <footer className="bg-gray-700 text-white text-center p-2">
+        © 2024 VaxSul. Todos os direitos reservados.
+      </footer>
     </div>
   );
 }
