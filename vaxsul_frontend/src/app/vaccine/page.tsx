@@ -157,16 +157,17 @@ export default function ProductCatalog() {
                 {accountMenuVisible && (
                   <div className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                     <ul className="py-2 text-sm text-gray-700 dark:text-gray-200">
-                      <li>
-                        <button
-                          className="btn w-full text-left block px-4 py-2 text-gray-800 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                          }}
-                        >
-                          Ver Perfil
-                        </button>
-                      </li>
+                    <li>
+                     <button
+                        className="btn w-full text-left block px-4 py-2 text-gray-800 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          router.push("/account");
+                        }}
+                      >
+                       Ver Perfil
+                      </button>
+                    </li>
                       <li>
                         <button
                           className="btn w-full text-left block px-4 py-2 text-gray-800 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
