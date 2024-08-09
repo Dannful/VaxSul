@@ -14,6 +14,7 @@ class ResearchesDao(id: EntityID<Int>) : IntEntity(id) {
     var status by Researches.status
 
     fun toResearch() = Research(
+        id = id.value,
         startDate = startDate,
         status = status
     )

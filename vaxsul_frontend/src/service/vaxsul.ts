@@ -1,6 +1,7 @@
 import { Credentials } from "@/types/credentials";
 import { User } from "@/types/user";
 import { Vaccine, VaccineSchema, VaccineSearch } from "@/types/vaccine";
+import { Research } from "@/types/research";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { env } from "next-runtime-env";
 
@@ -49,6 +50,12 @@ export const vaxSulApi = createApi({
     getVaccineById: builder.query<Vaccine, number>({
       query: (id) => `vaccines/${id}`,
     }),
+    getAllResearch: builder.query<Research[], void>({
+      query: () => "researches",
+    }),
+    getResearchById: builder.query<Research, number>({
+      query: (id) => `researches/${id}`,
+    }),
   }),
 });
 
@@ -58,4 +65,6 @@ export const {
   useRegisterMutation,
   useSearchVaccineMutation,
   useGetVaccineByIdQuery,
+  useGetAllResearchQuery,
+  useGetResearchByIdQuery, 
 } = vaxSulApi;
