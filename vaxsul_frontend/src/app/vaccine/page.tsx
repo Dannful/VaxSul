@@ -5,6 +5,7 @@ import { LoadingWidget } from "../components/LoadingWidget";
 import { ErrorWidget } from "../components/ErrorWidget";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Footer from "@/app/components/Footer";
 
 export default function ProductCatalog() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -13,7 +14,7 @@ export default function ProductCatalog() {
   const [filter, setFilter] = useState("");
   const [search, searchResult] = useSearchVaccineMutation();
   const router = useRouter();
-  const [visibleCount, setVisibleCount] = useState(20);
+  const [visibleCount, setVisibleCount] = useState(12);
 
   useEffect(() => {
     search({
@@ -43,7 +44,7 @@ export default function ProductCatalog() {
   ).slice(0, visibleCount);
 
   const handleLoadMore = () => {
-    setVisibleCount(prevCount => prevCount + 10);
+    setVisibleCount(prevCount => prevCount + 8);
   };
 
   const toggleAccountMenu = () => {
@@ -60,9 +61,9 @@ export default function ProductCatalog() {
       className="flex flex-col min-h-screen"
       onClick={() => setAccountMenuVisible(false)}
     >
-      <div className="flex flex-1">
-        <aside className="bg-gray-800 text-white w-32 h-screen flex flex-col items-center">
-          <div className="p-2 flex items-center justify-center">
+      <div className="flex flex-1 ">
+        <aside className="bg-gray-800 text-white w-32 flex flex-col items-center overflow-auto">
+          <div className="p-2 flex items-center justify-center w-full">
             <h2 className="text-lg font-semibold text-green-400 pb-2">
               VaxSul
             </h2>
@@ -157,17 +158,17 @@ export default function ProductCatalog() {
                 {accountMenuVisible && (
                   <div className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                     <ul className="py-2 text-sm text-gray-700 dark:text-gray-200">
-                    <li>
-                     <button
-                        className="btn w-full text-left block px-4 py-2 text-gray-800 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          router.push("/account");
-                        }}
-                      >
-                       Ver Perfil
-                      </button>
-                    </li>
+                      <li>
+                        <button
+                          className="btn w-full text-left block px-4 py-2 text-gray-800 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            router.push("/account");
+                          }}
+                        >
+                          Ver Perfil
+                        </button>
+                      </li>
                       <li>
                         <button
                           className="btn w-full text-left block px-4 py-2 text-gray-800 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
@@ -233,7 +234,7 @@ export default function ProductCatalog() {
             {filteredProducts.length < vaccines.length && (
               <button
                 onClick={handleLoadMore}
-                className="text-white bg-white bg-opacity-20 hover:bg-opacity-30 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out"
+                className="text-white bg-blue-500 bg-opacity-80 hover:bg-opacity-30 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out"
               >
                 Carregar Mais
               </button>
@@ -241,9 +242,7 @@ export default function ProductCatalog() {
           </div>
         </div>
       </div>
-      <footer className="bg-gray-700 text-white text-center p-2">
-        © 2024 VaxSul. Todos os direitos reservados.
-      </footer>
+      <Footer />
     </div>
   );
 }
