@@ -2,6 +2,7 @@ package com.github.dannful.data.entity
 
 import com.github.dannful.domain.model.Role
 import org.jetbrains.exposed.dao.id.IntIdTable
+import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 
 object Users : IntIdTable() {
 
@@ -9,6 +10,7 @@ object Users : IntIdTable() {
     val name = varchar("name", 255)
     val password = varchar("password", 64)
     val role = enumeration("role", Role::class).default(Role.USER)
-    val state = varchar("state", 255)
-    val city = varchar("city", 255)
+    val cpf = varchar("cpf", 11)
+    val birthday = datetime("birthday")
+    val phone = varchar("phone", 16)
 }

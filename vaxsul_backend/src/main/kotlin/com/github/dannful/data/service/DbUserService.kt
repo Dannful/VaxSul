@@ -25,10 +25,11 @@ class DbUserService(
                 val foundUser = UsersDao.findById(user.id) ?: return@newSuspendedTransaction
                 foundUser.email = user.email
                 foundUser.role = user.role
-                foundUser.city = user.city
                 foundUser.name = user.name
                 foundUser.password = user.password
-                foundUser.state = user.state
+                foundUser.cpf = user.cpf
+                foundUser.phone = user.phone
+                foundUser.birthday = user.birthday
                 return@newSuspendedTransaction
             }
             UsersDao.new {
@@ -36,8 +37,9 @@ class DbUserService(
                 name = user.name
                 password = user.password
                 role = user.role
-                state = user.state
-                city = user.city
+                cpf = user.cpf
+                phone = user.phone
+                birthday = user.birthday
             }
         }
     }

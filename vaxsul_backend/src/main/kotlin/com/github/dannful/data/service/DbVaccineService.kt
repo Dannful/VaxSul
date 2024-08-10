@@ -1,6 +1,7 @@
 package com.github.dannful.data.service
 
 import com.github.dannful.data.dao.VaccinesDao
+import com.github.dannful.data.entity.Laboratories
 import com.github.dannful.data.entity.Researches
 import com.github.dannful.data.entity.Vaccines
 import com.github.dannful.domain.model.Vaccine
@@ -44,6 +45,7 @@ class DbVaccineService(
                     foundVaccine.researchId = EntityID(id = vaccine.researchId, table = Researches)
                 foundVaccine.pricePerUnit = vaccine.pricePerUnit
                 foundVaccine.sellable = vaccine.sellable
+                foundVaccine.laboratoryId = EntityID(id = vaccine.laboratoryId, table = Laboratories)
 
                 return@newSuspendedTransaction
             }
@@ -56,6 +58,7 @@ class DbVaccineService(
                 dose = vaccine.dose
                 name = vaccine.name
                 description = vaccine.description
+                laboratoryId = EntityID(id = vaccine.laboratoryId, table = Laboratories)
             }
         }
     }
@@ -70,6 +73,6 @@ class DbVaccineService(
                 ).and(
                     Vaccines.pricePerUnit greaterEq (vaccineQuery.minimumPrice ?: 0f)
                 )
-            }.toList().map { it.toVaccine() }
+            }.orderBy().toList().map { it.toVaccine() }
         }
 }

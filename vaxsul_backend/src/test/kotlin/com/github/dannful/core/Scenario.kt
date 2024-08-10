@@ -3,10 +3,7 @@ package com.github.dannful.core
 import com.github.dannful.data.entity.*
 import com.github.dannful.data.service.*
 import com.github.dannful.domain.model.*
-import com.github.dannful.domain.service.PurchaseService
-import com.github.dannful.domain.service.ResearchService
-import com.github.dannful.domain.service.UserService
-import com.github.dannful.domain.service.VaccineService
+import com.github.dannful.domain.service.*
 import io.ktor.client.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
@@ -31,6 +28,7 @@ class Scenario {
     var userService: UserService
     var vaccineService: VaccineService
     var purchaseService: PurchaseService
+    var laboratoryService: LaboratoryService
 
     init {
         val applicationConfig = ApplicationConfig("test-application.conf")
@@ -52,9 +50,12 @@ class Scenario {
         purchaseService = DbPurchaseService(
             dispatcherProvider = DefaultDispatcherProvider(), database = database
         )
+        laboratoryService = DbLaboratoryService(
+            dispatcherProvider = DefaultDispatcherProvider(), database = database
+        )
         transaction {
-            SchemaUtils.drop(Users, Vaccines, Researches, ResearchDesignations, Purchases)
-            SchemaUtils.create(Users, Vaccines, Researches, ResearchDesignations, Purchases)
+            SchemaUtils.drop(Users, Vaccines, Researches, ResearchDesignations, Purchases, Laboratories)
+            SchemaUtils.create(Users, Vaccines, Researches, ResearchDesignations, Purchases, Laboratories)
         }
     }
 
@@ -88,8 +89,9 @@ class Scenario {
                 name = "test",
                 password = "test",
                 role = role,
-                state = "RS",
-                city = "Itapema"
+                cpf = "1234567890",
+                phone = "12345567",
+                birthday = LocalDateTime(2024, 3, 3, 3, 3, 3)
             )
         )
         httpClient.post("/login") {
@@ -113,7 +115,7 @@ class Scenario {
                 minute = 1,
                 second = 1,
             ),
-            status = ResearchStatus.IN_PROGRESS
+            status = ResearchStatus.IN_PROGRESS,
         )
         researchService.addResearch(
             research
@@ -122,13 +124,15 @@ class Scenario {
     }
 
     suspend fun addVaccine(): Vaccine {
+        addLaboratory()
         val vaccine = Vaccine(
             pricePerUnit = 1.0f,
             amountInStock = 3,
             sellable = true,
-            name = "romano",
+            dose = 1,
             description = "romano",
-            dose = 1
+            name = "romano",
+            laboratoryId = 1
         )
         vaccineService.addVaccine(vaccine)
         return vaccine
@@ -140,8 +144,9 @@ class Scenario {
             name = "romano",
             password = "test",
             role = Role.USER,
-            state = "RS",
-            city = "Haddonfield"
+            cpf = "12345667",
+            phone = "12345567",
+            birthday = LocalDateTime(2024, 3, 3, 3, 3, 3)
         )
         userService.addUser(user)
         return user
@@ -157,5 +162,15 @@ class Scenario {
         )
         purchaseService.add(purchase)
         return purchase
+    }
+
+    suspend fun addLaboratory(): Laboratory {
+        val laboratory = Laboratory(
+            name = "romano",
+            description = "romano",
+            cnpj = "123456"
+        )
+        laboratoryService.addLaboratory(laboratory)
+        return laboratory
     }
 }

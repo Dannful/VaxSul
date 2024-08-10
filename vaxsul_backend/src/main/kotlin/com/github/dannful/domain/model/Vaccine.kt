@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Vaccine(
     val id: Int? = null,
+    val laboratoryId: Int,
     val pricePerUnit: Float,
     val amountInStock: Int,
     val researchId: Int? = null,
@@ -20,6 +21,7 @@ data class Vaccine(
 
         other as Vaccine
 
+        if (laboratoryId != other.laboratoryId) return false
         if (pricePerUnit != other.pricePerUnit) return false
         if (amountInStock != other.amountInStock) return false
         if (researchId != other.researchId) return false
@@ -32,7 +34,8 @@ data class Vaccine(
     }
 
     override fun hashCode(): Int {
-        var result = pricePerUnit.hashCode()
+        var result = laboratoryId
+        result = 31 * result + pricePerUnit.hashCode()
         result = 31 * result + amountInStock
         result = 31 * result + (researchId ?: 0)
         result = 31 * result + sellable.hashCode()

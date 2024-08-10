@@ -20,13 +20,15 @@ class VaccineRoutesKtTest {
         }
         val scenario = Scenario()
         scenario.setupClient(this, Role.SALES_MANAGER)
+
         val testVaccine = Vaccine(
             pricePerUnit = 1.0f,
             amountInStock = 3,
             sellable = false,
-            name = "romano",
+            dose = 1,
             description = "romano",
-            dose = 1
+            name = "romano",
+            laboratoryId = 1
         )
         val newVaccineResponse = scenario.httpClient.post("/vaccines/new") {
             contentType(ContentType.Application.Json)

@@ -11,5 +11,6 @@ fun Application.configureRouting() {
     vaccineRoutes()
     researchRoutes()
     purchaseRoutes()
+    laboratoryRoutes()
     healthRoute()
 }

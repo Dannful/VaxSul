@@ -10,6 +10,7 @@ class VaccinesDao(id: EntityID<Int>) : IntEntity(id) {
 
     companion object : IntEntityClass<VaccinesDao>(Vaccines)
 
+    var laboratoryId by Vaccines.laboratoryId
     var name by Vaccines.name
     var description by Vaccines.description
     var dose by Vaccines.dose
@@ -20,6 +21,7 @@ class VaccinesDao(id: EntityID<Int>) : IntEntity(id) {
 
     fun toVaccine() = Vaccine(
         id = id.value,
+        laboratoryId = laboratoryId.value,
         pricePerUnit = pricePerUnit,
         amountInStock = amountInStock,
         sellable = sellable,

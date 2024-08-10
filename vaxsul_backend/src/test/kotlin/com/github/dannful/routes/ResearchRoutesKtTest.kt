@@ -9,6 +9,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
+import kotlinx.datetime.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -21,12 +22,13 @@ class ResearchRoutesKtTest {
         }
         val scenario = Scenario()
         val testUser = User(
+            email = "test@test.com",
             name = "test",
             password = "test",
-            email = "test@test.com",
             role = Role.USER,
-            state = "RS",
-            city = "Haddonfield"
+            cpf = "123456",
+            phone = "123457",
+            birthday = LocalDateTime(2024, 1, 2, 3, 5, 6)
         )
         scenario.setupClient(this)
         val newUserResponse = scenario.httpClient.post("/users/new") {

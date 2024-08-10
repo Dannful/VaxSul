@@ -31,7 +31,7 @@ class UserRoutesKtTest {
                 minute = 1,
                 second = 1
             ),
-            status = ResearchStatus.PAUSED
+            status = ResearchStatus.PAUSED,
         )
         val newResearchResponse = scenario.httpClient.post("/researches/new") {
             contentType(ContentType.Application.Json)
@@ -90,6 +90,11 @@ class UserRoutesKtTest {
         val scenario = Scenario()
         scenario.setupClient(this)
         val user = scenario.addUser()
+
+        scenario.httpClient.post("/login") {
+            contentType(ContentType.Application.Json)
+            setBody(Credentials(email = user.email, password = user.password))
+        }
 
         val getNewUserResponse = scenario.httpClient.get("/users/1")
 
@@ -216,11 +221,12 @@ class UserRoutesKtTest {
             contentType(ContentType.Application.Json)
             setBody(
                 User(
+                    email = "test@test.com",
                     name = "test",
                     password = "test",
-                    email = "test@test.com",
-                    state = "RS",
-                    city = "Haddonfield"
+                    cpf = "12312312",
+                    phone = "1233565",
+                    birthday = LocalDateTime(2024, 12, 1, 3, 4, 5)
                 )
             )
         }

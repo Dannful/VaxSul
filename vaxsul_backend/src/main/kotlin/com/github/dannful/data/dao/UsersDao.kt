@@ -14,15 +14,17 @@ class UsersDao(id: EntityID<Int>) : IntEntity(id) {
     var name by Users.name
     var password by Users.password
     var role by Users.role
-    var state by Users.state
-    var city by Users.city
+    var cpf by Users.cpf
+    var phone by Users.phone
+    var birthday by Users.birthday
 
     fun toUser(): User = User(
         email = email,
         name = name,
         password = password,
         role = role,
-        state = state,
-        city = city
+        cpf = cpf,
+        phone = phone,
+        birthday = birthday
     )
 }

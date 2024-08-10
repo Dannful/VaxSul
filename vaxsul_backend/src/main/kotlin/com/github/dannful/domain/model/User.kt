@@ -1,5 +1,6 @@
 package com.github.dannful.domain.model
 
+import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -9,8 +10,9 @@ data class User(
     val name: String,
     val password: String,
     val role: Role = Role.USER,
-    val state: String,
-    val city: String
+    val cpf: String,
+    val phone: String,
+    val birthday: LocalDateTime
 ) {
 
     override fun equals(other: Any?): Boolean {
@@ -23,8 +25,9 @@ data class User(
         if (name != other.name) return false
         if (password != other.password) return false
         if (role != other.role) return false
-        if (state != other.state) return false
-        if (city != other.city) return false
+        if (cpf != other.cpf) return false
+        if (phone != other.phone) return false
+        if (birthday != other.birthday) return false
 
         return true
     }
@@ -34,8 +37,9 @@ data class User(
         result = 31 * result + name.hashCode()
         result = 31 * result + password.hashCode()
         result = 31 * result + role.hashCode()
-        result = 31 * result + state.hashCode()
-        result = 31 * result + city.hashCode()
+        result = 31 * result + cpf.hashCode()
+        result = 31 * result + phone.hashCode()
+        result = 31 * result + birthday.hashCode()
         return result
     }
 }

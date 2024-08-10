@@ -43,12 +43,12 @@ fun Application.userRoutes() {
             }
         }
         get<Users.User> {
-            val session = call.sessions.get<UserSession>() ?: run {
-                call.respond(HttpStatusCode.Unauthorized)
-                return@get
-            }
             val user = userService.getUserById(it.id) ?: run {
                 call.respond(HttpStatusCode.BadRequest, "User #${it.id} not found")
+                return@get
+            }
+            val session = call.sessions.get<UserSession>() ?: run {
+                call.respond(HttpStatusCode.Unauthorized)
                 return@get
             }
             if (session.email != user.email) {

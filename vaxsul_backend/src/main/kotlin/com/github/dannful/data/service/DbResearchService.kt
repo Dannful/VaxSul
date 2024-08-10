@@ -28,10 +28,12 @@ class DbResearchService(
                 val foundResearch = ResearchesDao.findById(research.id) ?: return@newSuspendedTransaction
                 foundResearch.status = research.status
                 foundResearch.startDate = research.startDate
+                foundResearch.progress = research.progress
             }
             ResearchesDao.new {
                 startDate = research.startDate
                 status = research.status
+                progress = research.progress
             }
         }
     }

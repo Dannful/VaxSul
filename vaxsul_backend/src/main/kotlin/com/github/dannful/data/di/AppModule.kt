@@ -61,4 +61,8 @@ fun appModule(environment: ApplicationEnvironment) = module {
     single<PurchaseService> {
         DbPurchaseService(dispatcherProvider = get(), database = get())
     }
+
+    single<LaboratoryService> {
+        DbLaboratoryService(dispatcherProvider = get(), database = get())
+    }
 }

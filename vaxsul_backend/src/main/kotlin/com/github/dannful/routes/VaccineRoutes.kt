@@ -45,7 +45,7 @@ fun Application.vaccineRoutes() {
                 call.respond(HttpStatusCode.OK, vaccine)
             }
         }
-        authRole(Role.SALES_MANAGER) {
+        authRole(Role.RESEARCH_LEAD) {
             delete<Vaccines.Vaccine> {
                 vaccineService.deleteVaccine(it.id)
                 call.respond(HttpStatusCode.OK)
