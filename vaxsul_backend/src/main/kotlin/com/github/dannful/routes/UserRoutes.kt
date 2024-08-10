@@ -33,14 +33,23 @@ fun Application.userRoutes() {
                 userService.deleteUser(it.id)
                 call.respond(HttpStatusCode.OK)
             }
-            post<Users.New> {
-                val user = call.receiveNullable<User>() ?: run {
-                    call.respond(HttpStatusCode.BadRequest)
-                    return@post
-                }
-                userService.addUser(user)
-                call.respond(HttpStatusCode.OK)
+        }
+        post<Users.New> {
+            val user = call.receiveNullable<User>() ?: run {
+                call.respond(HttpStatusCode.BadRequest)
+                return@post
             }
+            val session = call.sessions.get<UserSession>() ?: run {
+                call.respond(HttpStatusCode.Unauthorized)
+                return@post
+            }
+            val foundUser = userService.getUserByEmail(session.email)
+            if(user.id != foundUser?.id) {
+                call.respond(HttpStatusCode.Unauthorized)
+                return@post
+            }
+            userService.addUser(user)
+            call.respond(HttpStatusCode.OK)
         }
         get<Users.User> {
             val user = userService.getUserById(it.id) ?: run {

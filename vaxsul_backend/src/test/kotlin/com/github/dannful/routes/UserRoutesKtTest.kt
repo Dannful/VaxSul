@@ -52,20 +52,21 @@ class UserRoutesKtTest {
             config = ApplicationConfig("test-application.conf")
         }
         val scenario = Scenario()
-        val user = scenario.addUser().copy(
+        val user = scenario.setupClient(this, role = Role.USER).copy(
             name = "roger roberto edward robinson",
             id = 1
         )
-        scenario.setupClient(this)
 
         val postResponse = scenario.httpClient.post("/users/new") {
             contentType(ContentType.Application.Json)
             setBody(user)
         }
-        val response = scenario.httpClient.get("/users")
 
         assertEquals(HttpStatusCode.OK, postResponse.status)
-        assertEquals(user, response.body<List<User>>().firstOrNull())
+        assertEquals(
+            user,
+            scenario.userService.getUserById(1)
+        )
     }
 
     @Test
