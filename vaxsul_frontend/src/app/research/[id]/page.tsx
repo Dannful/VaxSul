@@ -2,7 +2,7 @@
 
 import { useState, ChangeEvent } from 'react';
 import { useParams } from 'next/navigation';
-import { useGetVaccineByIdQuery, useGetResearchByIdQuery, useNewResearchMutation, useNewVaccineMutation } from '@/service/vaxsul';
+import { useGetVaccineByIdQuery, useGetResearchByIdQuery, useNewResearchMutation, useNewVaccineMutation, useGetCurrentUserQuery } from '@/service/vaxsul';
 import { LoadingWidget } from '../../components/LoadingWidget';
 import { ErrorWidget } from '../../components/ErrorWidget';
 import { useRouter } from "next/navigation";
@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 export default function ResearchDetails() {
   const [newResearch, newResearchResult] = useNewResearchMutation();
   const [newVaccine, newVaccineResult] = useNewVaccineMutation();
+  const user = useGetCurrentUserQuery();
 
   const { id } = useParams();
   const validId = !Array.isArray(id) && id;
@@ -31,25 +32,31 @@ export default function ResearchDetails() {
     researchStatus: research?.status ?? '',
     researchProgress: research?.progress ?? 0,
   });
-
+  const [sellableCheck, setSellableCheck] = useState(vaccine?.sellable ?? false);
+  
   const router = useRouter();
 
   if (!validId) {
     return <p className="text-black">Vacina não encontrada.</p>;
   }
 
+  const isResearcher = user.data && (user.data.role === "RESEARCH_LEAD" || user.data.role === "RESEARCHER");
+  const isResearchLead = user.data && user.data.role === "RESEARCH_LEAD";
+
   if (vaccineLoading || researchLoading) return <LoadingWidget />;
   if (vaccineError || researchError) return <ErrorWidget message="Erro ao carregar os detalhes." />;
   if (!vaccine) return <p className="text-black">Vacina não encontrada.</p>;
   if (!research) return <p className="text-black">Dados da pesquisa não encontrados.</p>;
+  if (!isResearcher) return <ErrorWidget message="Você não tem permissão para ver esta página." />;
 
+  
   const handleEditClick = () => {
     setEditValues({
-      vaccineName: vaccine?.name ?? '',
-      vaccineDescription: vaccine?.description ?? '',
-      vaccineDose: vaccine?.dose ?? '',
-      researchStatus: research?.status ?? '',
-      researchProgress: research?.progress ?? 0,
+      vaccineName: vaccine.name ?? '',
+      vaccineDescription: vaccine.description ?? '',
+      vaccineDose: vaccine.dose ?? '',
+      researchStatus: research.status ?? '',
+      researchProgress: research.progress ?? 0,
     });
     setEditing(true);
   };
@@ -63,7 +70,32 @@ export default function ResearchDetails() {
     setEditValues(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleCheckboxChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSellableCheck(e.target.checked);
+  };
+
   const handleSaveChanges = () => {
+    if (!isResearchLead && vaccine.sellable) {
+      alert("Apenas líderes de pesquisa podem alterar vacinas autorizadas para venda.");
+      return;
+    }
+    if (sellableCheck && editValues.researchStatus != "COMPLETED") {
+      alert("A vacina só pode ser vendida se a pesquisa estiver finalizada.");
+      return;
+    }
+    if (editValues.researchStatus == "COMPLETED" && editValues.researchProgress < 100) {
+      alert("O progresso da pesquisa deve ser 100% para ser finalizada."); 
+      return;
+    }
+    if (editValues.researchProgress >= 100 && editValues.researchStatus != "COMPLETED") {
+      alert("O status da pesquisa deve ser finalizada se o progresso for 100%.");
+      return;
+    }
+    if (editValues.researchStatus == "COMPLETED" && editValues.vaccineDose == 0) {
+      alert("A dose da vacina não pode ser 0 ao final da pesquisa."); 
+      return;
+    }
+
     newResearch({
       id: research.id,
       startDate: research.startDate,
@@ -76,7 +108,7 @@ export default function ResearchDetails() {
       pricePerUnit: vaccine.pricePerUnit,
       amountInStock: vaccine.amountInStock,
       researchId: vaccine.researchId,
-      sellable: vaccine.sellable,
+      sellable: sellableCheck,
       name: editValues.vaccineName,
       laboratoryId: vaccine.laboratoryId,
       description: editValues.vaccineDescription,
@@ -94,7 +126,7 @@ export default function ResearchDetails() {
           <div className="grid grid-cols-2 gap-6">
             <div>
               <h2 className="text-2xl font-semibold mb-4 text-black">Vacina</h2>
-              {editing ? (
+              {editing && isResearchLead ? (
                 <div>
                   <label className="block mb-2 text-black">
                     Nome da Vacina:
@@ -126,12 +158,22 @@ export default function ResearchDetails() {
                       className="border rounded px-4 py-2 w-full text-black"
                     />
                   </label>
+                  <label className="block mb-2 text-black">
+                    Venda autorizada:
+                    <input
+                      type="checkbox"
+                      checked={sellableCheck}
+                      onChange={handleCheckboxChange}
+                      className="ml-2"
+                    />
+                  </label>
                 </div>
               ) : (
                 <div>
                   <h2 className="text-2xl font-semibold mb-4 text-black">{vaccine.name}</h2>
                   <p className="text-lg mb-4 text-black">Descrição: {vaccine.description}</p>
                   <p className="text-lg mb-4 text-black">Dose: {vaccine.dose}</p>
+                  <p className="text-lg mb-4 text-black">Venda autorizada: {vaccine.sellable ? "Sim" : "Não"}</p>
                 </div>
               )}
             </div>
@@ -147,10 +189,10 @@ export default function ResearchDetails() {
                       onChange={handleInputChange}
                       className="border rounded px-4 py-2 w-full text-black"
                     >
-                      <option value="IN_PROGRESS">{researchStatusText("IN_PROGRESS")}</option>
-                      <option value="PAUSED">{researchStatusText("PAUSED")}</option>
-                      <option value="COMPLETED">{researchStatusText("COMPLETED")}</option>
-                      <option value="DROPPED">{researchStatusText("DROPPED")}</option>
+                      <option value="IN_PROGRESS">{STATUS_TEXT["IN_PROGRESS"]}</option>
+                      <option value="PAUSED">{STATUS_TEXT["PAUSED"]}</option>
+                      <option value="COMPLETED">{STATUS_TEXT["COMPLETED"]}</option>
+                      <option value="DROPPED">{STATUS_TEXT["DROPPED"]}</option>
                     </select>
                   </label>
                   <label className="block mb-2 text-black">
@@ -168,8 +210,8 @@ export default function ResearchDetails() {
                 </div>
               ) : (
                 <div>
-                  <p className="text-lg mb-4 text-black">Data de Início: {research.startDate}</p>
-                  <p className="text-lg mb-4 text-black">Status: {researchStatusText(research.status)}</p>
+                  <p className="text-lg mb-4 text-black">Data de Início: {formatDate(research.startDate)}</p>
+                  <p className="text-lg mb-4 text-black">Status: {STATUS_TEXT[research.status]}</p>
                   <div className="w-full bg-gray-200 rounded-full h-6 mb-4">
                     <div
                       className="h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
@@ -207,6 +249,7 @@ export default function ResearchDetails() {
                 </button>
               </>
             ) : (
+              
               <button
                 type="button"
                 onClick={handleEditClick}
@@ -225,16 +268,11 @@ export default function ResearchDetails() {
   );
 }
 
-const researchStatusText = (status: string) => {
-  switch (status) {
-    case "IN_PROGRESS":
-      return "Em progresso";
-    case "PAUSED":
-      return "Pausada"
-    case "COMPLETED":
-      return "Finalizada";
-    case "DROPPED":
-      return "Cancelada";
-    default: 
-      return status;
-}};
+const STATUS_TEXT: Record<string, string> = {
+  "IN_PROGRESS": "Em progresso",
+  "PAUSED": "Pausada",
+  "COMPLETED": "Finalizada",
+  "DROPPED": "Cancelada"
+};
+
+const formatDate = (date: string) => new Date(date).toLocaleDateString("pt-BR");
