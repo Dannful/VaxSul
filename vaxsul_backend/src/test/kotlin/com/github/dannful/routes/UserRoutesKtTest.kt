@@ -284,15 +284,15 @@ class UserRoutesKtTest {
         }
 
     @Test
-    fun `When client is authenticated, returns role`() =
+    fun `When client is authenticated, returns user`() =
         testApplication {
             environment {
                 config = ApplicationConfig("test-application.conf")
             }
             val scenario = Scenario()
-            scenario.setupClient(this, role = Role.RESEARCHER)
-            val response = scenario.httpClient.get("/users/role")
+            val user = scenario.setupClient(this, role = Role.RESEARCHER)
+            val response = scenario.httpClient.get("/users/current")
 
-            assertEquals(Role.RESEARCHER.toString(), response.body())
+            assertEquals(user, response.body())
         }
 }

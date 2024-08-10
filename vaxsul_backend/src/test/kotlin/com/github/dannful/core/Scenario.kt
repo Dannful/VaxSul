@@ -76,23 +76,24 @@ class Scenario {
         }
     }
 
-    suspend fun setupClient(applicationTestBuilder: ApplicationTestBuilder, role: Role) {
+    suspend fun setupClient(applicationTestBuilder: ApplicationTestBuilder, role: Role): User {
         httpClient = applicationTestBuilder.createClient {
             install(ContentNegotiation) {
                 json()
             }
             install(HttpCookies)
         }
+        val user = User(
+            email = "test@email.com",
+            name = "test",
+            password = "test",
+            role = role,
+            cpf = "1234567890",
+            phone = "12345567",
+            birthday = LocalDateTime(2024, 3, 3, 3, 3, 3)
+        )
         userService.addUser(
-            User(
-                email = "test@email.com",
-                name = "test",
-                password = "test",
-                role = role,
-                cpf = "1234567890",
-                phone = "12345567",
-                birthday = LocalDateTime(2024, 3, 3, 3, 3, 3)
-            )
+            user
         )
         httpClient.post("/login") {
             contentType(ContentType.Application.Json)
@@ -103,6 +104,7 @@ class Scenario {
                 )
             )
         }
+        return user
     }
 
     suspend fun addResearch(): Research {

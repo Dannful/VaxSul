@@ -116,18 +116,16 @@ fun Application.userRoutes() {
             )
             call.respond(HttpStatusCode.OK, token)
         }
-        get<Users.Role> {
+        get<Users.Current> {
             val session = call.sessions.get<UserSession>() ?: run {
                 call.respond(HttpStatusCode.BadRequest, "User is not authenticated")
                 return@get
             }
-            val role =
-                JWT.require(Algorithm.HMAC256(jwtData.secret)).withIssuer(jwtData.issuer).withAudience(jwtData.audience)
-                    .build().verify(session.token).getClaim(Constants.JWT_CLAIM_ROLE_FIELD_NAME).asString() ?: run {
-                    call.respond(HttpStatusCode.BadRequest, "User is authenticated, but session is invalid")
-                    return@get
-                }
-            call.respond(HttpStatusCode.OK, role)
+            val user = userService.getUserByEmail(session.email) ?: run {
+                call.respond(HttpStatusCode.BadRequest, "User is invalid")
+                return@get
+            }
+            call.respond(HttpStatusCode.OK, user)
         }
     }
 }
@@ -146,9 +144,9 @@ private class Users {
     @Suppress("unused")
     class New(val parent: Users = Users())
 
-    @Resource("role")
+    @Resource("/current")
     @Suppress("unused")
-    class Role(val parent: Users = Users())
+    class Current(val parent: Users = Users())
 }
 
 @Resource("/login")
