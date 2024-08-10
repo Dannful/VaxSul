@@ -11,8 +11,9 @@ export const userSchema = z.object({
   ]),
   cpf: z.string(),
   phone: z.string(),
-  birthdate: z.string(),
+  birthday: z.string(),
   name: z.string(),
+  laboratoryId: z.number().optional().nullable(),
 });
 
 export type User = z.infer<typeof userSchema>;

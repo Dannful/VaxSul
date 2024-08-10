@@ -8,7 +8,7 @@ export const VaccineSchema = z.object({
   researchId: z.number().optional().nullable(),
   sellable: z.boolean(),
   name: z.string(),
-  laboratory: z.string(),
+  laboratoryId: z.number(),
   description: z.string(),
 });
 

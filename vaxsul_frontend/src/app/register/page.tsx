@@ -6,15 +6,21 @@ import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { SerializedError } from "@reduxjs/toolkit";
+import { User } from "@/types/user";
+
+const DEFAULT_USER: User = {
+  email: "",
+  password: "",
+  cpf: "",
+  birthday: new Date().toLocaleString(),
+  name: "",
+  phone: "",
+  role: "USER",
+};
 
 export default function Register() {
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [user, setUser] = useState<User>(DEFAULT_USER);
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [cpf, setCpf] = useState("");
-  const [birthdate, setBirthdate] = useState("");
-  const [phone, setPhone] = useState("");
 
   const [register, result] = useRegisterMutation();
   const router = useRouter();
@@ -22,32 +28,21 @@ export default function Register() {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (password !== confirmPassword) {
+    if (user.password !== confirmPassword) {
       alert("As senhas não coincidem. Por favor, verifique.");
       return;
     }
 
     const registerResult = await register({
-      password: await sha256(password),
-      name: fullName,
-      email: email,
-      cpf: cpf,
-      birthdate: birthdate,
-      phone: phone,
-      role: "USER",
+      ...user,
+      password: await sha256(user.password),
     });
 
     if (registerResult.error) {
       console.error("Erro ao registrar: ", registerResult.error);
     } else {
       router.push("/login");
-      setFullName("");
-      setEmail("");
-      setPassword("");
-      setConfirmPassword("");
-      setCpf("");
-      setBirthdate("");
-      setPhone("");
+      setUser(DEFAULT_USER);
     }
   };
 
@@ -93,8 +88,8 @@ export default function Register() {
               className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3 placeholder-gray-500"
               placeholder="Nome completo"
               required
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              value={user.name}
+              onChange={(e) => setUser({ ...user, name: e.target.value })}
             />
           </div>
           <div className="flex flex-col">
@@ -110,8 +105,8 @@ export default function Register() {
               className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w/full p-3 placeholder-gray-500"
               placeholder="example@email.com"
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={user.email}
+              onChange={(e) => setUser({ ...user, email: e.target.value })}
             />
           </div>
           <div className="flex flex-col">
@@ -127,24 +122,27 @@ export default function Register() {
               className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3 placeholder-gray-500"
               placeholder="CPF"
               required
-              value={cpf}
-              onChange={(e) => setCpf(e.target.value)}
+              value={user.cpf}
+              onChange={(e) => setUser({ ...user, cpf: e.target.value })}
             />
           </div>
           <div className="flex flex-col">
             <label
-              htmlFor="birthdate"
+              htmlFor="birthday"
               className="text-sm font-medium text-gray-200 mb-1"
             >
-              Data de Nascimento
+              Data de nascimento
             </label>
             <input
               type="date"
-              id="birthdate"
+              id="birthday"
               className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w/full p-3 placeholder-gray-500"
               required
-              value={birthdate}
-              onChange={(e) => setBirthdate(e.target.value)}
+              value={user.birthday}
+              onChange={(e) => {
+                setUser({ ...user, birthday: e.target.value });
+                console.log(user.birthday);
+              }}
             />
           </div>
           <div className="flex flex-col">
@@ -160,8 +158,8 @@ export default function Register() {
               className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w/full p-3 placeholder-gray-500"
               placeholder="Telefone"
               required
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              value={user.phone}
+              onChange={(e) => setUser({ ...user, phone: e.target.value })}
             />
           </div>
           <div className="flex flex-col">
@@ -176,8 +174,8 @@ export default function Register() {
               id="password"
               className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w/full p-3 placeholder-gray-500"
               required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={user.password}
+              onChange={(e) => setUser({ ...user, password: e.target.value })}
             />
           </div>
           <div className="flex flex-col">
