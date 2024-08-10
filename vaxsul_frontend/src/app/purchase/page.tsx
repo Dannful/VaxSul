@@ -1,50 +1,48 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useLogoutMutation, useSearchVaccineMutation, useGetPurchaseMutation, useGetAllResearchQuery } from "@/service/vaxsul";
+import {
+  useLogoutMutation,
+  useSearchVaccineMutation,
+  useGetPurchaseMutation,
+  useGetAllResearchQuery,
+  useGetPurchasesQuery,
+  useGetCurrentUserQuery,
+} from "@/service/vaxsul";
 import { LoadingWidget } from "../components/LoadingWidget";
 import { ErrorWidget } from "../components/ErrorWidget";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-
 export default function ResearchCatalog() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterMenuVisible, setFilterMenuVisible] = useState(false);
   const [accountMenuVisible, setAccountMenuVisible] = useState(false);
-  const [newVaccineFormVisible, setNewVaccineFormVisible] = useState(false);
-  const [filter, setFilter] = useState("");
-  const [vaccine_search, vaccineSearch] = useSearchVaccineMutation();
   const [logout, logoutResult] = useLogoutMutation();
-  const [research, researchResult] = useGetPurchaseMutation();
   const router = useRouter();
+  const getCurrentUser = useGetCurrentUserQuery();
 
-  useEffect(() => {
-    vaccine_search({
-      name: undefined,
-    });
-  }, [vaccine_search]);
-
-
-
-  if (researchResult.isError) {
-    return (
-      <ErrorWidget message="Erro ao carregar as pesquisas. Por favor, tente novamente mais tarde ou contate o dev lixo que fez essa página." />
-    );
-  }
-  if (vaccineSearch.isError) {
-    return (
-      <ErrorWidget message="Erro ao carregar as vacinas. Por favor, tente novamente mais tarde ou contate o dev lixo que fez essa página." />
-    );
+  if (getCurrentUser.isUninitialized || getCurrentUser.isLoading) {
+    return <LoadingWidget />;
   }
 
-  const toggleAccountMenu = () => {
-    setAccountMenuVisible(!accountMenuVisible);
-  };
+  if (getCurrentUser.isError) {
+    router.push("/login");
+    return <></>;
+  }
+}
 
-  const toggleFilterMenu = () => {
-    setFilterMenuVisible(!filterMenuVisible);
-  };
+function PurchaseList({ userId }: { userId: number }) {
+  const purchasesQuery = useGetPurchasesQuery(userId);
 
+  if (purchasesQuery.isUninitialized || purchasesQuery.isLoading) {
+    return <LoadingWidget />;
+  }
+
+  if (purchasesQuery.isError) {
+    return (
+      <ErrorWidget message="Erro ao carregar suas compras. Por favor, tente novamente mais tarde ou contate o dev lixo que fez essa página." />
+    );
+  }
 
   return (
     <div
@@ -79,8 +77,6 @@ export default function ResearchCatalog() {
             </Link>
           </nav>
         </aside>
-
-
       </div>
 
       <footer className="bg-gray-700 text-white text-center p-2">
