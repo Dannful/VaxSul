@@ -56,6 +56,9 @@ export const vaxSulApi = createApi({
     getResearchById: builder.query<Research, number>({
       query: (id) => `researches/${id}`,
     }),
+    getAllVaccines: builder.query<Vaccine[], void>({
+      query: () => "vaccines",
+    }),
   }),
 });
 
@@ -66,5 +69,6 @@ export const {
   useSearchVaccineMutation,
   useGetVaccineByIdQuery,
   useGetAllResearchQuery,
-  useGetResearchByIdQuery, 
+  useGetResearchByIdQuery,
+  useGetAllVaccinesQuery,
 } = vaxSulApi;
