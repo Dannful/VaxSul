@@ -1,5 +1,6 @@
 import { Credentials } from "@/types/credentials";
 import { User } from "@/types/user";
+import { Purchase, PurchaseSearch, PurchaseSchema } from "@/types/purchase";
 import { Vaccine, VaccineSchema, VaccineSearch } from "@/types/vaccine";
 import { Research } from "@/types/research";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
@@ -47,6 +48,15 @@ export const vaxSulApi = createApi({
       }),
       transformResponse: (response) => VaccineSchema.array().parse(response),
     }),
+    getPurchase: builder.mutation<Purchase[], PurchaseSearch>({
+      query: (PurchaseSearch) => ({
+        url: "purchase",
+        params: {
+          userId: PurchaseSearch.userId,
+        },
+      }),
+      transformResponse: (response) => PurchaseSchema.array().parse(response),
+    }),
     getVaccineById: builder.query<Vaccine, number>({
       query: (id) => `vaccines/${id}`,
     }),
@@ -70,5 +80,9 @@ export const {
   useGetVaccineByIdQuery,
   useGetAllResearchQuery,
   useGetResearchByIdQuery,
+<<<<<<< Updated upstream
   useGetAllVaccinesQuery,
+=======
+  useGetPurchaseMutation,
+>>>>>>> Stashed changes
 } = vaxSulApi;
