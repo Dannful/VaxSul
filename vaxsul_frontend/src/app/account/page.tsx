@@ -1,25 +1,37 @@
 "use client";
+import { useGetCurrentUserQuery } from "@/service/vaxsul";
 import Link from "next/link";
+import { LoadingWidget } from "../components/LoadingWidget";
+import { ErrorWidget } from "../components/ErrorWidget";
+import { useRouter } from "next/navigation";
 
 export default function Account() {
-  const user = {
-    fullName: "Nome do Usuário",
-    email: "email@exemplo.com",
-    state: "Estado",
-    city: "Cidade",
-    role: "Papel",
-  };
+  const currentUserQuery = useGetCurrentUserQuery();
+  const router = useRouter();
+
+  if (currentUserQuery.isUninitialized || currentUserQuery.isLoading) {
+    return <LoadingWidget />;
+  }
+
+  if (currentUserQuery.isError) {
+    router.push("/login");
+    return <></>;
+  }
+
+  const user = currentUserQuery.data;
 
   return (
     <div className="flex flex-col min-h-screen">
       <div className="flex flex-1">
         <aside className="bg-gray-800 text-white w-32 flex flex-col items-center h-screen sticky top-0">
           <div className="p-2 flex items-center justify-center">
-            <h2 className="text-lg font-semibold text-green-400 pb-2">Perfil</h2>
+            <h2 className="text-lg font-semibold text-green-400 pb-2">
+              Perfil
+            </h2>
           </div>
           <hr className="border-green-400 w-full mb-4" />
           <nav className="mt-2 w-full flex-grow">
-          <Link href="/outra-rota">
+            <Link href="/outra-rota">
               <div className="flex items-center px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-700 cursor-pointer">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -50,7 +62,7 @@ export default function Account() {
                   Nome Completo
                 </label>
                 <div className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg p-4">
-                  {user.fullName}
+                  {user.name}
                 </div>
               </div>
               <div className="flex flex-col">
@@ -63,18 +75,18 @@ export default function Account() {
               </div>
               <div className="flex flex-col">
                 <label className="text-sm font-medium text-gray-700 mb-2">
-                  Estado
+                  CPF
                 </label>
                 <div className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg p-4">
-                  {user.state}
+                  {user.cpf}
                 </div>
               </div>
               <div className="flex flex-col">
                 <label className="text-sm font-medium text-gray-700 mb-2">
-                  Cidade
+                  Telefone
                 </label>
                 <div className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg p-4">
-                  {user.city}
+                  {user.phone}
                 </div>
               </div>
               <div className="flex flex-col">
@@ -86,16 +98,18 @@ export default function Account() {
                 </div>
               </div>
               <div className="flex justify-between mt-10">
-                <Link href="/vaccine">
-                  <button className="text-white bg-[#4a90e2] bg-opacity-90 hover:bg-opacity-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out transform hover:scale-105">
-                    Voltar para Início
-                  </button>
-                </Link>
-                <Link href="/edit-account">
-                  <button className="text-white bg-[#9dca46] bg-opacity-90 hover:bg-opacity-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out transform hover:scale-105">
-                    Editar Informações
-                  </button>
-                </Link>
+                <button
+                  className="text-white bg-[#4a90e2] bg-opacity-90 hover:bg-opacity-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out transform hover:scale-105"
+                  onClick={() => router.back()}
+                >
+                  Voltar à tela anterior
+                </button>
+                <button
+                  className="text-white bg-[#9dca46] bg-opacity-90 hover:bg-opacity-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out transform hover:scale-105"
+                  onClick={() => router.push("/edit-account")}
+                >
+                  Editar informações
+                </button>
               </div>
             </div>
           </div>

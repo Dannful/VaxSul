@@ -11,7 +11,7 @@ import {
 import { Research } from "@/types/research";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { env } from "next-runtime-env";
-import { Purchase, PurchaseSchema, PurchaseSearch } from "@/types/purchase";
+import { Purchase, PurchaseSchema } from "@/types/purchase";
 
 export const vaxSulApi = createApi({
   reducerPath: "vaxSulApi",
@@ -20,6 +20,7 @@ export const vaxSulApi = createApi({
     credentials: "include",
     mode: "cors",
   }),
+  tagTypes: ["user"],
   endpoints: (builder) => ({
     login: builder.mutation<string, Credentials>({
       query: (credentials: Credentials) => ({
@@ -56,12 +57,9 @@ export const vaxSulApi = createApi({
       transformResponse: (response) =>
         VaccineSearchResponseSchema.parse(response),
     }),
-    getPurchase: builder.mutation<Purchase[], PurchaseSearch>({
-      query: (PurchaseSearch) => ({
-        url: "purchase",
-        params: {
-          userId: PurchaseSearch.userId,
-        },
+    getPurchases: builder.query<Purchase[], number>({
+      query: (number) => ({
+        url: `purchase/user/${number}`,
       }),
       transformResponse: (response) => PurchaseSchema.array().parse(response),
     }),
@@ -74,14 +72,14 @@ export const vaxSulApi = createApi({
     getResearchById: builder.query<Research, number>({
       query: (id) => `researches/${id}`,
     }),
-    newResearch: builder.mutation<Research, Research>({ 
+    newResearch: builder.mutation<Research, Research>({
       query: (research) => ({
         url: "researches/new",
         method: "POST",
         body: research,
       }),
     }),
-    newVaccine: builder.mutation<Vaccine, Vaccine>({ 
+    newVaccine: builder.mutation<Vaccine, Vaccine>({
       query: (vaccine) => ({
         url: "vaccines/new",
         method: "POST",
@@ -90,6 +88,15 @@ export const vaxSulApi = createApi({
     }),
     getCurrentUser: builder.query<User, void>({
       query: () => "users/current",
+      providesTags: ["user"],
+    }),
+    updateUser: builder.mutation<void, User>({
+      query: (user) => ({
+        url: "users/new",
+        method: "POST",
+        body: user,
+      }),
+      invalidatesTags: () => ["user"],
     }),
   }),
 });
@@ -99,11 +106,12 @@ export const {
   useLogoutMutation,
   useRegisterMutation,
   useSearchVaccineMutation,
-  useGetPurchaseMutation,
   useGetVaccineByIdQuery,
   useGetAllResearchQuery,
   useGetResearchByIdQuery,
   useNewResearchMutation,
   useNewVaccineMutation,
   useGetCurrentUserQuery,
+  useGetPurchasesQuery,
+  useUpdateUserMutation,
 } = vaxSulApi;
