@@ -74,6 +74,23 @@ export const vaxSulApi = createApi({
     getResearchById: builder.query<Research, number>({
       query: (id) => `researches/${id}`,
     }),
+    newResearch: builder.mutation<Research, Research>({ 
+      query: (research) => ({
+        url: "researches/new",
+        method: "POST",
+        body: research,
+      }),
+    }),
+    newVaccine: builder.mutation<Vaccine, Vaccine>({ 
+      query: (vaccine) => ({
+        url: "vaccines/new",
+        method: "POST",
+        body: vaccine,
+      }),
+    }),
+    getCurrentUser: builder.query<User, void>({
+      query: () => "users/current",
+    }),
   }),
 });
 
@@ -82,8 +99,11 @@ export const {
   useLogoutMutation,
   useRegisterMutation,
   useSearchVaccineMutation,
+  useGetPurchaseMutation,
   useGetVaccineByIdQuery,
   useGetAllResearchQuery,
   useGetResearchByIdQuery,
-  useGetPurchaseMutation,
+  useNewResearchMutation,
+  useNewVaccineMutation,
+  useGetCurrentUserQuery,
 } = vaxSulApi;

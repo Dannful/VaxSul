@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const VaccineSchema = z.object({
-  id: z.number(),
+  id: z.number().optional().nullable(),
   dose: z.number(),
   pricePerUnit: z.number(),
   amountInStock: z.number(),
