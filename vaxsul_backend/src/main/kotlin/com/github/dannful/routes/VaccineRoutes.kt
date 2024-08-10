@@ -72,7 +72,7 @@ private class Vaccines(
     val maximumPrice: Float = Float.MAX_VALUE,
     val count: Int = Int.MAX_VALUE,
     val sellable: Boolean? = null,
-    val amountInStock: Int = 1
+    val amountInStock: Int = 0
 ) {
 
     @Suppress("unused")
