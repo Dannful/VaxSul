@@ -10,6 +10,8 @@ import com.github.dannful.domain.service.DispatcherProvider
 import com.github.dannful.domain.service.VaccineService
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.greaterEq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
 class DbVaccineService(
@@ -66,13 +68,13 @@ class DbVaccineService(
     override suspend fun search(vaccineQuery: VaccineQuery): List<Vaccine> =
         newSuspendedTransaction(context = dispatcherProvider.io, db = database) {
             VaccinesDao.find {
-                (Vaccines.name like "%${vaccineQuery.name.orEmpty()}%").and(
+                (Vaccines.amountInStock greaterEq 1 and (Vaccines.sellable eq true and (Vaccines.name like "%${vaccineQuery.name.orEmpty()}%").and(
                     if (vaccineQuery.maximumPrice != null) Vaccines.pricePerUnit lessEq vaccineQuery.maximumPrice else booleanParam(
                         true
                     )
                 ).and(
                     Vaccines.pricePerUnit greaterEq (vaccineQuery.minimumPrice ?: 0f)
-                )
-            }.orderBy().toList().map { it.toVaccine() }
+                )))
+            }.orderBy(Vaccines.laboratoryId to SortOrder.ASC).toList().map { it.toVaccine() }
         }
 }
