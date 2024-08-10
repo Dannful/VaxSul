@@ -67,7 +67,7 @@ export default function VaccineResearchDetails() {
     setEditing(false);
   };
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement> | ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setEditValues(prev => ({ ...prev, [name]: value }));
   };
@@ -182,7 +182,7 @@ const VaccineDetails: React.FC<{
     vaccineDose: number;
   };
   sellableCheck: boolean;
-  handleInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleInputChange: (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>) => void;
   handleCheckboxChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }> = ({
   vaccine,
@@ -209,18 +209,18 @@ const VaccineDetails: React.FC<{
           </label>
           <label className="block mb-2 text-black">
             Descrição da Vacina:
-            <input
-              type="text"
+            <textarea
               name="vaccineDescription"
               value={editValues.vaccineDescription}
               onChange={handleInputChange}
               className="border rounded px-4 py-2 w-full text-black"
+              rows={5} // Adjust the number of rows as needed
             />
           </label>
           <label className="block mb-2 text-black">
-            Dose:
+            Doses:
             <input
-              type="text"
+              type="number"
               name="vaccineDose"
               value={editValues.vaccineDose.toString()}
               onChange={handleInputChange}
@@ -240,8 +240,8 @@ const VaccineDetails: React.FC<{
       ) : (
         <div>
           <h2 className="text-2xl font-semibold mb-4 text-black">{vaccine.name}</h2>
-          <p className="text-lg mb-4 text-black">Descrição: {vaccine.description}</p>
-          <p className="text-lg mb-4 text-black">Dose: {vaccine.dose}</p>
+          <p className="text-lg mb-4 text-black whitespace-pre-wrap">{vaccine.description}</p>
+          <p className="text-lg mb-4 text-black">Doses: {vaccine.dose}</p>
           <p className="text-lg mb-4 text-black">Venda autorizada: {vaccine.sellable ? "Sim" : "Não"}</p>
         </div>
       )}

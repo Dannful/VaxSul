@@ -307,7 +307,7 @@ const NewVaccineForm = ({
             </label>
             <input
               id="vaccineDoses"
-              type="text"
+              type="number"
               required
               onChange={(e) => setEditValues({ ...editValues, vaccineDoses: parseInt(e.target.value) })}
               className="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
