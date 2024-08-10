@@ -7,4 +7,5 @@ data class VaccineQuery(
     val name: String?,
     val minimumPrice: Float?,
     val maximumPrice: Float?,
+    val count: Int? = null
 )

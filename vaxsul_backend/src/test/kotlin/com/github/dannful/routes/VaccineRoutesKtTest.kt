@@ -5,6 +5,7 @@ import com.github.dannful.domain.model.Role
 import com.github.dannful.domain.model.Vaccine
 import io.ktor.client.call.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
@@ -60,7 +61,7 @@ class VaccineRoutesKtTest {
         val newVaccineResponse = scenario.httpClient.post("/vaccines/new") {
             contentType(ContentType.Application.Json)
             setBody(
-               vaccine
+                vaccine
             )
         }
 
@@ -82,7 +83,7 @@ class VaccineRoutesKtTest {
         val getVaccines = scenario.httpClient.get("/vaccines")
 
         assertEquals(HttpStatusCode.OK, getVaccines.status)
-        assertEquals(listOf(vaccine), getVaccines.body())
+        assertEquals(listOf(vaccine), getVaccines.body<Pair<Long, List<Vaccine>>>().second)
     }
 
     @Test
@@ -155,7 +156,7 @@ class VaccineRoutesKtTest {
         val getNewVaccineResponse = scenario.httpClient.get("/vaccines?name=romano")
 
         assertEquals(HttpStatusCode.OK, getNewVaccineResponse.status)
-        assertEquals(vaccine, getNewVaccineResponse.body<List<Vaccine>>().first())
+        assertEquals(vaccine, getNewVaccineResponse.body<Pair<Long, List<Vaccine>>>().second.first())
     }
 
     @Test
@@ -170,7 +171,7 @@ class VaccineRoutesKtTest {
         val getNewVaccineResponse = scenario.httpClient.get("/vaccines?minimumPrice=0&maximumPrice=1")
 
         assertEquals(HttpStatusCode.OK, getNewVaccineResponse.status)
-        assertEquals(vaccine, getNewVaccineResponse.body<List<Vaccine>>().first())
+        assertEquals(vaccine, getNewVaccineResponse.body<Pair<Long, List<Vaccine>>>().second.first())
     }
 
     @Test
@@ -185,6 +186,6 @@ class VaccineRoutesKtTest {
         val getNewVaccineResponse = scenario.httpClient.get("/vaccines?minimumPrice=3&maximumPrice=6")
 
         assertEquals(HttpStatusCode.OK, getNewVaccineResponse.status)
-        assertEquals(emptyList(), getNewVaccineResponse.body<List<Vaccine>>())
+        assertEquals(emptyList(), getNewVaccineResponse.body<Pair<Long, List<Vaccine>>>().second)
     }
 }

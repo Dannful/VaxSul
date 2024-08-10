@@ -65,9 +65,9 @@ class DbVaccineService(
         }
     }
 
-    override suspend fun search(vaccineQuery: VaccineQuery): List<Vaccine> =
+    override suspend fun search(vaccineQuery: VaccineQuery): Pair<Long, List<Vaccine>> =
         newSuspendedTransaction(context = dispatcherProvider.io, db = database) {
-            VaccinesDao.find {
+            val orderBy = VaccinesDao.find {
                 (Vaccines.amountInStock greaterEq 1 and (Vaccines.sellable eq true and (Vaccines.name like "%${vaccineQuery.name.orEmpty()}%").and(
                     if (vaccineQuery.maximumPrice != null) Vaccines.pricePerUnit lessEq vaccineQuery.maximumPrice else booleanParam(
                         true
@@ -75,6 +75,9 @@ class DbVaccineService(
                 ).and(
                     Vaccines.pricePerUnit greaterEq (vaccineQuery.minimumPrice ?: 0f)
                 )))
-            }.orderBy(Vaccines.laboratoryId to SortOrder.ASC).toList().map { it.toVaccine() }
+            }.orderBy(Vaccines.laboratoryId to SortOrder.ASC)
+            orderBy.count() to orderBy.limit(vaccineQuery.count ?: Int.MAX_VALUE)
+                .toList()
+                .map { it.toVaccine() }
         }
 }

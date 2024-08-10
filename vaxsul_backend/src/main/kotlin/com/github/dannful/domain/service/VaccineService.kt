@@ -9,5 +9,5 @@ interface VaccineService {
     suspend fun getVaccineById(id: Int): Vaccine?
     suspend fun deleteVaccine(id: Int)
     suspend fun addVaccine(vaccine: Vaccine)
-    suspend fun search(vaccineQuery: VaccineQuery): List<Vaccine>
+    suspend fun search(vaccineQuery: VaccineQuery): Pair<Long, List<Vaccine>>
 }

@@ -25,7 +25,8 @@ fun Application.vaccineRoutes() {
                 val vaccineQuery = VaccineQuery(
                     name = query.name,
                     minimumPrice = query.minimumPrice,
-                    maximumPrice = query.maximumPrice
+                    maximumPrice = query.maximumPrice,
+                    count = query.count
                 )
                 if ((vaccineQuery.minimumPrice ?: 0f) < 0) {
                     call.respond(HttpStatusCode.BadRequest, "Minimum price must be positive")
@@ -64,7 +65,12 @@ fun Application.vaccineRoutes() {
 
 @Serializable
 @Resource("/vaccines")
-private class Vaccines(val name: String? = null, val minimumPrice: Float? = null, val maximumPrice: Float? = null) {
+private class Vaccines(
+    val name: String? = null,
+    val minimumPrice: Float? = null,
+    val maximumPrice: Float? = null,
+    val count: Int? = null
+) {
 
     @Suppress("unused")
     @Resource("{id}")

@@ -1,10 +1,17 @@
 import { Credentials } from "@/types/credentials";
 import { User } from "@/types/user";
-import { Purchase, PurchaseSearch, PurchaseSchema } from "@/types/purchase";
-import { Vaccine, VaccineSchema, VaccineSearch } from "@/types/vaccine";
+import {
+  Vaccine,
+  VaccineSchema,
+  VaccineSearch,
+  VaccineSearchResponse,
+  VaccineSearchResponseSchema,
+  VaccineSearchSchema,
+} from "@/types/vaccine";
 import { Research } from "@/types/research";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { env } from "next-runtime-env";
+import { Purchase, PurchaseSchema, PurchaseSearch } from "@/types/purchase";
 
 export const vaxSulApi = createApi({
   reducerPath: "vaxSulApi",
@@ -36,17 +43,18 @@ export const vaxSulApi = createApi({
         responseHandler: "text",
       }),
     }),
-    searchVaccine: builder.mutation<Vaccine[], VaccineSearch>({
+    searchVaccine: builder.mutation<VaccineSearchResponse, VaccineSearch>({
       query: (vaccineSearch) => ({
         url: "vaccines",
         params: {
           minimumPrice: vaccineSearch.minimumPrice,
           maximumPrice: vaccineSearch.maximumPrice,
           name: vaccineSearch.name,
-          id: vaccineSearch.id,
+          count: vaccineSearch.count,
         },
       }),
-      transformResponse: (response) => VaccineSchema.array().parse(response),
+      transformResponse: (response) =>
+        VaccineSearchResponseSchema.parse(response),
     }),
     getPurchase: builder.mutation<Purchase[], PurchaseSearch>({
       query: (PurchaseSearch) => ({
@@ -66,9 +74,6 @@ export const vaxSulApi = createApi({
     getResearchById: builder.query<Research, number>({
       query: (id) => `researches/${id}`,
     }),
-    getAllVaccines: builder.query<Vaccine[], void>({
-      query: () => "vaccines",
-    }),
   }),
 });
 
@@ -80,9 +85,5 @@ export const {
   useGetVaccineByIdQuery,
   useGetAllResearchQuery,
   useGetResearchByIdQuery,
-<<<<<<< Updated upstream
-  useGetAllVaccinesQuery,
-=======
   useGetPurchaseMutation,
->>>>>>> Stashed changes
 } = vaxSulApi;

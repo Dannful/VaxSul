@@ -1,19 +1,22 @@
 "use client";
 
-import { useState, ChangeEvent, FormEvent } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { useGetVaccineByIdQuery } from '@/service/vaxsul';
-import { LoadingWidget } from '@/app/components/LoadingWidget';
-import { ErrorWidget } from '@/app/components/ErrorWidget';
-import Link from 'next/link';
-import Footer from '@/app/components/Footer';
-
+import { useState, ChangeEvent, FormEvent } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useGetVaccineByIdQuery } from "@/service/vaxsul";
+import { LoadingWidget } from "@/app/components/LoadingWidget";
+import { ErrorWidget } from "@/app/components/ErrorWidget";
+import Link from "next/link";
+import Footer from "@/app/components/Footer";
 
 export default function VaccineDetails() {
   const { id } = useParams();
   const router = useRouter();
   const validId = !Array.isArray(id) && id;
-  const { data: vaccine, error, isLoading } = useGetVaccineByIdQuery(Number(validId), {
+  const {
+    data: vaccine,
+    error,
+    isLoading,
+  } = useGetVaccineByIdQuery(Number(validId), {
     skip: !validId,
   });
 
@@ -25,11 +28,15 @@ export default function VaccineDetails() {
   }
 
   if (isLoading) return <LoadingWidget />;
-  if (error) return <ErrorWidget message="Erro ao carregar os detalhes da vacina." />;
+  if (error)
+    return <ErrorWidget message="Erro ao carregar os detalhes da vacina." />;
   if (!vaccine) return <p className="text-black">Vacina não encontrada.</p>;
 
   const handleQuantityChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = Math.min(Math.max(Number(e.target.value), 1), vaccine.amountInStock);
+    const value = Math.min(
+      Math.max(Number(e.target.value), 1),
+      vaccine.amountInStock,
+    );
     setQuantity(value);
   };
 
@@ -44,17 +51,22 @@ export default function VaccineDetails() {
 
     try {
       // TODO: Colocar processamento no backend mais tarde
-      console.log(`Preparando para enviar dados: ${JSON.stringify(purchaseData)}`);
+      console.log(
+        `Preparando para enviar dados: ${JSON.stringify(purchaseData)}`,
+      );
 
       // TODO: como receber essa mensagem em outra pagina e mostrar ela?
-      router.push(`/vaccine?message=${encodeURIComponent(`Compra realizada com sucesso: ${quantity} unidades de ${vaccine.name} compradas.`)}`);
+      router.push(
+        `/vaccine?message=${encodeURIComponent(`Compra realizada com sucesso: ${quantity} unidades de ${vaccine.name} compradas.`)}`,
+      );
     } catch (error: any) {
-      console.error('Erro na compra:', error.message);
+      console.error("Erro na compra:", error.message);
 
-      router.push(`/vaccine?message=${encodeURIComponent(`Erro na compra: ${error.message}`)}`);
+      router.push(
+        `/vaccine?message=${encodeURIComponent(`Erro na compra: ${error.message}`)}`,
+      );
     }
   };
-
 
   const totalPrice = vaccine.pricePerUnit * quantity;
 
@@ -96,7 +108,9 @@ export default function VaccineDetails() {
         <div className="flex-1 bg-gray-200 relative pb-16">
           <div className="bg-gray-700 bg-opacity-80 p-2 flex justify-between items-center w-full">
             <div className="flex items-center justify-center w-full">
-              <h1 className="text-xl font-semibold text-white">Detalhes da Vacina</h1>
+              <h1 className="text-xl font-semibold text-white">
+                Detalhes da Vacina
+              </h1>
             </div>
             <div className="flex items-center space-x-4">
               <div className="relative">
@@ -157,11 +171,10 @@ export default function VaccineDetails() {
             </div>
           </div>
 
-
           <div className="flex justify-center mt-12 mx-4 md:mx-24">
             <div className="bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 rounded-2xl shadow-lg p-8 w-full md:w-3/4 lg:w-1/2 relative">
               <button
-                onClick={() => router.push('/vaccine')}
+                onClick={() => router.push("/vaccine")}
                 className="absolute top-4 left-4 bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full p-2 transition duration-300 flex items-center justify-center"
               >
                 <svg
@@ -179,10 +192,23 @@ export default function VaccineDetails() {
               </button>
 
               <div className="text-center mb-6">
-                <h2 className="text-4xl font-bold text-gray-800 mb-2">{vaccine.name}</h2>
-                <p className="text-lg text-gray-700 mb-4">{vaccine.description}</p>
-                <p className="text-lg text-gray-700">Dose: <span className="font-semibold">{vaccine.dose}</span></p>
-                <p className="text-lg text-gray-700">Laboratório: <span className="font-semibold">{vaccine.laboratory}</span></p>
+                <h2 className="text-4xl font-bold text-gray-800 mb-2">
+                  {vaccine.name}
+                </h2>
+                <p className="text-lg text-gray-700 mb-4">
+                  {vaccine.description}
+                </p>
+                <p className="text-lg text-gray-700">
+                  Dose: <span className="font-semibold">{vaccine.dose}</span>
+                </p>
+                {vaccine.laboratoryId && (
+                  <p className="text-lg text-gray-700">
+                    Laboratório:{" "}
+                    <span className="font-semibold">
+                      {vaccine.laboratoryId}
+                    </span>
+                  </p>
+                )}
               </div>
 
               {vaccine.sellable && (
@@ -190,24 +216,31 @@ export default function VaccineDetails() {
                   <div className="border-t border-gray-300 pt-6 mb-6">
                     <div className="flex justify-between text-gray-700 text-lg mb-2">
                       <span>Quantidade em estoque:</span>
-                      <span className="font-semibold">{vaccine.amountInStock}</span>
+                      <span className="font-semibold">
+                        {vaccine.amountInStock}
+                      </span>
                     </div>
                     <div className="flex justify-between text-gray-700 text-lg mb-4">
                       <span>Preço:</span>
-                      <span className="font-semibold">R$ {vaccine.pricePerUnit}</span>
+                      <span className="font-semibold">
+                        R$ {vaccine.pricePerUnit}
+                      </span>
                     </div>
                   </div>
-                  <form className="flex flex-col items-end" onSubmit={handleSubmit}>
+                  <form
+                    className="flex flex-col items-end"
+                    onSubmit={handleSubmit}
+                  >
                     <div className="flex items-center mb-4">
                       <input
                         type="number"
                         min={1}
-                        max={vaccine.dose}
+                        max={vaccine.amountInStock}
                         value={quantity}
                         onChange={handleQuantityChange}
                         placeholder="Quantidade"
                         className="border border-gray-300 rounded-lg px-3 py-1 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 mr-2"
-                        style={{ width: '100px' }}
+                        style={{ width: "100px" }}
                       />
                       <button
                         type="submit"
@@ -216,14 +249,14 @@ export default function VaccineDetails() {
                         Comprar
                       </button>
                     </div>
-                    <p className="text-lg text-gray-700">Preço total: R$ {totalPrice.toFixed(2)}</p>
+                    <p className="text-lg text-gray-700">
+                      Preço total: R$ {totalPrice.toFixed(2)}
+                    </p>
                   </form>
                 </div>
               )}
             </div>
           </div>
-
-
         </div>
       </div>
       <Footer />

@@ -1,7 +1,5 @@
 package com.github.dannful.util
 
-import java.util.concurrent.TimeUnit
-
 object Constants {
 
     const val AUTH_SESSION_COOKIE = "user-session"
