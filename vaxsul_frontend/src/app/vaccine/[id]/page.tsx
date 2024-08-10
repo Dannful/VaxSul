@@ -182,6 +182,7 @@ export default function VaccineDetails() {
                 <h2 className="text-4xl font-bold text-gray-800 mb-2">{vaccine.name}</h2>
                 <p className="text-lg text-gray-700 mb-4">{vaccine.description}</p>
                 <p className="text-lg text-gray-700">Dose: <span className="font-semibold">{vaccine.dose}</span></p>
+                <p className="text-lg text-gray-700">Laboratório: <span className="font-semibold">{vaccine.laboratory}</span></p>
               </div>
 
               {vaccine.sellable && (

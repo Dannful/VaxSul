@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, AwaitedReactNode, JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal } from "react";
 import { useSearchVaccineMutation } from "@/service/vaxsul";
 import { LoadingWidget } from "../components/LoadingWidget";
 import { ErrorWidget } from "../components/ErrorWidget";
@@ -11,7 +11,7 @@ export default function ProductCatalog() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterMenuVisible, setFilterMenuVisible] = useState(false);
   const [accountMenuVisible, setAccountMenuVisible] = useState(false);
-  const [filter, setFilter] = useState("");
+  const [sortType, setSortType] = useState("");
   const [search, searchResult] = useSearchVaccineMutation();
   const router = useRouter();
   const [visibleCount, setVisibleCount] = useState(12);
@@ -36,15 +36,30 @@ export default function ProductCatalog() {
 
   const vaccines = searchResult.data;
 
-  const filteredProducts = vaccines.filter(
-    (product) =>
-      product.sellable === true &&
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchTerm.toLowerCase()),
-  ).slice(0, visibleCount);
+  const sortProducts = (products: any[]) => {
+    if (sortType === "name") {
+      return products.sort((a: { name: string; }, b: { name: any; }) => a.name.localeCompare(b.name));
+    } else if (sortType === "value") {
+      return products.sort((a: { price: number; }, b: { price: number; }) => a.price - b.price);
+    } else if (sortType === "lab") {
+      return products.sort((a: { laboratory: string; }, b: { laboratory: any; }) => a.laboratory.localeCompare(b.laboratory));
+    }
+    return products;
+  };
+
+  const sortedProducts = sortProducts([...vaccines]);
+
+  const filteredProducts = sortedProducts
+    .filter(
+      (product: { sellable: boolean; name: string; description: string; }) =>
+        product.sellable === true &&
+        (product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          product.description.toLowerCase().includes(searchTerm.toLowerCase()))
+    )
+    .slice(0, visibleCount);
 
   const handleLoadMore = () => {
-    setVisibleCount(prevCount => prevCount + 8);
+    setVisibleCount((prevCount) => prevCount + 8);
   };
 
   const toggleAccountMenu = () => {
@@ -54,7 +69,6 @@ export default function ProductCatalog() {
   const toggleFilterMenu = () => {
     setFilterMenuVisible(!filterMenuVisible);
   };
-
 
   return (
     <div
@@ -105,22 +119,36 @@ export default function ProductCatalog() {
                   className="text-white bg-white bg-opacity-20 hover:bg-opacity-30 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out"
                   onClick={toggleFilterMenu}
                 >
-                  Filtro
+                  Ordenação
                 </button>
                 {filterMenuVisible && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2">
-                    {/* Criar uma função de filtro para os filtros*/}
                     <button
-                      onClick={() => setFilter("filtro1")}
+                      onClick={() => {
+                        setSortType("name");
+                        toggleFilterMenu();
+                      }}
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
-                      Filtro 1
+                      Nome
                     </button>
                     <button
-                      onClick={() => setFilter("filtro2")}
+                      onClick={() => {
+                        setSortType("value");
+                        toggleFilterMenu();
+                      }}
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
-                      Filtro 2
+                      Valor
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSortType("lab");
+                        toggleFilterMenu();
+                      }}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Laboratório
                     </button>
                   </div>
                 )}
@@ -166,7 +194,7 @@ export default function ProductCatalog() {
                             router.push("/account");
                           }}
                         >
-                          Ver Perfil
+                          Perfil
                         </button>
                       </li>
                       <li>
@@ -189,7 +217,7 @@ export default function ProductCatalog() {
           <div className="flex flex-col items-center mx-4 md:mx-24 mt-12 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
               {/* Listagem de Vacinas */}
-              {filteredProducts.map((product) => (
+              {filteredProducts.map((product: { id: Key | null | undefined; name: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined; description: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined; dose: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined; }) => (
                 <div
                   key={product.id}
                   className="bg-white bg-opacity-30 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300 ease-in-out"

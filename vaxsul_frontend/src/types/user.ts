@@ -9,8 +9,9 @@ export const userSchema = z.object({
     z.literal("RESEARCH_LEAD"),
     z.literal("RESEARCHER"),
   ]),
-  state: z.string(),
-  city: z.string(),
+  cpf: z.string(),
+  phone: z.string(),
+  birthdate: z.string(),
   name: z.string(),
 });
 

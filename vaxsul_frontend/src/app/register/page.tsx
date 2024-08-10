@@ -2,7 +2,7 @@
 import { sha256 } from "@/lib/encryption";
 import { useRegisterMutation } from "@/service/vaxsul";
 import { useRouter } from "next/navigation";
-import { FormEvent, FormEventHandler, useState } from "react";
+import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { SerializedError } from "@reduxjs/toolkit";
@@ -12,8 +12,9 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [state, setState] = useState("");
-  const [city, setCity] = useState("");
+  const [cpf, setCpf] = useState("");
+  const [birthdate, setBirthdate] = useState("");
+  const [phone, setPhone] = useState("");
 
   const [register, result] = useRegisterMutation();
   const router = useRouter();
@@ -30,21 +31,24 @@ export default function Register() {
       password: await sha256(password),
       name: fullName,
       email: email,
-      state: state,
-      city: city,
+      cpf: cpf,
+      birthdate: birthdate,
+      phone: phone,
       role: "USER",
     });
+
     if (registerResult.error) {
       console.error("Erro ao registrar: ", registerResult.error);
+    } else {
+      router.push("/login");
+      setFullName("");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+      setCpf("");
+      setBirthdate("");
+      setPhone("");
     }
-    router.push("/login");
-
-    setFullName("");
-    setEmail("");
-    setPassword("");
-    setConfirmPassword("");
-    setState("");
-    setCity("");
   };
 
   return (
@@ -59,7 +63,7 @@ export default function Register() {
         <span className="text-white mr-2">Já possui uma conta?</span>
         <Link href="/login">
           <button className="text-white bg-white bg-opacity-20 hover:bg-opacity-30 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out">
-            Entra
+            Entrar
           </button>
         </Link>
       </div>
@@ -103,11 +107,61 @@ export default function Register() {
             <input
               type="email"
               id="email"
-              className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3 placeholder-gray-500"
+              className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w/full p-3 placeholder-gray-500"
               placeholder="example@email.com"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col">
+            <label
+              htmlFor="cpf"
+              className="text-sm font-medium text-gray-200 mb-1"
+            >
+              CPF
+            </label>
+            <input
+              type="text"
+              id="cpf"
+              className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3 placeholder-gray-500"
+              placeholder="CPF"
+              required
+              value={cpf}
+              onChange={(e) => setCpf(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col">
+            <label
+              htmlFor="birthdate"
+              className="text-sm font-medium text-gray-200 mb-1"
+            >
+              Data de Nascimento
+            </label>
+            <input
+              type="date"
+              id="birthdate"
+              className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w/full p-3 placeholder-gray-500"
+              required
+              value={birthdate}
+              onChange={(e) => setBirthdate(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col">
+            <label
+              htmlFor="phone"
+              className="text-sm font-medium text-gray-200 mb-1"
+            >
+              Telefone
+            </label>
+            <input
+              type="text"
+              id="phone"
+              className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w/full p-3 placeholder-gray-500"
+              placeholder="Telefone"
+              required
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
             />
           </div>
           <div className="flex flex-col">
@@ -120,7 +174,7 @@ export default function Register() {
             <input
               type="password"
               id="password"
-              className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3 placeholder-gray-500"
+              className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w/full p-3 placeholder-gray-500"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -131,58 +185,16 @@ export default function Register() {
               htmlFor="confirmPassword"
               className="text-sm font-medium text-gray-200 mb-1"
             >
-              Confirme a senha
+              Confirme a Senha
             </label>
             <input
               type="password"
               id="confirmPassword"
-              className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3 placeholder-gray-500"
+              className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w/full p-3 placeholder-gray-500"
               required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
-          </div>
-          <div className="flex flex-col">
-            <label
-              htmlFor="state"
-              className="text-sm font-medium text-gray-200 mb-1"
-            >
-              Estado
-            </label>
-            <select
-              id="state"
-              className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3 placeholder-gray-500"
-              value={state}
-              onChange={(e) => setState(e.target.value)}
-              required
-            >
-              <option value="">Selecione o Estado</option>
-              <option value="RS">Rio Grande do Sul</option>
-              <option value="SP">São Paulo</option>
-              <option value="MG">Minas Gerais</option>
-              <option value="RJ">Rio de Janeiro</option>
-            </select>
-          </div>
-          <div className="flex flex-col">
-            <label
-              htmlFor="city"
-              className="text-sm font-medium text-gray-200 mb-1"
-            >
-              Cidade
-            </label>
-            <select
-              id="city"
-              className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3 placeholder-gray-500"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              required
-            >
-              <option value="">Selecione a Cidade</option>
-              <option value="Porto Alegre">Porto Alegre</option>
-              <option value="São Paulo">São Paulo</option>
-              <option value="Belo Horizonte">Belo Horizonte</option>
-              <option value="Rio de Janeiro">Rio de Janeiro</option>
-            </select>
           </div>
           <button
             type="submit"
