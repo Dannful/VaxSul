@@ -20,6 +20,7 @@ class UsersDao(id: EntityID<Int>) : IntEntity(id) {
     var laboratoryId by Users.laboratoryId
 
     fun toUser(): User = User(
+        id = id.value,
         email = email,
         name = name,
         password = password,
