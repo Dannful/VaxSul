@@ -12,7 +12,8 @@ data class User(
     val role: Role = Role.USER,
     val cpf: String,
     val phone: String,
-    val birthday: LocalDateTime
+    val birthday: LocalDateTime,
+    val laboratoryId: Int? = null
 ) {
 
     override fun equals(other: Any?): Boolean {

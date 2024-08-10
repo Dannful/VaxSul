@@ -1,10 +1,12 @@
 package com.github.dannful.data.service
 
 import com.github.dannful.data.dao.UsersDao
+import com.github.dannful.data.entity.Laboratories
 import com.github.dannful.data.entity.Users
 import com.github.dannful.domain.model.User
 import com.github.dannful.domain.service.DispatcherProvider
 import com.github.dannful.domain.service.UserService
+import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
@@ -30,6 +32,8 @@ class DbUserService(
                 foundUser.cpf = user.cpf
                 foundUser.phone = user.phone
                 foundUser.birthday = user.birthday
+                if (user.laboratoryId != null)
+                    foundUser.laboratoryId = EntityID(id = user.laboratoryId, table = Laboratories)
                 return@newSuspendedTransaction
             }
             UsersDao.new {
@@ -40,6 +44,8 @@ class DbUserService(
                 cpf = user.cpf
                 phone = user.phone
                 birthday = user.birthday
+                if (user.laboratoryId != null)
+                    laboratoryId = EntityID(id = user.laboratoryId, table = Laboratories)
             }
         }
     }

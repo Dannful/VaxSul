@@ -17,6 +17,7 @@ class UsersDao(id: EntityID<Int>) : IntEntity(id) {
     var cpf by Users.cpf
     var phone by Users.phone
     var birthday by Users.birthday
+    var laboratoryId by Users.laboratoryId
 
     fun toUser(): User = User(
         email = email,
@@ -25,6 +26,7 @@ class UsersDao(id: EntityID<Int>) : IntEntity(id) {
         role = role,
         cpf = cpf,
         phone = phone,
-        birthday = birthday
+        birthday = birthday,
+        laboratoryId = laboratoryId?.value
     )
 }
