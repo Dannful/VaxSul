@@ -26,13 +26,15 @@ fun Application.vaccineRoutes() {
                     name = query.name,
                     minimumPrice = query.minimumPrice,
                     maximumPrice = query.maximumPrice,
-                    count = query.count
+                    count = query.count,
+                    amountInStock = query.amountInStock,
+                    sellable = query.sellable
                 )
-                if ((vaccineQuery.minimumPrice ?: 0f) < 0) {
+                if (vaccineQuery.minimumPrice < 0) {
                     call.respond(HttpStatusCode.BadRequest, "Minimum price must be positive")
                     return@get
                 }
-                if ((vaccineQuery.maximumPrice ?: 0f) < (vaccineQuery.minimumPrice ?: 0f)) {
+                if (vaccineQuery.maximumPrice < (vaccineQuery.minimumPrice ?: 0f)) {
                     call.respond(HttpStatusCode.BadRequest, "Maximum price must be greater than minimum price")
                     return@get
                 }
@@ -56,8 +58,7 @@ fun Application.vaccineRoutes() {
                     call.respond(HttpStatusCode.BadRequest)
                     return@post
                 }
-                vaccineService.addVaccine(vaccine)
-                call.respond(HttpStatusCode.OK)
+                call.respond(HttpStatusCode.OK, vaccineService.addVaccine(vaccine))
             }
         }
     }
@@ -67,9 +68,11 @@ fun Application.vaccineRoutes() {
 @Resource("/vaccines")
 private class Vaccines(
     val name: String? = null,
-    val minimumPrice: Float? = null,
-    val maximumPrice: Float? = null,
-    val count: Int? = null
+    val minimumPrice: Float = 0f,
+    val maximumPrice: Float = Float.MAX_VALUE,
+    val count: Int = Int.MAX_VALUE,
+    val sellable: Boolean? = null,
+    val amountInStock: Int = 1
 ) {
 
     @Suppress("unused")

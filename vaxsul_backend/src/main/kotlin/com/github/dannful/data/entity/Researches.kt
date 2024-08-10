@@ -7,7 +7,7 @@ import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 
 object Researches : IntIdTable() {
 
-    val startDate = datetime("start_date")
+    val startDate = datetime("startDate")
     val status = enumeration("status", ResearchStatus::class)
     val progress = float("progress").check(name = "check_valid_progress") {
         it greaterEq 0f and (it lessEq 100f)

@@ -31,8 +31,7 @@ fun Application.researchRoutes() {
                     call.respond(HttpStatusCode.BadRequest)
                     return@post
                 }
-                researchService.addResearch(vaccine)
-                call.respond(HttpStatusCode.OK)
+                call.respond(HttpStatusCode.OK, researchService.addResearch(vaccine))
             }
             get<Researches> {
                 this.call.respond(HttpStatusCode.OK, researchService.getResearches())

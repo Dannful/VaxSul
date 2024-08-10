@@ -35,10 +35,10 @@ class DbVaccineService(
         }
     }
 
-    override suspend fun addVaccine(vaccine: Vaccine) {
+    override suspend fun addVaccine(vaccine: Vaccine): Vaccine =
         newSuspendedTransaction(context = dispatcherProvider.io, db = database) {
             if (vaccine.id != null) {
-                val foundVaccine = VaccinesDao.findById(vaccine.id) ?: return@newSuspendedTransaction
+                val foundVaccine = VaccinesDao.findById(vaccine.id) ?: return@newSuspendedTransaction vaccine
                 foundVaccine.name = vaccine.name
                 foundVaccine.dose = vaccine.dose
                 foundVaccine.amountInStock = vaccine.amountInStock
@@ -49,9 +49,9 @@ class DbVaccineService(
                 foundVaccine.sellable = vaccine.sellable
                 foundVaccine.laboratoryId = EntityID(id = vaccine.laboratoryId, table = Laboratories)
 
-                return@newSuspendedTransaction
+                return@newSuspendedTransaction vaccine
             }
-            VaccinesDao.new {
+            return@newSuspendedTransaction VaccinesDao.new {
                 pricePerUnit = vaccine.pricePerUnit
                 amountInStock = vaccine.amountInStock
                 researchId =
@@ -61,22 +61,19 @@ class DbVaccineService(
                 name = vaccine.name
                 description = vaccine.description
                 laboratoryId = EntityID(id = vaccine.laboratoryId, table = Laboratories)
-            }
+            }.toVaccine()
         }
-    }
 
     override suspend fun search(vaccineQuery: VaccineQuery): Pair<Long, List<Vaccine>> =
         newSuspendedTransaction(context = dispatcherProvider.io, db = database) {
             val orderBy = VaccinesDao.find {
-                (Vaccines.amountInStock greaterEq 1 and (Vaccines.sellable eq true and (Vaccines.name like "%${vaccineQuery.name.orEmpty()}%").and(
-                    if (vaccineQuery.maximumPrice != null) Vaccines.pricePerUnit lessEq vaccineQuery.maximumPrice else booleanParam(
-                        true
-                    )
+                (Vaccines.amountInStock greaterEq vaccineQuery.amountInStock and (if (vaccineQuery.sellable != null) Vaccines.sellable eq vaccineQuery.sellable else Op.TRUE) and (Vaccines.name like "%${vaccineQuery.name.orEmpty()}%").and(
+                    Vaccines.pricePerUnit lessEq vaccineQuery.maximumPrice
                 ).and(
-                    Vaccines.pricePerUnit greaterEq (vaccineQuery.minimumPrice ?: 0f)
-                )))
+                    Vaccines.pricePerUnit greaterEq vaccineQuery.minimumPrice
+                ))
             }.orderBy(Vaccines.laboratoryId to SortOrder.ASC)
-            orderBy.count() to orderBy.limit(vaccineQuery.count ?: Int.MAX_VALUE)
+            orderBy.count() to orderBy.limit(vaccineQuery.count)
                 .toList()
                 .map { it.toVaccine() }
         }

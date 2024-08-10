@@ -3,14 +3,11 @@ package com.github.dannful.routes
 import com.github.dannful.core.Scenario
 import com.github.dannful.domain.model.ResearchStatus
 import com.github.dannful.domain.model.Role
-import com.github.dannful.domain.model.User
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
-import kotlinx.datetime.LocalDateTime
-import java.time.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -22,27 +19,21 @@ class ResearchRoutesKtTest {
             config = ApplicationConfig("test-application.conf")
         }
         val scenario = Scenario()
-        val testUser = User(
-            email = "test@test.com",
-            name = "test",
-            password = "test",
-            role = Role.USER,
-            cpf = "123456",
-            phone = "123457",
-            birthday = kotlinx.datetime.LocalDate(2024, 1, 2)
+        scenario.setupClient(this, role = Role.RESEARCH_LEAD)
+        val research = scenario.addResearch().copy(
+            status = ResearchStatus.COMPLETED,
+            id = 1
         )
-        scenario.setupClient(this)
-        val newUserResponse = scenario.httpClient.post("/users/new") {
+
+        val researchCreateResponse = scenario.httpClient.post("/researches/new") {
             contentType(ContentType.Application.Json)
             setBody(
-                testUser
+                research
             )
         }
 
-        val user = scenario.userService.getUserById(1)
-
-        assertEquals(HttpStatusCode.OK, newUserResponse.status)
-        assertEquals(testUser, user)
+        assertEquals(HttpStatusCode.OK, researchCreateResponse.status)
+        assertEquals(research, researchCreateResponse.body())
     }
 
     @Test

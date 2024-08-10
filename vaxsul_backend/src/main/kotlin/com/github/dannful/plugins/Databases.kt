@@ -1,9 +1,6 @@
 package com.github.dannful.plugins
 
-import com.github.dannful.data.entity.ResearchDesignations
-import com.github.dannful.data.entity.Researches
-import com.github.dannful.data.entity.Users
-import com.github.dannful.data.entity.Vaccines
+import com.github.dannful.data.entity.*
 import io.ktor.server.application.*
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -17,9 +14,6 @@ fun Application.configureDatabases() {
     TransactionManager.defaultDatabase = database
 
     transaction(database) {
-        SchemaUtils.create(Users)
-        SchemaUtils.create(Researches)
-        SchemaUtils.create(Vaccines)
-        SchemaUtils.create(ResearchDesignations)
+        SchemaUtils.create(Users, Researches, Vaccines, ResearchDesignations, Laboratories, Purchases)
     }
 }

@@ -14,7 +14,7 @@ object Purchases : IntIdTable() {
         it greaterEq 1
     }
     val timestamp = datetime("timestamp").defaultExpression(CurrentTimestamp())
-    val totalSpent = float("total_spent").check(name = "is_total_spent_valid") {
+    val totalSpent = float("totalSpent").check(name = "is_total_spent_valid") {
         it greater 0f
     }
 }

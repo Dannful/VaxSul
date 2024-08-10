@@ -8,6 +8,6 @@ interface VaccineService {
     suspend fun getVaccines(): List<Vaccine>
     suspend fun getVaccineById(id: Int): Vaccine?
     suspend fun deleteVaccine(id: Int)
-    suspend fun addVaccine(vaccine: Vaccine)
+    suspend fun addVaccine(vaccine: Vaccine): Vaccine
     suspend fun search(vaccineQuery: VaccineQuery): Pair<Long, List<Vaccine>>
 }

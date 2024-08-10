@@ -22,20 +22,20 @@ class DbResearchService(
             ResearchesDao.findById(id)?.toResearch()
         }
 
-    override suspend fun addResearch(research: Research) {
+    override suspend fun addResearch(research: Research): Research =
         newSuspendedTransaction(context = dispatcherProvider.io, db = database) {
             if(research.id != null) {
-                val foundResearch = ResearchesDao.findById(research.id) ?: return@newSuspendedTransaction
+                val foundResearch = ResearchesDao.findById(research.id) ?: return@newSuspendedTransaction research
                 foundResearch.status = research.status
                 foundResearch.startDate = research.startDate
                 foundResearch.progress = research.progress
+                return@newSuspendedTransaction foundResearch.toResearch()
             }
             ResearchesDao.new {
                 startDate = research.startDate
                 status = research.status
                 progress = research.progress
-            }
-        }
+            }.toResearch()
     }
 
     override suspend fun deleteResearch(id: Int) {

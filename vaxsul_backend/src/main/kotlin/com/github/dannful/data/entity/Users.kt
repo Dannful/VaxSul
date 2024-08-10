@@ -14,5 +14,5 @@ object Users : IntIdTable() {
     val cpf = varchar("cpf", 11)
     val birthday = date("birthday")
     val phone = varchar("phone", 16)
-    val laboratoryId = reference("laboratory_id", Laboratories).nullable().default(null)
+    val laboratoryId = reference("laboratoryId", Laboratories).nullable().default(null)
 }

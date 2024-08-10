@@ -39,10 +39,8 @@ class VaccineRoutesKtTest {
             )
         }
 
-        val vaccine = scenario.vaccineService.getVaccineById(1)
-
         assertEquals(HttpStatusCode.OK, newVaccineResponse.status)
-        assertEquals(testVaccine, vaccine)
+        assertEquals(testVaccine, newVaccineResponse.body())
     }
 
     @Test
