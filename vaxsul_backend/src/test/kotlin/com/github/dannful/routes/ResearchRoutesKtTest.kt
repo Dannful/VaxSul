@@ -10,6 +10,7 @@ import io.ktor.http.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
 import kotlinx.datetime.LocalDateTime
+import java.time.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -28,7 +29,7 @@ class ResearchRoutesKtTest {
             role = Role.USER,
             cpf = "123456",
             phone = "123457",
-            birthday = LocalDateTime(2024, 1, 2, 3, 5, 6)
+            birthday = kotlinx.datetime.LocalDate(2024, 1, 2)
         )
         scenario.setupClient(this)
         val newUserResponse = scenario.httpClient.post("/users/new") {

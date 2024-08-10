@@ -8,6 +8,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -226,7 +227,7 @@ class UserRoutesKtTest {
                     password = "test",
                     cpf = "12312312",
                     phone = "1233565",
-                    birthday = LocalDateTime(2024, 12, 1, 3, 4, 5)
+                    birthday = LocalDate(2024, 12, 1)
                 )
             )
         }

@@ -1,6 +1,6 @@
 package com.github.dannful.domain.model
 
-import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -12,7 +12,7 @@ data class User(
     val role: Role = Role.USER,
     val cpf: String,
     val phone: String,
-    val birthday: LocalDateTime,
+    val birthday: LocalDate,
     val laboratoryId: Int? = null
 ) {
 

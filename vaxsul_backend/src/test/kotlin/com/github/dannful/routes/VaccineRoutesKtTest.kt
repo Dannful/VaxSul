@@ -19,7 +19,8 @@ class VaccineRoutesKtTest {
             config = ApplicationConfig("test-application.conf")
         }
         val scenario = Scenario()
-        scenario.setupClient(this, Role.SALES_MANAGER)
+        scenario.setupClient(this, Role.RESEARCH_LEAD)
+        scenario.addLaboratory()
 
         val testVaccine = Vaccine(
             pricePerUnit = 1.0f,
@@ -54,7 +55,7 @@ class VaccineRoutesKtTest {
             name = "ola romano",
             id = 1
         )
-        scenario.setupClient(this, Role.SALES_MANAGER)
+        scenario.setupClient(this, Role.RESEARCH_LEAD)
 
         val newVaccineResponse = scenario.httpClient.post("/vaccines/new") {
             contentType(ContentType.Application.Json)
@@ -75,7 +76,7 @@ class VaccineRoutesKtTest {
             config = ApplicationConfig("test-application.conf")
         }
         val scenario = Scenario()
-        scenario.setupClient(this, Role.SALES_MANAGER)
+        scenario.setupClient(this, Role.RESEARCH_LEAD)
         val vaccine = scenario.addVaccine()
 
         val getVaccines = scenario.httpClient.get("/vaccines")
@@ -90,7 +91,7 @@ class VaccineRoutesKtTest {
             config = ApplicationConfig("test-application.conf")
         }
         val scenario = Scenario()
-        scenario.setupClient(this, Role.SALES_MANAGER)
+        scenario.setupClient(this, Role.RESEARCH_LEAD)
         val vaccine = scenario.addVaccine()
 
         val getNewVaccineResponse = scenario.httpClient.get("/vaccines/1")
@@ -105,7 +106,7 @@ class VaccineRoutesKtTest {
             config = ApplicationConfig("test-application.conf")
         }
         val scenario = Scenario()
-        scenario.setupClient(this, Role.SALES_MANAGER)
+        scenario.setupClient(this, Role.RESEARCH_LEAD)
 
         val getVaccineResponse = scenario.httpClient.get("/vaccines/1")
 
@@ -118,7 +119,7 @@ class VaccineRoutesKtTest {
             config = ApplicationConfig("test-application.conf")
         }
         val scenario = Scenario()
-        scenario.setupClient(this, Role.RESEARCH_LEAD)
+        scenario.setupClient(this, Role.USER)
         scenario.addVaccine()
 
         val deleteVaccineRequest = scenario.httpClient.delete("/vaccines/1")
@@ -132,7 +133,7 @@ class VaccineRoutesKtTest {
             config = ApplicationConfig("test-application.conf")
         }
         val scenario = Scenario()
-        scenario.setupClient(this, Role.SALES_MANAGER)
+        scenario.setupClient(this, Role.RESEARCH_LEAD)
         scenario.addVaccine()
 
         val deleteVaccineRequest = scenario.httpClient.delete("/vaccines/1")

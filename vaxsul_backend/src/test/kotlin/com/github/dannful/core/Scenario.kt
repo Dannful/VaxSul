@@ -14,6 +14,7 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -90,7 +91,7 @@ class Scenario {
             role = role,
             cpf = "1234567890",
             phone = "12345567",
-            birthday = LocalDateTime(2024, 3, 3, 3, 3, 3)
+            birthday = LocalDate(2024, 3, 3)
         )
         userService.addUser(
             user
@@ -148,7 +149,7 @@ class Scenario {
             role = Role.USER,
             cpf = "12345667",
             phone = "12345567",
-            birthday = LocalDateTime(2024, 3, 3, 3, 3, 3)
+            birthday = LocalDate(2024, 3, 3)
         )
         userService.addUser(user)
         return user
