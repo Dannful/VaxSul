@@ -1,14 +1,9 @@
 package com.github.dannful.core
 
-import com.github.dannful.data.entity.ResearchDesignations
-import com.github.dannful.data.entity.Researches
-import com.github.dannful.data.entity.Users
-import com.github.dannful.data.entity.Vaccines
-import com.github.dannful.data.service.DbResearchService
-import com.github.dannful.data.service.DbUserService
-import com.github.dannful.data.service.DbVaccineService
-import com.github.dannful.data.service.DefaultDispatcherProvider
+import com.github.dannful.data.entity.*
+import com.github.dannful.data.service.*
 import com.github.dannful.domain.model.*
+import com.github.dannful.domain.service.PurchaseService
 import com.github.dannful.domain.service.ResearchService
 import com.github.dannful.domain.service.UserService
 import com.github.dannful.domain.service.VaccineService
@@ -35,6 +30,7 @@ class Scenario {
     var researchService: ResearchService
     var userService: UserService
     var vaccineService: VaccineService
+    var purchaseService: PurchaseService
 
     init {
         val applicationConfig = ApplicationConfig("test-application.conf")
@@ -53,9 +49,12 @@ class Scenario {
         vaccineService = DbVaccineService(
             dispatcherProvider = DefaultDispatcherProvider(), database = database
         )
+        purchaseService = DbPurchaseService(
+            dispatcherProvider = DefaultDispatcherProvider(), database = database
+        )
         transaction {
-            SchemaUtils.drop(Users, Vaccines, Researches, ResearchDesignations)
-            SchemaUtils.create(Users, Vaccines, Researches, ResearchDesignations)
+            SchemaUtils.drop(Users, Vaccines, Researches, ResearchDesignations, Purchases)
+            SchemaUtils.create(Users, Vaccines, Researches, ResearchDesignations, Purchases)
         }
     }
 
@@ -146,5 +145,17 @@ class Scenario {
         )
         userService.addUser(user)
         return user
+    }
+
+    suspend fun addPurchase(): Purchase {
+        val purchase = Purchase(
+            userId = 1,
+            vaccineId = 1,
+            totalSpent = 30f,
+            amount = 3,
+            timestamp = LocalDateTime(3000, 3, 3, 3, 3, 3),
+        )
+        purchaseService.add(purchase)
+        return purchase
     }
 }

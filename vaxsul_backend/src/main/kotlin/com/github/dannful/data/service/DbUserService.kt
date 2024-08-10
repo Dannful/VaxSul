@@ -21,6 +21,16 @@ class DbUserService(
 
     override suspend fun addUser(user: User) {
         newSuspendedTransaction(context = dispatcherProvider.io, db = database) {
+            if (user.id != null) {
+                val foundUser = UsersDao.findById(user.id) ?: return@newSuspendedTransaction
+                foundUser.email = user.email
+                foundUser.role = user.role
+                foundUser.city = user.city
+                foundUser.name = user.name
+                foundUser.password = user.password
+                foundUser.state = user.state
+                return@newSuspendedTransaction
+            }
             UsersDao.new {
                 email = user.email
                 name = user.name

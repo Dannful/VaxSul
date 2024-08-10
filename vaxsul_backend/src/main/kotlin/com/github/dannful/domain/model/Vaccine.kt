@@ -15,10 +15,20 @@ data class Vaccine(
 ) {
 
     override fun equals(other: Any?): Boolean {
-        if (other !is Vaccine)
-            return false
-        return pricePerUnit == other.pricePerUnit && amountInStock == other.amountInStock && researchId == other.researchId && sellable == other.sellable
-                && description == other.description && name == other.name && dose == other.dose
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Vaccine
+
+        if (pricePerUnit != other.pricePerUnit) return false
+        if (amountInStock != other.amountInStock) return false
+        if (researchId != other.researchId) return false
+        if (sellable != other.sellable) return false
+        if (dose != other.dose) return false
+        if (description != other.description) return false
+        if (name != other.name) return false
+
+        return true
     }
 
     override fun hashCode(): Int {

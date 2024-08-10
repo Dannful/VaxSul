@@ -1,15 +1,10 @@
 package com.github.dannful.data.service
 
 import com.github.dannful.data.dao.ResearchesDao
-import com.github.dannful.data.dao.UsersDao
-import com.github.dannful.data.entity.Users
 import com.github.dannful.domain.model.Research
-import com.github.dannful.domain.model.User
 import com.github.dannful.domain.service.DispatcherProvider
 import com.github.dannful.domain.service.ResearchService
-import com.github.dannful.domain.service.UserService
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
 class DbResearchService(
@@ -29,6 +24,11 @@ class DbResearchService(
 
     override suspend fun addResearch(research: Research) {
         newSuspendedTransaction(context = dispatcherProvider.io, db = database) {
+            if(research.id != null) {
+                val foundResearch = ResearchesDao.findById(research.id) ?: return@newSuspendedTransaction
+                foundResearch.status = research.status
+                foundResearch.startDate = research.startDate
+            }
             ResearchesDao.new {
                 startDate = research.startDate
                 status = research.status

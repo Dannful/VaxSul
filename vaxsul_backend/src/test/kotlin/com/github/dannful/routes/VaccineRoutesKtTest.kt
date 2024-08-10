@@ -42,6 +42,32 @@ class VaccineRoutesKtTest {
     }
 
     @Test
+    fun `When updates vaccine, returns 200 (OK)`() = testApplication {
+        environment {
+            config = ApplicationConfig("test-application.conf")
+        }
+        val scenario = Scenario()
+        val vaccine = scenario.addVaccine().copy(
+            description = "ola marilene",
+            name = "ola romano",
+            id = 1
+        )
+        scenario.setupClient(this, Role.SALES_MANAGER)
+
+        val newVaccineResponse = scenario.httpClient.post("/vaccines/new") {
+            contentType(ContentType.Application.Json)
+            setBody(
+               vaccine
+            )
+        }
+
+        val returnedVaccine = scenario.vaccineService.getVaccineById(1)
+
+        assertEquals(HttpStatusCode.OK, newVaccineResponse.status)
+        assertEquals(vaccine, returnedVaccine)
+    }
+
+    @Test
     fun `When gets all vaccines, returns 200 (OK)`() = testApplication {
         environment {
             config = ApplicationConfig("test-application.conf")

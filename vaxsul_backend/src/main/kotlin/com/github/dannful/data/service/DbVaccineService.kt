@@ -34,6 +34,19 @@ class DbVaccineService(
 
     override suspend fun addVaccine(vaccine: Vaccine) {
         newSuspendedTransaction(context = dispatcherProvider.io, db = database) {
+            if (vaccine.id != null) {
+                val foundVaccine = VaccinesDao.findById(vaccine.id) ?: return@newSuspendedTransaction
+                foundVaccine.name = vaccine.name
+                foundVaccine.dose = vaccine.dose
+                foundVaccine.amountInStock = vaccine.amountInStock
+                foundVaccine.description = vaccine.description
+                if (vaccine.researchId != null)
+                    foundVaccine.researchId = EntityID(id = vaccine.researchId, table = Researches)
+                foundVaccine.pricePerUnit = vaccine.pricePerUnit
+                foundVaccine.sellable = vaccine.sellable
+
+                return@newSuspendedTransaction
+            }
             VaccinesDao.new {
                 pricePerUnit = vaccine.pricePerUnit
                 amountInStock = vaccine.amountInStock

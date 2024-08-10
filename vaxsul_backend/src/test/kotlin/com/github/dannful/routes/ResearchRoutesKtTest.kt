@@ -1,6 +1,7 @@
 package com.github.dannful.routes
 
 import com.github.dannful.core.Scenario
+import com.github.dannful.domain.model.ResearchStatus
 import com.github.dannful.domain.model.Role
 import com.github.dannful.domain.model.User
 import io.ktor.client.call.*
@@ -39,6 +40,31 @@ class ResearchRoutesKtTest {
 
         assertEquals(HttpStatusCode.OK, newUserResponse.status)
         assertEquals(testUser, user)
+    }
+
+    @Test
+    fun `When updates research, returns 200 (OK)`() = testApplication {
+        environment {
+            config = ApplicationConfig("test-application.conf")
+        }
+        val scenario = Scenario()
+        scenario.setupClient(this, role = Role.RESEARCH_LEAD)
+        val research = scenario.addResearch().copy(
+            status = ResearchStatus.COMPLETED,
+            id = 1
+        )
+
+        val researchUpdateResponse = scenario.httpClient.post("/researches/new") {
+            contentType(ContentType.Application.Json)
+            setBody(
+                research
+            )
+        }
+
+        val foundResearch = scenario.researchService.getResearch(1)
+
+        assertEquals(HttpStatusCode.OK, researchUpdateResponse.status)
+        assertEquals(research, foundResearch)
     }
 
     @Test

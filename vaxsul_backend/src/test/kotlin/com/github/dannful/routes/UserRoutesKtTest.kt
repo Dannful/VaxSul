@@ -46,6 +46,28 @@ class UserRoutesKtTest {
     }
 
     @Test
+    fun `When updates user, returns 200 (OK)`() = testApplication {
+        environment {
+            config = ApplicationConfig("test-application.conf")
+        }
+        val scenario = Scenario()
+        val user = scenario.addUser().copy(
+            name = "roger roberto edward robinson",
+            id = 1
+        )
+        scenario.setupClient(this)
+
+        val postResponse = scenario.httpClient.post("/users/new") {
+            contentType(ContentType.Application.Json)
+            setBody(user)
+        }
+        val response = scenario.httpClient.get("/users")
+
+        assertEquals(HttpStatusCode.OK, postResponse.status)
+        assertEquals(user, response.body<List<User>>().firstOrNull())
+    }
+
+    @Test
     fun `When gets all users, returns 200 (OK)`() = testApplication {
         environment {
             config = ApplicationConfig("test-application.conf")
@@ -253,5 +275,18 @@ class UserRoutesKtTest {
             val response = scenario.httpClient.post("/logout")
 
             assertEquals(HttpStatusCode.BadRequest, response.status)
+        }
+
+    @Test
+    fun `When client is authenticated, returns role`() =
+        testApplication {
+            environment {
+                config = ApplicationConfig("test-application.conf")
+            }
+            val scenario = Scenario()
+            scenario.setupClient(this, role = Role.RESEARCHER)
+            val response = scenario.httpClient.get("/users/role")
+
+            assertEquals(Role.RESEARCHER.toString(), response.body())
         }
 }

@@ -1,14 +1,8 @@
 package com.github.dannful.data.di
 
-import com.github.dannful.data.service.DbResearchService
-import com.github.dannful.data.service.DbUserService
-import com.github.dannful.data.service.DbVaccineService
-import com.github.dannful.data.service.DefaultDispatcherProvider
+import com.github.dannful.data.service.*
 import com.github.dannful.domain.model.JWTData
-import com.github.dannful.domain.service.DispatcherProvider
-import com.github.dannful.domain.service.ResearchService
-import com.github.dannful.domain.service.UserService
-import com.github.dannful.domain.service.VaccineService
+import com.github.dannful.domain.service.*
 import io.ktor.server.application.*
 import io.ktor.server.sessions.*
 import io.ktor.util.*
@@ -62,5 +56,9 @@ fun appModule(environment: ApplicationEnvironment) = module {
 
     single<ResearchService> {
         DbResearchService(dispatcherProvider = get(), database = get())
+    }
+
+    single<PurchaseService> {
+        DbPurchaseService(dispatcherProvider = get(), database = get())
     }
 }

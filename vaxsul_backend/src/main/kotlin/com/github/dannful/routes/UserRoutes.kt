@@ -2,7 +2,10 @@ package com.github.dannful.routes
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import com.github.dannful.domain.model.*
+import com.github.dannful.domain.model.Credentials
+import com.github.dannful.domain.model.JWTData
+import com.github.dannful.domain.model.User
+import com.github.dannful.domain.model.UserSession
 import com.github.dannful.domain.service.UserService
 import com.github.dannful.util.Constants
 import io.ktor.http.*
@@ -26,13 +29,6 @@ fun Application.userRoutes() {
             get<Users> {
                 call.respond(HttpStatusCode.OK, userService.getUsers())
             }
-            get<Users.User> {
-                val user = userService.getUserById(it.id) ?: run {
-                    call.respond(HttpStatusCode.BadRequest, "User #${it.id} not found")
-                    return@get
-                }
-                call.respond(HttpStatusCode.OK, user)
-            }
             delete<Users.User> {
                 userService.deleteUser(it.id)
                 call.respond(HttpStatusCode.OK)
@@ -45,6 +41,21 @@ fun Application.userRoutes() {
                 userService.addUser(user)
                 call.respond(HttpStatusCode.OK)
             }
+        }
+        get<Users.User> {
+            val session = call.sessions.get<UserSession>() ?: run {
+                call.respond(HttpStatusCode.Unauthorized)
+                return@get
+            }
+            val user = userService.getUserById(it.id) ?: run {
+                call.respond(HttpStatusCode.BadRequest, "User #${it.id} not found")
+                return@get
+            }
+            if (session.email != user.email) {
+                call.respond(HttpStatusCode.Unauthorized)
+                return@get
+            }
+            call.respond(HttpStatusCode.OK, user)
         }
         post<Register> {
             val user = call.receiveNullable<User>() ?: run {
@@ -105,6 +116,19 @@ fun Application.userRoutes() {
             )
             call.respond(HttpStatusCode.OK, token)
         }
+        get<Users.Role> {
+            val session = call.sessions.get<UserSession>() ?: run {
+                call.respond(HttpStatusCode.BadRequest, "User is not authenticated")
+                return@get
+            }
+            val role =
+                JWT.require(Algorithm.HMAC256(jwtData.secret)).withIssuer(jwtData.issuer).withAudience(jwtData.audience)
+                    .build().verify(session.token).getClaim(Constants.JWT_CLAIM_ROLE_FIELD_NAME).asString() ?: run {
+                    call.respond(HttpStatusCode.BadRequest, "User is authenticated, but session is invalid")
+                    return@get
+                }
+            call.respond(HttpStatusCode.OK, role)
+        }
     }
 }
 
@@ -121,6 +145,10 @@ private class Users {
     @Resource("/new")
     @Suppress("unused")
     class New(val parent: Users = Users())
+
+    @Resource("role")
+    @Suppress("unused")
+    class Role(val parent: Users = Users())
 }
 
 @Resource("/login")

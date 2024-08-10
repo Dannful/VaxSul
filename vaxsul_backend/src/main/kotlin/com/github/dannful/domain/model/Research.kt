@@ -8,4 +8,23 @@ data class Research(
     val id: Int? = null,
     val startDate: LocalDateTime,
     val status: ResearchStatus
-)
+) {
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Research
+
+        if (startDate != other.startDate) return false
+        if (status != other.status) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = startDate.hashCode()
+        result = 31 * result + status.hashCode()
+        return result
+    }
+}
