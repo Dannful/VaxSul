@@ -1,9 +1,9 @@
   "use client";
   import { useState, useEffect, FormEvent } from "react";
-  import { useLogoutMutation, useSearchVaccineMutation, useNewResearchMutation, useNewVaccineMutation, useGetAllResearchQuery, useGetCurrentUserQuery } from "@/service/vaxsul";
+  import { useLogoutMutation, useSearchVaccineQuery, useNewResearchMutation, useNewVaccineMutation, useGetAllResearchQuery, useGetCurrentUserQuery } from "@/service/vaxsul";
   import { LoadingWidget } from "../components/LoadingWidget";
   import { ErrorWidget } from "../components/ErrorWidget";
-  import { Vaccine } from "@/types/vaccine";
+  import { Vaccine, VaccineSearch } from "@/types/vaccine";
   import { Research } from "@/types/research";
   import Link from "next/link";
   import { useRouter } from "next/navigation";
@@ -16,13 +16,15 @@
       vaccineDoses: 1,
     });
 
-    const [searchTerm, setSearchTerm] = useState("");
     const [sortType, setSortType] = useState("");
     const [filterMenuVisible, setFilterMenuVisible] = useState(false);
     const [accountMenuVisible, setAccountMenuVisible] = useState(false);
     const [newVaccineFormVisible, setNewVaccineFormVisible] = useState(false);
 
-    const [search, vaccineSearch] = useSearchVaccineMutation();
+    const [vaccineSearchQuery, setVaccineSearchQuery] = useState<VaccineSearch>({
+      name: "",
+    });
+    const vaccineSearchRequest = useSearchVaccineQuery(vaccineSearchQuery);
     const researchSearch = useGetAllResearchQuery();
     const [newResearch, newResearchResult] = useNewResearchMutation();
     const [newVaccine, newVaccineResult] = useNewVaccineMutation();
@@ -36,11 +38,7 @@
     const isResearcher = user.data && (user.data.role === "RESEARCH_LEAD" || user.data.role === "RESEARCHER");
     const isResearchLead = user.data && user.data.role === "RESEARCH_LEAD";
 
-    useEffect(() => {
-      search({});
-    }, [search]);
-
-    if (vaccineSearch.isLoading || vaccineSearch.isUninitialized || 
+    if (vaccineSearchRequest.isLoading || vaccineSearchRequest.isUninitialized || 
         researchSearch.isLoading || researchSearch.isUninitialized || 
         user.isLoading || user.isUninitialized) {
     return <LoadingWidget />;
@@ -48,13 +46,13 @@
 
     if (!isResearcher) return <ErrorWidget message="Você não tem permissão para ver esta página." />;
 
-    if (vaccineSearch.isError || researchSearch.isError || user.isError ) {
+    if (vaccineSearchRequest.isError || researchSearch.isError || user.isError ) {
       return (
         <ErrorWidget message="Erro ao carregar. Por favor, tente novamente mais tarde ou contate o dev lixo que fez essa página." />
       );
     }
 
-    const vaccines = vaccineSearch.data;
+    const vaccines = vaccineSearchRequest.data;
     const researches = researchSearch.data;
 
     const combinedData = vaccines.second // Combinar dados das vacinas com as pesquisas
@@ -114,15 +112,10 @@
             type="text"
             placeholder="Pesquisar"
             className="bg-gray-40 bg-opacity-60 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 w-2/5 md:w-1/4"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                search({
-                  name: searchTerm,
-                });
-              }
-            }}
+            value={vaccineSearchQuery.name}
+            onChange={(e) =>
+              setVaccineSearchQuery({ ...vaccineSearchQuery, name: e.target.value })
+            }
           />
           <div className="relative ml-2">
             <button
