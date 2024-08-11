@@ -9,7 +9,6 @@ data class Vaccine(
     val pricePerUnit: Float,
     val amountInStock: Int,
     val researchId: Int? = null,
-    val sellable: Boolean,
     val dose: Int,
     val description: String,
     val name: String
@@ -25,7 +24,6 @@ data class Vaccine(
         if (pricePerUnit != other.pricePerUnit) return false
         if (amountInStock != other.amountInStock) return false
         if (researchId != other.researchId) return false
-        if (sellable != other.sellable) return false
         if (dose != other.dose) return false
         if (description != other.description) return false
         if (name != other.name) return false
@@ -38,7 +36,6 @@ data class Vaccine(
         result = 31 * result + pricePerUnit.hashCode()
         result = 31 * result + amountInStock
         result = 31 * result + (researchId ?: 0)
-        result = 31 * result + sellable.hashCode()
         result = 31 * result + dose
         result = 31 * result + description.hashCode()
         result = 31 * result + name.hashCode()

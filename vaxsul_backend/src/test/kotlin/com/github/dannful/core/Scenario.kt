@@ -119,6 +119,9 @@ class Scenario {
                 second = 1,
             ),
             status = ResearchStatus.IN_PROGRESS,
+            name = "romano",
+            description = "description",
+            report = "report",
         )
         researchService.addResearch(
             research
@@ -129,13 +132,12 @@ class Scenario {
     suspend fun addVaccine(): Vaccine {
         addLaboratory()
         val vaccine = Vaccine(
+            laboratoryId = 1,
             pricePerUnit = 1.0f,
             amountInStock = 3,
-            sellable = true,
             dose = 1,
             description = "romano",
-            name = "romano",
-            laboratoryId = 1
+            name = "romano"
         )
         vaccineService.addVaccine(vaccine)
         return vaccine

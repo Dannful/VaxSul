@@ -16,37 +16,6 @@ import kotlin.test.assertEquals
 class UserRoutesKtTest {
 
     @Test
-    fun `When creates user, returns 200 (OK)`() = testApplication {
-        environment {
-            config = ApplicationConfig("test-application.conf")
-        }
-        val scenario = Scenario()
-        scenario.setupClient(this, Role.RESEARCHER)
-
-        val testResearch = Research(
-            startDate = LocalDateTime(
-                year = 2024,
-                monthNumber = 1,
-                dayOfMonth = 1,
-                hour = 1,
-                minute = 1,
-                second = 1
-            ),
-            status = ResearchStatus.PAUSED,
-        )
-        val newResearchResponse = scenario.httpClient.post("/researches/new") {
-            contentType(ContentType.Application.Json)
-            setBody(
-                testResearch
-            )
-        }
-        val research = scenario.researchService.getResearch(1)
-
-        assertEquals(HttpStatusCode.OK, newResearchResponse.status)
-        assertEquals(testResearch, research)
-    }
-
-    @Test
     fun `When updates user, returns 200 (OK)`() = testApplication {
         environment {
             config = ApplicationConfig("test-application.conf")

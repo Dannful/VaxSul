@@ -17,17 +17,15 @@ class VaccinesDao(id: EntityID<Int>) : IntEntity(id) {
     var pricePerUnit by Vaccines.pricePerUnit
     var amountInStock by Vaccines.amountInStock
     var researchId by Vaccines.researchId
-    var sellable by Vaccines.sellable
 
     fun toVaccine() = Vaccine(
         id = id.value,
         laboratoryId = laboratoryId.value,
         pricePerUnit = pricePerUnit,
         amountInStock = amountInStock,
-        sellable = sellable,
         researchId = researchId?.value,
-        name = name,
+        dose = dose,
         description = description,
-        dose = dose
+        name = name
     )
 }

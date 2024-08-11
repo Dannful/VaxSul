@@ -13,11 +13,17 @@ class ResearchesDao(id: EntityID<Int>) : IntEntity(id) {
     var startDate by Researches.startDate
     var status by Researches.status
     var progress by Researches.progress
+    var name by Researches.name
+    var description by Researches.description
+    var report by Researches.report
 
     fun toResearch() = Research(
         id = id.value,
         startDate = startDate,
         status = status,
-        progress = progress
+        progress = progress,
+        name = name,
+        description = description,
+        report = report
     )
 }

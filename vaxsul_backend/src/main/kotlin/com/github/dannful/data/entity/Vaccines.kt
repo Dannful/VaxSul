@@ -21,5 +21,4 @@ object Vaccines : IntIdTable() {
             onDelete = ReferenceOption.SET_NULL,
             onUpdate = ReferenceOption.CASCADE
         ).nullable().default(null)
-    val sellable = bool("sellable").default(false)
 }

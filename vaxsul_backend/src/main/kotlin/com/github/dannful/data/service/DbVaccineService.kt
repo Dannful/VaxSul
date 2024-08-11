@@ -11,7 +11,6 @@ import com.github.dannful.domain.service.VaccineService
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.greaterEq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
 class DbVaccineService(
@@ -46,7 +45,6 @@ class DbVaccineService(
                 if (vaccine.researchId != null)
                     foundVaccine.researchId = EntityID(id = vaccine.researchId, table = Researches)
                 foundVaccine.pricePerUnit = vaccine.pricePerUnit
-                foundVaccine.sellable = vaccine.sellable
                 foundVaccine.laboratoryId = EntityID(id = vaccine.laboratoryId, table = Laboratories)
 
                 return@newSuspendedTransaction vaccine
@@ -56,7 +54,6 @@ class DbVaccineService(
                 amountInStock = vaccine.amountInStock
                 researchId =
                     if (vaccine.researchId != null) EntityID(id = vaccine.researchId, table = Researches) else null
-                sellable = vaccine.sellable
                 dose = vaccine.dose
                 name = vaccine.name
                 description = vaccine.description
@@ -67,7 +64,7 @@ class DbVaccineService(
     override suspend fun search(vaccineQuery: VaccineQuery): Pair<Long, List<Vaccine>> =
         newSuspendedTransaction(context = dispatcherProvider.io, db = database) {
             val orderBy = VaccinesDao.find {
-                (Vaccines.amountInStock greaterEq vaccineQuery.amountInStock and (if (vaccineQuery.sellable != null) Vaccines.sellable eq vaccineQuery.sellable else Op.TRUE) and (Vaccines.name like "%${vaccineQuery.name.orEmpty()}%").and(
+                (Vaccines.amountInStock greaterEq vaccineQuery.amountInStock and (Vaccines.name like "%${vaccineQuery.name.orEmpty()}%").and(
                     Vaccines.pricePerUnit lessEq vaccineQuery.maximumPrice
                 ).and(
                     Vaccines.pricePerUnit greaterEq vaccineQuery.minimumPrice
