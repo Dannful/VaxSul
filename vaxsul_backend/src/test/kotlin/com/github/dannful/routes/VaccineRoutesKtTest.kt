@@ -5,7 +5,6 @@ import com.github.dannful.domain.model.Role
 import com.github.dannful.domain.model.Vaccine
 import io.ktor.client.call.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
@@ -24,13 +23,12 @@ class VaccineRoutesKtTest {
         scenario.addLaboratory()
 
         val testVaccine = Vaccine(
+            laboratoryId = 1,
             pricePerUnit = 1.0f,
             amountInStock = 3,
-            sellable = false,
             dose = 1,
             description = "romano",
-            name = "romano",
-            laboratoryId = 1
+            name = "romano"
         )
         val newVaccineResponse = scenario.httpClient.post("/vaccines/new") {
             contentType(ContentType.Application.Json)

@@ -132,13 +132,12 @@ class Scenario {
     suspend fun addVaccine(): Vaccine {
         addLaboratory()
         val vaccine = Vaccine(
+            laboratoryId = 1,
             pricePerUnit = 1.0f,
             amountInStock = 3,
-            sellable = true,
             dose = 1,
             description = "romano",
-            name = "romano",
-            laboratoryId = 1
+            name = "romano"
         )
         vaccineService.addVaccine(vaccine)
         return vaccine
