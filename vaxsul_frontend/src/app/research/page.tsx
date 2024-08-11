@@ -66,6 +66,20 @@
     })
     .filter((data) => data !== null);
 
+    const sortedData = combinedData.sort((a, b) => {
+      if (sortType === "name") {
+        return a.vaccine.name.localeCompare(b.vaccine.name);
+      } else if (sortType === "progress") {
+        return (a.research.progress ?? 0) - (b.research.progress ?? 0);
+      } else if (sortType === "status") {
+        const statusOrder = ["IN_PROGRESS", "PAUSED", "COMPLETED", "DROPPED"];
+        return statusOrder.indexOf(a.research.status) - statusOrder.indexOf(b.research.status);
+      } else if (sortType === "startDate") {
+        return new Date(a.research.startDate).getTime() - new Date(b.research.startDate).getTime();
+      }
+      return 0; // No sorting if sortType invalid or not set
+    });
+
     const toggleAccountMenu = () => {
       setAccountMenuVisible(!accountMenuVisible);
     };
@@ -137,6 +151,24 @@
                 </button>
                 <button
                   onClick={() => {
+                    setSortType("startDate");
+                    toggleFilterMenu();
+                  }}
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  Data de Início
+                </button>
+                <button
+                  onClick={() => {
+                    setSortType("progress");
+                    toggleFilterMenu();
+                  }}
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  Progresso
+                </button>
+                <button
+                  onClick={() => {
                     setSortType("status");
                     toggleFilterMenu();
                   }}
@@ -181,7 +213,7 @@
               {isResearchLead && AddResearchButton}
             </div>
           </div>
-          <VaccineResearchList combinedData={combinedData} />
+          <VaccineResearchList combinedData={sortedData} />
         </div>
         {newVaccineFormVisible && (
           <NewVaccineForm
