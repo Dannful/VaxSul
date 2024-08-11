@@ -12,4 +12,7 @@ object Researches : IntIdTable() {
     val progress = float("progress").check(name = "check_valid_progress") {
         it greaterEq 0f and (it lessEq 100f)
     }.default(0f)
+    val name = varchar("name", 255)
+    val description = varchar("description", 255)
+    val report = varchar("report", 255)
 }

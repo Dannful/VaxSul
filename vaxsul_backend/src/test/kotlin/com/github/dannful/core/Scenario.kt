@@ -119,6 +119,9 @@ class Scenario {
                 second = 1,
             ),
             status = ResearchStatus.IN_PROGRESS,
+            name = "romano",
+            description = "description",
+            report = "report",
         )
         researchService.addResearch(
             research
