@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, ChangeEvent } from 'react';
+import { useState, ChangeEvent, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useGetVaccineByIdQuery, useGetResearchByIdQuery, useNewResearchMutation, useNewVaccineMutation, useGetCurrentUserQuery } from '@/service/vaxsul';
 import { LoadingWidget } from '../../components/LoadingWidget';
@@ -8,6 +8,7 @@ import { ErrorWidget } from '../../components/ErrorWidget';
 import { useRouter } from "next/navigation";
 import { Vaccine } from '@/types/vaccine';
 import { Research } from '@/types/research';
+import Page from '../../components/Page';
 
 export default function VaccineResearchDetails() {
   const [newResearch, newResearchResult] = useNewResearchMutation();
@@ -34,7 +35,14 @@ export default function VaccineResearchDetails() {
     researchStatus: research?.status ?? '',
     researchProgress: research?.progress ?? 0,
   });
-  const [sellableCheck, setSellableCheck] = useState(vaccine?.sellable ?? false);
+  const [sellableCheck, setSellableCheck] = useState(false);
+
+  // When vaccine data is fetched and `sellableCheck` hasn't been set yet, update it.
+  useEffect(() => {
+    if (vaccine) {
+      setSellableCheck(vaccine.sellable);
+    }
+  }, [vaccine]);
   
   const router = useRouter();
 
@@ -60,6 +68,7 @@ export default function VaccineResearchDetails() {
       researchStatus: research.status ?? '',
       researchProgress: research.progress ?? 0,
     });
+    setSellableCheck(vaccine.sellable); // Reset sellable check
     setEditing(true);
   };
 
@@ -78,11 +87,11 @@ export default function VaccineResearchDetails() {
 
   const validateInput = () => {
     if (!isResearchLead && vaccine.sellable) {
-      alert("Apenas líderes de pesquisa podem alterar vacinas autorizadas para venda.");
+      alert("Apenas chefes de pesquisa podem alterar informações de vacinas em produção.");
       return false;
     }
     if (sellableCheck && editValues.researchStatus !== "COMPLETED") {
-      alert("A vacina só pode ser vendida se a pesquisa estiver finalizada.");
+      alert("A vacina só pode ser produzida se a pesquisa estiver finalizada.");
       return false;
     }
     if (editValues.researchStatus === "COMPLETED" && editValues.researchProgress < 100) {
@@ -124,9 +133,16 @@ export default function VaccineResearchDetails() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-      <main className="flex-1 p-6 flex justify-center">
+    <Page
+      titleBar={
+        <div className="flex items-center justify-center w-full">
+          <h1 className="text-xl font-semibold text-white">
+            Detalhes da Vacina
+          </h1>
+        </div>
+      }
+    >
+      <div className="flex-1 p-6 flex justify-center">
         <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-4xl">
           <div className="grid grid-cols-2 gap-6">
             <VaccineDetails 
@@ -151,9 +167,8 @@ export default function VaccineResearchDetails() {
             handleEditClick={handleEditClick} 
           />
         </div>
-      </main>
-      <Footer />
-    </div>
+      </div>
+    </Page>
   );
 }
 
@@ -228,7 +243,7 @@ const VaccineDetails: React.FC<{
             />
           </label>
           <label className="block mb-2 text-black">
-            Venda autorizada:
+            Produção autorizada:
             <input
               type="checkbox"
               checked={sellableCheck}
@@ -242,7 +257,7 @@ const VaccineDetails: React.FC<{
           <h2 className="text-2xl font-semibold mb-4 text-black">{vaccine.name}</h2>
           <p className="text-lg mb-4 text-black whitespace-pre-wrap">{vaccine.description}</p>
           <p className="text-lg mb-4 text-black">Doses: {vaccine.dose}</p>
-          <p className="text-lg mb-4 text-black">Venda autorizada: {vaccine.sellable ? "Sim" : "Não"}</p>
+          <p className="text-lg mb-4 text-black">Produção autorizada: {vaccine.sellable ? "Sim" : "Não"}</p>
         </div>
       )}
     </div>

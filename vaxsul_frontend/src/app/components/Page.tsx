@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Footer from "./Footer";
+import { useGetCurrentUserQuery } from "@/service/vaxsul";
 
 export default function Page({
   titleBar,
@@ -13,6 +14,13 @@ export default function Page({
 }) {
   const [filterMenuVisible, setFilterMenuVisible] = useState(false);
   const [accountMenuVisible, setAccountMenuVisible] = useState(false);
+  const user = useGetCurrentUserQuery();
+
+  const isClient = user.data && user.data.role === "USER";
+  const isSalesManager = user.data && user.data.role === "SALES_MANAGER";
+  const isResearcher = user.data && user.data.role === "RESEARCHER";
+  const isResearchLead = user.data && user.data.role === "RESEARCH_LEAD";
+
   const toggleAccountMenu = () => {
     setAccountMenuVisible(!accountMenuVisible);
   };
@@ -51,8 +59,29 @@ export default function Page({
           </div>
           <hr className="border-green-400 w-full mb-4" />
           <nav className="mt-2 w-full flex-grow">
-            <Link href="/outra-rota">
-              <div className="flex items-center px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-700 cursor-pointer">
+            <button
+              className="flex items-center px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-700 cursor-pointer w-full text-left"
+              onClick={() => router.push("/vaccine")}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 mr-2"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M13.707 10.293a1 1 0 000-1.414L10.414 6.88a1 1 0 10-1.414 1.414L11.586 10l-2.586 2.586a1 1 0 101.414 1.414l3.293-3.293a1 1 0 000-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span className="text-sm">Vacinas</span>
+            </button>
+            {(isResearcher || isResearchLead) && (
+              <button
+                className="flex items-center px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-700 cursor-pointer w-full text-left"
+                onClick={() => router.push("/research")}
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-5 w-5 mr-2"
@@ -65,9 +94,29 @@ export default function Page({
                     clipRule="evenodd"
                   />
                 </svg>
-                <span className="text-sm">Rotas</span>
-              </div>
-            </Link>
+                <span className="text-sm">Pesquisas</span>
+              </button>
+            )}
+            {isSalesManager && (
+              <button
+                className="flex items-center px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-700 cursor-pointer w-full text-left"
+                onClick={() => router.push("/transactions")}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-2"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M13.707 10.293a1 1 0 000-1.414L10.414 6.88a1 1 0 10-1.414 1.414L11.586 10l-2.586 2.586a1 1 0 101.414 1.414l3.293-3.293a1 1 0 000-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span className="text-sm">Transações</span>
+              </button>
+            )}
           </nav>
         </aside>
 
