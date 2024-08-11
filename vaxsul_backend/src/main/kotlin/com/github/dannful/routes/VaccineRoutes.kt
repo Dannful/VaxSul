@@ -1,10 +1,11 @@
 package com.github.dannful.routes
 
-import com.github.dannful.domain.model.Role
-import com.github.dannful.domain.model.Vaccine
-import com.github.dannful.domain.model.VaccineQuery
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
+import com.github.dannful.domain.model.*
 import com.github.dannful.domain.service.VaccineService
 import com.github.dannful.plugins.authRole
+import com.github.dannful.util.Constants
 import io.ktor.http.*
 import io.ktor.resources.*
 import io.ktor.server.application.*
@@ -13,11 +14,13 @@ import io.ktor.server.resources.*
 import io.ktor.server.resources.post
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.sessions.*
 import kotlinx.serialization.Serializable
 import org.koin.ktor.ext.inject
 
 fun Application.vaccineRoutes() {
     val vaccineService: VaccineService by inject()
+    val jwtData: JWTData by inject()
 
     routing {
         authRole(Role.USER) {
@@ -53,13 +56,28 @@ fun Application.vaccineRoutes() {
                 vaccineService.deleteVaccine(it.id)
                 call.respond(HttpStatusCode.OK)
             }
-            post<Vaccines.New> {
-                val vaccine = call.receiveNullable<Vaccine>() ?: run {
-                    call.respond(HttpStatusCode.BadRequest)
+        }
+        post<Vaccines.New> {
+            val vaccine = call.receiveNullable<Vaccine>() ?: run {
+                call.respond(HttpStatusCode.BadRequest)
+                return@post
+            }
+            if (vaccine.id == null) {
+                val session = call.sessions.get<UserSession>() ?: run {
+                    call.respond(HttpStatusCode.Unauthorized)
                     return@post
                 }
-                call.respond(HttpStatusCode.OK, vaccineService.addVaccine(vaccine))
+                val token = JWT.require(Algorithm.HMAC256(jwtData.secret)).withAudience(jwtData.audience)
+                    .withIssuer(jwtData.issuer).build()
+                    .verify(session.token)
+                if (Role.RESEARCH_LEAD !in Role.valueOf(token.getClaim(Constants.JWT_CLAIM_ROLE_FIELD_NAME).asString())
+                        .getParentRoles()
+                ) {
+                    call.respond(HttpStatusCode.Unauthorized)
+                    return@post
+                }
             }
+            call.respond(HttpStatusCode.OK, vaccineService.addVaccine(vaccine))
         }
     }
 }

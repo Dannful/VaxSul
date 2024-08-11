@@ -8,7 +8,7 @@ export default function Page({
   titleBar,
   children,
 }: {
-  titleBar: React.ReactNode;
+  titleBar?: React.ReactNode;
   children: React.ReactNode;
 }) {
   const [filterMenuVisible, setFilterMenuVisible] = useState(false);
@@ -26,12 +26,28 @@ export default function Page({
       className="flex flex-col min-h-screen"
       onClick={() => setAccountMenuVisible(false)}
     >
-      <div className="flex flex-1 ">
-        <aside className="bg-gray-800 text-white w-32 flex flex-col items-center overflow-auto">
-          <div className="p-2 flex items-center justify-center w-full">
-            <h2 className="text-lg font-semibold text-green-400 pb-2">
-              VaxSul
-            </h2>
+      <div className="flex flex-1">
+        <aside className="bg-gray-800 text-white w-52 flex flex-col items-center overflow-auto">
+          <div className="h-16 p-2 flex items-center justify-center w-full gap-2">
+            <button className="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 rounded">
+              <svg
+                className="w-6 h-3 text-gray-800 dark:text-white"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 8 14"
+                onClick={() => router.back()}
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M7 1 1.3 6.326a.91.91 0 0 0 0 1.348L7 13"
+                />
+              </svg>
+            </button>
+            <h2 className="text-lg font-semibold text-green-400">VaxSul</h2>
           </div>
           <hr className="border-green-400 w-full mb-4" />
           <nav className="mt-2 w-full flex-grow">
@@ -56,10 +72,9 @@ export default function Page({
         </aside>
 
         <div className="flex-1 bg-gray-200 relative pb-16">
-          <div className="bg-gray-700 bg-opacity-80 p-2 flex justify-between items-center w-full">
-            {titleBar}
-
-            <div className="flex items-center space-x-4">
+          <div className="h-16 bg-gray-700 bg-opacity-80 p-2 flex justify-between items-center w-full">
+            <div className="w-full flex items-center space-x-4 justify-end">
+              <div className="flex justify-center w-full">{titleBar}</div>
               <div className="relative">
                 <button
                   className="text-white bg-white bg-opacity-20 hover:bg-opacity-30 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out flex items-center"
@@ -99,6 +114,17 @@ export default function Page({
                           }}
                         >
                           Perfil
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className="btn w-full text-left block px-4 py-2 text-gray-800 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            router.push("/purchase");
+                          }}
+                        >
+                          Histórico de compras
                         </button>
                       </li>
                       <li>

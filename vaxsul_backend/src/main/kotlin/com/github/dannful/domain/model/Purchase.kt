@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Purchase(
     val id: Int? = null,
-    val userId: Int,
+    val userId: Int? = null,
     val vaccineId: Int,
     val totalSpent: Float,
     val amount: Int,
@@ -28,11 +28,11 @@ data class Purchase(
     }
 
     override fun hashCode(): Int {
-        var result = userId
+        var result = userId ?: 0
         result = 31 * result + vaccineId
         result = 31 * result + totalSpent.hashCode()
         result = 31 * result + amount
-        result = 31 * result + timestamp.hashCode()
+        result = 31 * result + (timestamp?.hashCode() ?: 0)
         return result
     }
 }

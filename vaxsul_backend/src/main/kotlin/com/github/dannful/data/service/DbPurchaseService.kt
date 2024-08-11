@@ -21,7 +21,8 @@ class DbPurchaseService(
         newSuspendedTransaction(context = dispatcherProvider.io, db = database) {
             if (purchase.id != null) {
                 val foundPurchase = PurchasesDao.findById(purchase.id) ?: return@newSuspendedTransaction
-                foundPurchase.userId = EntityID(purchase.userId, Users)
+                if (purchase.userId != null)
+                    foundPurchase.userId = EntityID(purchase.userId, Users)
                 foundPurchase.vaccineId = EntityID(purchase.vaccineId, Users)
                 foundPurchase.amount = purchase.amount
                 if (purchase.timestamp != null)
@@ -30,7 +31,8 @@ class DbPurchaseService(
                 return@newSuspendedTransaction
             }
             PurchasesDao.new {
-                userId = EntityID(purchase.userId, Users)
+                if (purchase.userId != null)
+                    userId = EntityID(purchase.userId, Users)
                 vaccineId = EntityID(purchase.vaccineId, Vaccines)
                 amount = purchase.amount
                 totalSpent = purchase.totalSpent

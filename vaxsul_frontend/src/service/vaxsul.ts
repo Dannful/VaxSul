@@ -20,7 +20,7 @@ export const vaxSulApi = createApi({
     credentials: "include",
     mode: "cors",
   }),
-  tagTypes: ["user"],
+  tagTypes: ["user", "purchase", "vaccine"],
   endpoints: (builder) => ({
     login: builder.mutation<string, Credentials>({
       query: (credentials: Credentials) => ({
@@ -44,7 +44,7 @@ export const vaxSulApi = createApi({
         responseHandler: "text",
       }),
     }),
-    searchVaccine: builder.mutation<VaccineSearchResponse, VaccineSearch>({
+    searchVaccine: builder.query<VaccineSearchResponse, VaccineSearch>({
       query: (vaccineSearch) => ({
         url: "vaccines",
         params: {
@@ -52,8 +52,10 @@ export const vaxSulApi = createApi({
           maximumPrice: vaccineSearch.maximumPrice,
           name: vaccineSearch.name,
           count: vaccineSearch.count,
+          amountInStock: vaccineSearch.amountInStock,
         },
       }),
+      providesTags: ["vaccine"],
       transformResponse: (response) =>
         VaccineSearchResponseSchema.parse(response),
     }),
@@ -85,6 +87,7 @@ export const vaxSulApi = createApi({
         method: "POST",
         body: vaccine,
       }),
+      invalidatesTags: () => ["vaccine"],
     }),
     getCurrentUser: builder.query<User, void>({
       query: () => "users/current",
@@ -98,6 +101,14 @@ export const vaxSulApi = createApi({
       }),
       invalidatesTags: () => ["user"],
     }),
+    newPurchase: builder.mutation<void, Purchase>({
+      query: (purchase) => ({
+        url: "purchase/new",
+        method: "POST",
+        body: purchase,
+      }),
+      invalidatesTags: () => ["purchase"],
+    }),
   }),
 });
 
@@ -105,7 +116,7 @@ export const {
   useLoginMutation,
   useLogoutMutation,
   useRegisterMutation,
-  useSearchVaccineMutation,
+  useSearchVaccineQuery,
   useGetVaccineByIdQuery,
   useGetAllResearchQuery,
   useGetResearchByIdQuery,
@@ -114,4 +125,5 @@ export const {
   useGetCurrentUserQuery,
   useGetPurchasesQuery,
   useUpdateUserMutation,
+  useNewPurchaseMutation,
 } = vaxSulApi;

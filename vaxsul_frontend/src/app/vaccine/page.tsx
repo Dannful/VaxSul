@@ -9,51 +9,40 @@ import {
   ReactNode,
   ReactPortal,
 } from "react";
-import { useSearchVaccineMutation } from "@/service/vaxsul";
 import { LoadingWidget } from "../components/LoadingWidget";
 import { ErrorWidget } from "../components/ErrorWidget";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Footer from "@/app/components/Footer";
-import { Vaccine } from "@/types/vaccine";
+import { Vaccine, VaccineSearch } from "@/types/vaccine";
 import Page from "../components/Page";
+import { useSearchVaccineQuery } from "@/service/vaxsul";
 
 export default function ProductCatalog() {
-  const [searchTerm, setSearchTerm] = useState("");
   const [filterMenuVisible, setFilterMenuVisible] = useState(false);
   const [accountMenuVisible, setAccountMenuVisible] = useState(false);
   const [sortType, setSortType] = useState("");
-  const [search, searchResult] = useSearchVaccineMutation();
+  const [searchQuery, setSearchQuery] = useState<VaccineSearch>({
+    count: 12,
+    name: "",
+    amountInStock: 1,
+  });
+  const searchRequest = useSearchVaccineQuery(searchQuery);
   const router = useRouter();
-  const [visibleCount, setVisibleCount] = useState(12);
 
-  useEffect(() => {
-    search({
-      name: undefined,
-      maximumPrice: undefined,
-      minimumPrice: undefined,
-      count: visibleCount,
-    });
-  }, [search, visibleCount]);
-
-  if (searchResult.isLoading || searchResult.isUninitialized) {
+  if (searchRequest.isLoading || searchRequest.isUninitialized) {
     return <LoadingWidget />;
   }
 
-  if (searchResult.isError) {
+  if (searchRequest.isError) {
     return (
       <ErrorWidget message="Erro ao carregar o catálogo. Por favor, tente novamente mais tarde ou contate o dev lixo que fez essa página." />
     );
   }
 
-  const vaccinesResponse = searchResult.data;
+  const vaccinesResponse = searchRequest.data;
 
   const handleLoadMore = () => {
-    setVisibleCount(visibleCount + 12);
-    search({
-      ...search,
-      count: visibleCount,
-    });
+    setSearchQuery({ ...searchQuery, count: (searchQuery.count ?? 0) + 12 });
   };
 
   const toggleAccountMenu = () => {
@@ -71,15 +60,10 @@ export default function ProductCatalog() {
           type="text"
           placeholder="Pesquisar"
           className="bg-gray-40 bg-opacity-60 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 w-2/5 md:w-1/4"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              search({
-                name: searchTerm,
-              });
-            }
-          }}
+          value={searchQuery.name}
+          onChange={(e) =>
+            setSearchQuery({ ...searchQuery, name: e.target.value })
+          }
         />
         <div className="relative ml-2">
           <button

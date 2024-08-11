@@ -17,6 +17,7 @@ export const VaccineSearchSchema = z.object({
   maximumPrice: z.number().optional(),
   name: z.string().optional(),
   count: z.number().optional(),
+  amountInStock: z.number().optional(),
 });
 
 export const VaccineSearchResponseSchema = z.object({
