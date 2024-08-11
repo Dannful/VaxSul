@@ -40,11 +40,13 @@ export default function AddVaccine() {
     window.history.back();
   };
 
-  const handlePriceChange = (e) => {
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, ''); // Remove non-numeric characters
-    const formattedValue = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value / 100);
+    const numericValue = parseFloat(value); // Convert to number
+    const formattedValue = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(numericValue / 100);
     setNewVaccine({ ...newVaccine, price: formattedValue });
   };
+  
 
   const titleBar = (
     <div className="flex items-center justify-center w-full">
