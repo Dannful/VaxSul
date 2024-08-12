@@ -1,21 +1,14 @@
 "use client";
-import {
-  useState,
-  useEffect,
-  AwaitedReactNode,
-  JSXElementConstructor,
-  Key,
-  ReactElement,
-  ReactNode,
-  ReactPortal,
-} from "react";
-import { LoadingWidget } from "../components/LoadingWidget";
-import { ErrorWidget } from "../components/ErrorWidget";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Vaccine, VaccineSearch } from "@/types/vaccine";
-import Page from "../components/Page";
+
+import { ErrorWidget } from "@/app/components/ErrorWidget";
+import { LoadingWidget } from "@/app/components/LoadingWidget";
+import Page from "@/app/components/Page";
 import { useSearchVaccineQuery } from "@/service/vaxsul";
+import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
+import { Vaccine, VaccineSearch } from "@/types/vaccine";
+import { useGetCurrentUserQuery } from "@/service/vaxsul";
+import Link from "next/link";
 
 export default function ProductCatalog() {
   const [filterMenuVisible, setFilterMenuVisible] = useState(false);
@@ -28,6 +21,8 @@ export default function ProductCatalog() {
   });
   const searchRequest = useSearchVaccineQuery(searchQuery);
   const router = useRouter();
+  const user = useGetCurrentUserQuery();
+  const isSalesManager = user.data?.role === "SALES_MANAGER" ?? false;
 
   if (searchRequest.isLoading || searchRequest.isUninitialized) {
     return <LoadingWidget />;
@@ -111,6 +106,15 @@ export default function ProductCatalog() {
   return (
     <Page titleBar={titleBar}>
       <div className="flex flex-col items-center mx-4 md:mx-24 mt-12 space-y-6">
+        {isSalesManager && (
+          <div className="w-full flex justify-end mb-4">
+            <Link href="/add-vaccine">
+              <button className="text-white bg-green-500 bg-opacity-80 hover:bg-opacity-30 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out">
+                Adicionar Produto
+              </button>
+            </Link>
+          </div>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
           <VaccineList vaccines={vaccinesResponse.second} />
         </div>

@@ -6,7 +6,6 @@ import { ErrorWidget } from "../components/ErrorWidget";
 
 export default function AddVaccine() {
   const [newVaccine, setNewVaccine] = useState({
-    lab: "",
     dose: "",
     name: "",
     description: "",
@@ -17,11 +16,6 @@ export default function AddVaccine() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
-
-  const labOptions = [
-    { id: "1", name: "Lab A" },
-    { id: "2", name: "Lab B" },
-  ];
 
   const researchOptions = [
     { id: "1", name: "Pesquisa A" },
@@ -46,11 +40,10 @@ export default function AddVaccine() {
     const formattedValue = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(numericValue / 100);
     setNewVaccine({ ...newVaccine, price: formattedValue });
   };
-  
 
   const titleBar = (
     <div className="flex items-center justify-center w-full">
-      <h1 className="text-2xl font-semibold text-white">Adicionar Vacina</h1>
+      <h1 className="text-2xl font-semibold text-white">Adicionar Produto</h1>
     </div>
   );
 
@@ -83,20 +76,6 @@ export default function AddVaccine() {
               value={newVaccine.dose}
               onChange={(e) => setNewVaccine({ ...newVaccine, dose: e.target.value })}
             />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">Laboratório</label>
-            <select
-              className="bg-gray-40 bg-opacity-60 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-              value={newVaccine.lab}
-              onChange={(e) => setNewVaccine({ ...newVaccine, lab: e.target.value })}
-            >
-              {labOptions.map((lab) => (
-                <option key={lab.id} value={lab.id}>
-                  {lab.name}
-                </option>
-              ))}
-            </select>
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">Pesquisa</label>
@@ -149,7 +128,7 @@ export default function AddVaccine() {
               onClick={handleAddVaccine}
               className="text-white bg-blue-500 bg-opacity-80 hover:bg-opacity-30 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out"
             >
-              Adicionar Vacina
+              Adicionar Produto
             </button>
           </div>
         </div>
