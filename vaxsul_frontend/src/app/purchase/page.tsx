@@ -9,15 +9,17 @@ import { PURCHASES_QUERY, PURCHASES_BY_UID_QUERY, useGetCurrentUserQuery } from 
 export default function Transactions() {
   const user = useGetCurrentUserQuery();
   
-  const { loading, error, data } = useQuery(PURCHASES_QUERY);
+  //const { loading, error, data } = useQuery(PURCHASES_QUERY);
 
-  if (loading) {
-    return <LoadingWidget />;
-  }
+  //if (loading) {
+  //  return <LoadingWidget />;
+  //}
+//
+  //if (error) {
+  //  return <ErrorWidget message="Erro ao carregar as transações." />;
+  //}
 
-  if (error) {
-    return <ErrorWidget message="Erro ao carregar as transações." />;
-  }
+  const transactions = [{ id: 1, vaccineName: "Coronavac", quantity: 100, labName: "Butantan", userName: "João", total: 1000, status: "Pendente" }];
 
   if (user.data?.role !== "SALES_MANAGER") {
     return <ErrorWidget message="Você não tem permissão para ver esta página." />;
