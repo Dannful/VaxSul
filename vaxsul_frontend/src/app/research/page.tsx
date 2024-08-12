@@ -68,14 +68,20 @@
 
     const handleNewResearchSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
+<<<<<<< HEAD
       const { researchName, researchDescription } = editValues;
       if (!researchName || !researchDescription) return alert("Preencha todos os campos.");
 
+=======
+      const { vaccineName, vaccineDescription, vaccineDoses } = editValues;
+      if (!vaccineName || !vaccineDescription || vaccineDoses === 0) return alert("Preencha todos os campos.");
+  
+>>>>>>> 49a21d6e21a816ab87fd0cf794e28540125a60df
       if (user.data.laboratoryId === null || user.data.laboratoryId === undefined) {
         alert("Você não está associado a um laboratório. Por favor, contate o administrador."); // Verificar se o usuário está associado a um laboratório
         return;
       }
-
+  
       const newRes = await newResearch({ 
         name: researchName,
         description: researchDescription,
@@ -84,8 +90,25 @@
         report: "",
       });
       if (newRes.error) return alert("Erro ao criar pesquisa.");
+<<<<<<< HEAD
 
       router.push("/research/" + newRes.data.id);
+=======
+  
+      const newVac = await newVaccine({
+        dose: vaccineDoses,
+        pricePerUnit: 0,
+        amountInStock: 0,
+        researchId: newRes.data.id,
+        sellable: false,
+        name: vaccineName,
+        laboratoryId: user.data.laboratoryId,
+        description: vaccineDescription,
+      });
+      if (newVac.error) return alert("Erro ao criar vacina.");
+  
+      router.push("/research/" + newVac.data.id);
+>>>>>>> 49a21d6e21a816ab87fd0cf794e28540125a60df
     };
 
     const titleBar = (
@@ -268,26 +291,56 @@ const NewResearchForm = ({
         <h3 className="text-2xl text-green-400 font-semibold mb-4">Nova Pesquisa</h3>
         <form onSubmit={onSubmit}>
           <div className="mb-4">
+<<<<<<< HEAD
             <label className="block text-gray-300 text-sm font-medium mb-2" htmlFor="researchName">
               Nome da pesquisa
+=======
+            <label className="block text-gray-300 text-sm font-medium mb-2" htmlFor="vaccineName">
+              Nome da Vacina
+>>>>>>> 49a21d6e21a816ab87fd0cf794e28540125a60df
             </label>
             <input
               id="researchName"
               type="text"
               required
+<<<<<<< HEAD
               onChange={(e) => setEditValues({ ...editValues, researchName: e.target.value })}
+=======
+              onChange={(e) => setEditValues({ ...editValues, vaccineName: e.target.value })}
+>>>>>>> 49a21d6e21a816ab87fd0cf794e28540125a60df
               className="bg-gray-700 text-gray-300 border border-gray-600 rounded-lg w-full py-2 px-3 focus:outline-none focus:border-green-500"
             />
           </div>
           <div className="mb-4">
+<<<<<<< HEAD
           <label className="block text-gray-300 text-sm font-medium mb-2" htmlFor="description">
               Descrição da pesquisa
+=======
+            <label className="block text-gray-300 text-sm font-medium mb-2" htmlFor="description">
+              Descrição da Vacina
+>>>>>>> 49a21d6e21a816ab87fd0cf794e28540125a60df
             </label>
             <textarea
               id="description"
-              rows={10}
+              rows={6}
               required
+<<<<<<< HEAD
               onChange={(e) => setEditValues({ ...editValues, researchDescription: e.target.value })}
+=======
+              onChange={(e) => setEditValues({ ...editValues, vaccineDescription: e.target.value })}
+              className="bg-gray-700 text-gray-300 border border-gray-600 rounded-lg w-full py-2 px-3 focus:outline-none focus:border-green-500"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-300 text-sm font-medium mb-2" htmlFor="vaccineDoses">
+              Doses
+            </label>
+            <input
+              id="vaccineDoses"
+              type="number"
+              required
+              onChange={(e) => setEditValues({ ...editValues, vaccineDoses: parseInt(e.target.value) })}
+>>>>>>> 49a21d6e21a816ab87fd0cf794e28540125a60df
               className="bg-gray-700 text-gray-300 border border-gray-600 rounded-lg w-full py-2 px-3 focus:outline-none focus:border-green-500"
             />
           </div>
@@ -311,6 +364,7 @@ const NewResearchForm = ({
     </div>
   );
 }
+
 
 const STATUS_TEXT: Record<string, string> = {
   "IN_PROGRESS": "Em progresso",
