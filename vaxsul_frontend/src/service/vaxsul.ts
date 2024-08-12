@@ -1,19 +1,8 @@
 import { Credentials } from "@/types/credentials";
 import { User } from "@/types/user";
-import {
-  Vaccine,
-  VaccineSchema,
-  VaccineSearch,
-  VaccineSearchResponse,
-  VaccineSearchResponseSchema,
-  VaccineSearchSchema,
-} from "@/types/vaccine";
-import { Research } from "@/types/research";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { env } from "next-runtime-env";
-import { Purchase, PurchaseSchema } from "@/types/purchase";
 import { gql } from "@/__generated__";
-import { TypedDocumentNode } from "@graphql-typed-document-node/core";
 
 export const vaxSulApi = createApi({
   reducerPath: "vaxSulApi",
