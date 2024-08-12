@@ -10,6 +10,7 @@ export default function ForgotPassword() {
   const [codeSent, setCodeSent] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState(""); // Adicionado
   const [codeVerified, setCodeVerified] = useState(false);
   const router = useRouter();
 
@@ -28,7 +29,12 @@ export default function ForgotPassword() {
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     // Lógica para redefinir a senha
-    router.push("/login");
+    if (newPassword === confirmPassword) {
+      // Lógica para verificar se as senhas são iguais
+      router.push("/login");
+    } else {
+      alert("As senhas não coincidem. Por favor, tente novamente.");
+    }
   };
 
   return (
@@ -104,22 +110,40 @@ export default function ForgotPassword() {
               </div>
             )}
             {codeVerified && (
-              <div>
-                <label
-                  htmlFor="newPassword"
-                  className="block mb-2 text-sm font-medium text-gray-200"
-                >
-                  Nova Senha
-                </label>
-                <input
-                  type="password"
-                  id="newPassword"
-                  className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3"
-                  required
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                />
-              </div>
+              <>
+                <div>
+                  <label
+                    htmlFor="newPassword"
+                    className="block mb-2 text-sm font-medium text-gray-200"
+                  >
+                    Nova Senha
+                  </label>
+                  <input
+                    type="password"
+                    id="newPassword"
+                    className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3"
+                    required
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="confirmPassword"
+                    className="block mb-2 text-sm font-medium text-gray-200"
+                  >
+                    Repita a Senha
+                  </label>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    className="bg-gray-50 bg-opacity-40 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3"
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                </div>
+              </>
             )}
             <button
               type="submit"
