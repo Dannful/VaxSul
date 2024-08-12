@@ -13,7 +13,6 @@ import {
 } from "@/service/vaxsul";
 import { useParams, useRouter } from "next/navigation";
 import { ChangeEvent, FormEvent, useState } from "react";
-import { Vaccine } from "@/types/vaccine";
 import { useMutation, useQuery } from "@apollo/client";
 import { IdVaccineFragment, PurchaseStatus } from "@/__generated__/graphql";
 import { serializeDateTime } from "@/app/util/DateSerializer";

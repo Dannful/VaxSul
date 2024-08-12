@@ -3,7 +3,6 @@
 import { useState, ChangeEvent, useEffect } from "react";
 import { useParams } from "next/navigation";
 import {
-  useGetResearchByIdQuery,
   useGetCurrentUserQuery,
   RESEARCH_BY_ID,
   NEW_RESEARCH,
@@ -16,7 +15,6 @@ import {
 } from "@/service/vaxsul";
 import { LoadingWidget } from "../../components/LoadingWidget";
 import { ErrorWidget } from "../../components/ErrorWidget";
-import { Vaccine } from "@/types/vaccine";
 import Page from "../../components/Page";
 import { useMutation, useQuery } from "@apollo/client";
 import {

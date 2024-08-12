@@ -5,7 +5,6 @@ import { LoadingWidget } from "@/app/components/LoadingWidget";
 import Page from "@/app/components/Page";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { Vaccine, VaccineSearch } from "@/types/vaccine";
 import { SEARCH_VACCINES, useGetCurrentUserQuery } from "@/service/vaxsul";
 import Link from "next/link";
 import { DocumentNode, TypedDocumentNode, useQuery } from "@apollo/client";

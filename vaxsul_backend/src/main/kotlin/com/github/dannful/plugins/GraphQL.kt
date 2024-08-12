@@ -260,5 +260,5 @@ fun Application.configureGraphQL() {
 }
 
 private class UnauthorizedException(
-    private val role: Role
+    role: Role
 ) : Exception("Unauthorized: this requires the role of $role")

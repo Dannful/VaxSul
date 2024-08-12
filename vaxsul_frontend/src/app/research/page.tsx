@@ -2,22 +2,21 @@
 import { useState, useEffect, FormEvent } from "react";
 import {
   useLogoutMutation,
-  useSearchVaccineQuery,
-  useNewResearchMutation,
-  useNewVaccineMutation,
-  useGetAllResearchQuery,
   useGetCurrentUserQuery,
   RESEARCHES_QUERY,
   NEW_RESEARCH,
 } from "@/service/vaxsul";
 import { LoadingWidget } from "../components/LoadingWidget";
 import { ErrorWidget } from "../components/ErrorWidget";
-import { Research } from "@/types/research";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Page from "../components/Page";
 import { useMutation, useQuery } from "@apollo/client";
-import { ResearchStatus } from "@/__generated__/graphql";
+import {
+  IdResearch,
+  IdResearchFragment,
+  ResearchStatus,
+} from "@/__generated__/graphql";
 import { deserializeDateTime } from "../util/DateSerializer";
 
 export default function ResearchCatalog() {
@@ -237,7 +236,11 @@ export default function ResearchCatalog() {
   );
 }
 
-const VaccineResearchList = ({ research }: { research: Research[] }) => {
+const VaccineResearchList = ({
+  research,
+}: {
+  research: IdResearchFragment[];
+}) => {
   return (
     <ul className="w-full space-y-6">
       {research.map((res) => (
