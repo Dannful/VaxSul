@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.github.dannful.domain.model.*
 import com.github.dannful.domain.service.UserService
+import com.github.dannful.plugins.authRole
 import com.github.dannful.util.Constants
 import io.ktor.http.*
 import io.ktor.resources.*
@@ -22,7 +23,7 @@ fun Application.userRoutes() {
     val userService: UserService by inject()
     val jwtData: JWTData by inject()
     routing {
-        authenticate(Constants.ADMIN_AUTH_NAME) {
+        authRole(Role.ADMIN) {
             get<Users> {
                 call.respond(HttpStatusCode.OK, userService.getUsers())
             }

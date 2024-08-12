@@ -17,7 +17,7 @@ import {
   IdResearchFragment,
   ResearchStatus,
 } from "@/__generated__/graphql";
-import { deserializeDateTime } from "../util/DateSerializer";
+import { deserializeDateTime, serializeDateTime } from "../util/DateSerializer";
 
 export default function ResearchCatalog() {
   const [editValues, setEditValues] = useState({
@@ -115,7 +115,7 @@ export default function ResearchCatalog() {
         research: {
           name: researchName,
           description: researchDescription,
-          startDate: new Date().getTime() / 1000,
+          startDate: serializeDateTime(new Date()),
           status: ResearchStatus.InProgress,
           report: "",
           laboratoryId: user.data.laboratoryId,

@@ -5,8 +5,13 @@ import com.github.dannful.util.Constants
 enum class Role(private val parents: List<Role>, vararg val authString: String) {
 
 
-    SALES_MANAGER(emptyList(), Constants.JWT_MANAGER, Constants.SESSION_MANAGER), RESEARCH_LEAD(
-        emptyList(),
+    ADMIN(emptyList(), Constants.JWT_ADMIN, Constants.SESSION_ADMIN), SALES_MANAGER(
+        listOf(ADMIN),
+        Constants.JWT_MANAGER,
+        Constants.SESSION_MANAGER
+    ),
+    RESEARCH_LEAD(
+        listOf(ADMIN),
         Constants.JWT_RESEARCH_LEAD,
         Constants.SESSION_RESEARCH_LEAD
     ),
