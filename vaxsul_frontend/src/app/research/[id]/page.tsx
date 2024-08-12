@@ -275,6 +275,12 @@ const ResearchDetails: React.FC<{
             </div>
           </div>
           <p className="text-lg mb-4 text-black whitespace-pre-wrap">{research.description}</p>
+          {["COMPLETED", "APPROVED", "REJECTED"].includes(research.status) && (
+            <div className="mb-4">
+              <h3 className="text-xl font-semibold text-center text-black mb-2">Relatório</h3>
+              <p className="text-lg text-black whitespace-pre-wrap mx-auto w-3/4">{research.report}</p>
+            </div>
+          )}
         </div>
       )}
     </div>
