@@ -31,6 +31,11 @@ class DbPurchaseService(
             }.toPurchase()
         }
 
+    override suspend fun getAll(): List<IdPurchase> =
+        newSuspendedTransaction(context = dispatcherProvider.io, db = database) {
+            PurchasesDao.all().map { it.toPurchase() }
+        }
+
     override suspend fun updatePurchase(idPurchase: IdPurchase): IdPurchase? =
         newSuspendedTransaction(context = dispatcherProvider.io, db = database) {
             val purchase = PurchasesDao.findById(idPurchase.id) ?: return@newSuspendedTransaction null

@@ -131,8 +131,6 @@ class Scenario {
     }
 
     suspend fun addVaccine(): Vaccine {
-        addLaboratory()
-        addResearch()
         val vaccine = Vaccine(
             researchId = 1,
             pricePerUnit = 1.0f,

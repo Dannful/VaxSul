@@ -9,4 +9,5 @@ interface PurchaseService {
     suspend fun getForUser(userId: Int): List<IdPurchase>
     suspend fun getById(id: Int): IdPurchase?
     suspend fun updatePurchase(idPurchase: IdPurchase): IdPurchase?
+    suspend fun getAll(): List<IdPurchase>
 }

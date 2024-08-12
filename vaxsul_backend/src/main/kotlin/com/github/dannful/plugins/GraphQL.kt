@@ -127,8 +127,11 @@ fun Application.configureGraphQL() {
                 }
             }
             query("purchases") {
-                resolver { userId: Int ->
-                    purchaseService.getForUser(userId)
+                resolver { context: Context ->
+                    val role = context.get<Role>() ?: throw UnauthorizedException(Role.SALES_MANAGER)
+                    if (role !in Role.SALES_MANAGER.getParentRoles())
+                        throw UnauthorizedException(Role.SALES_MANAGER)
+                    purchaseService.getAll()
                 }
             }
             query("purchase") {
@@ -136,7 +139,7 @@ fun Application.configureGraphQL() {
                     purchaseService.getById(id)
                 }
             }
-            query("userPurchase") {
+            query("userPurchases") {
                 resolver { userId: Int ->
                     purchaseService.getForUser(userId)
                 }
@@ -147,7 +150,10 @@ fun Application.configureGraphQL() {
                 }
             }
             mutation("newLaboratory") {
-                resolver { laboratory: Laboratory ->
+                resolver { context: Context, laboratory: Laboratory ->
+                    val role = context.get<Role>() ?: throw UnauthorizedException(Role.ADMIN)
+                    if (role !in Role.ADMIN.getParentRoles())
+                        throw UnauthorizedException(Role.ADMIN)
                     laboratoryService.addLaboratory(laboratory)
                 }
             }
@@ -173,7 +179,10 @@ fun Application.configureGraphQL() {
                 }
             }
             mutation("updateLaboratory") {
-                resolver { id: Int, laboratory: Laboratory ->
+                resolver { context: Context, id: Int, laboratory: Laboratory ->
+                    val role = context.get<Role>() ?: throw UnauthorizedException(Role.ADMIN)
+                    if (role !in Role.ADMIN.getParentRoles())
+                        throw UnauthorizedException(Role.ADMIN)
                     laboratoryService.updateLaboratory(
                         IdLaboratory(
                             id = id,

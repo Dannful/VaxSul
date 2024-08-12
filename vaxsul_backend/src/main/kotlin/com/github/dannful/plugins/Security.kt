@@ -19,19 +19,9 @@ fun Application.configureSecurity() {
     val userService: UserService by inject()
     val jwtData: JWTData by inject()
 
-    val adminUser = environment.config.propertyOrNull("auth.admin.user")?.getString() ?: throw IllegalArgumentException(
-        "Admin user missing in application config"
-    )
-    val adminPassword = environment.config.propertyOrNull("auth.admin.password")?.getString()
-        ?: throw IllegalArgumentException("Admin user missing in application config")
-
     authentication {
-        basic(name = Constants.ADMIN_AUTH_NAME) {
-            validate { credentials ->
-                if (credentials.name == adminUser && credentials.password == adminPassword)
-                    UserIdPrincipal(credentials.name)
-                else null
-            }
+        jwt(Constants.JWT_ADMIN) {
+            configureJWT(userService = userService, jwtData = jwtData, role = Role.ADMIN)
         }
         jwt(Constants.JWT_STANDARD) {
             configureJWT(userService = userService, jwtData = jwtData, role = Role.USER)
@@ -44,6 +34,9 @@ fun Application.configureSecurity() {
         }
         jwt(Constants.JWT_RESEARCH_LEAD) {
             configureJWT(userService = userService, jwtData = jwtData, role = Role.RESEARCH_LEAD)
+        }
+        session<UserSession>(Constants.SESSION_ADMIN) {
+            configureJWT(userService = userService, jwtData = jwtData, role = Role.ADMIN)
         }
         session<UserSession>(Constants.SESSION_STANDARD) {
             configureJWT(userService = userService, jwtData = jwtData, role = Role.USER)
