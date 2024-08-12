@@ -21,6 +21,10 @@ export default function ResearchCatalog() {
   const [researchSearchQuery, setResearchSearchQuery] = useState("");
 
   const researchSearch = useGetAllResearchQuery();
+  useEffect(() => {
+    researchSearch.refetch();
+  }, [researchSearch]);
+
   const [newResearch, newResearchResult] = useNewResearchMutation();
   
   const router = useRouter();
@@ -89,6 +93,8 @@ export default function ResearchCatalog() {
       report: "",
     });
     if (newRes.error) return alert("Erro ao criar pesquisa.");
+
+
 
     router.push("/research/" + newRes.data.id);
   };

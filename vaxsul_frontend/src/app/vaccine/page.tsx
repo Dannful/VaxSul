@@ -40,10 +40,6 @@ export default function ProductCatalog() {
     setSearchQuery({ ...searchQuery, count: (searchQuery.count ?? 0) + 12 });
   };
 
-  const toggleAccountMenu = () => {
-    setAccountMenuVisible(!accountMenuVisible);
-  };
-
   const toggleFilterMenu = () => {
     setFilterMenuVisible(!filterMenuVisible);
   };
