@@ -100,7 +100,7 @@ export default function Page({
             {isSalesManager && (
               <button
                 className="flex items-center px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-700 cursor-pointer w-full text-left"
-                onClick={() => router.push("/transactions")}
+                onClick={() => router.push("/purchase")}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -114,7 +114,7 @@ export default function Page({
                     clipRule="evenodd"
                   />
                 </svg>
-                <span className="text-sm">Transações</span>
+                <span className="text-sm">Compras</span>
               </button>
             )}
           </nav>
@@ -163,17 +163,6 @@ export default function Page({
                           }}
                         >
                           Perfil
-                        </button>
-                      </li>
-                      <li>
-                        <button
-                          className="btn w-full text-left block px-4 py-2 text-gray-800 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            router.push("/purchase");
-                          }}
-                        >
-                          Histórico de compras
                         </button>
                       </li>
                       <li>
