@@ -2,6 +2,7 @@ package com.github.dannful.data.dao
 
 import com.github.dannful.data.entity.Users
 import com.github.dannful.domain.model.IdUser
+import com.github.dannful.domain.model.Role
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -24,7 +25,7 @@ class UsersDao(id: EntityID<Int>) : IntEntity(id) {
         email = email,
         name = name,
         password = password,
-        role = role,
+        role = Role.valueOf(role),
         cpf = cpf,
         phone = phone,
         birthday = birthday,

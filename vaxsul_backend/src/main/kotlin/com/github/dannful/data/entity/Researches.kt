@@ -9,7 +9,9 @@ object Researches : IntIdTable() {
 
     val laboratoryId = reference("laboratoryId", Laboratories)
     val startDate = datetime("startDate")
-    val status = enumeration("status", ResearchStatus::class)
+    val status = varchar("status", 16).check(name = "check_valid_status") {
+        it inList ResearchStatus.entries.map { status -> status.name }
+    }
     val progress = float("progress").check(name = "check_valid_progress") {
         it greaterEq 0f and (it lessEq 100f)
     }.default(0f)

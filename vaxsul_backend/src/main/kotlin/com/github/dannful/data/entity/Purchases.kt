@@ -18,5 +18,7 @@ object Purchases : IntIdTable() {
     val totalSpent = float("totalSpent").check(name = "is_total_spent_valid") {
         it greater 0f
     }
-    val status = enumeration<PurchaseStatus>("status")
+    val status = varchar("status", 16).check(name = "check_valid_status") {
+        it inList PurchaseStatus.entries.map { status -> status.name }
+    }
 }

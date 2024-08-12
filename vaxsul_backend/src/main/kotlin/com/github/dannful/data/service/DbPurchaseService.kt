@@ -25,7 +25,7 @@ class DbPurchaseService(
                 vaccineId = EntityID(purchase.vaccineId, Vaccines)
                 amount = purchase.amount
                 totalSpent = purchase.totalSpent
-                status = purchase.status
+                status = purchase.status.name
                 if (purchase.timestamp != null)
                     timestamp = purchase.timestamp
             }.toPurchase()
@@ -43,7 +43,7 @@ class DbPurchaseService(
             purchase.vaccineId = EntityID(idPurchase.vaccineId, Vaccines)
             purchase.amount = idPurchase.amount
             purchase.totalSpent = idPurchase.totalSpent
-            purchase.status = idPurchase.status
+            purchase.status = idPurchase.status.name
             if (idPurchase.timestamp != null)
                 purchase.timestamp = idPurchase.timestamp
             purchase.toPurchase()

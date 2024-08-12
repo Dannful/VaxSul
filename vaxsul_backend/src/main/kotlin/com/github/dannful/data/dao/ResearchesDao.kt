@@ -2,6 +2,7 @@ package com.github.dannful.data.dao
 
 import com.github.dannful.data.entity.Researches
 import com.github.dannful.domain.model.IdResearch
+import com.github.dannful.domain.model.ResearchStatus
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -21,7 +22,7 @@ class ResearchesDao(id: EntityID<Int>) : IntEntity(id) {
     fun toResearch() = IdResearch(
         id = id.value,
         startDate = startDate,
-        status = status,
+        status = ResearchStatus.valueOf(status),
         progress = progress,
         name = name,
         description = description,

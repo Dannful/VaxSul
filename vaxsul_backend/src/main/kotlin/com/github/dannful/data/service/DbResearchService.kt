@@ -29,7 +29,7 @@ class DbResearchService(
         newSuspendedTransaction(context = dispatcherProvider.io, db = database) {
             ResearchesDao.new {
                 startDate = research.startDate
-                status = research.status
+                status = research.status.name
                 progress = research.progress
                 name = research.name
                 description = research.description
@@ -48,7 +48,7 @@ class DbResearchService(
         newSuspendedTransaction(context = dispatcherProvider.io, db = database) {
             val research = ResearchesDao.findById(idResearch.id) ?: return@newSuspendedTransaction null
             research.startDate = idResearch.startDate
-            research.status = idResearch.status
+            research.status = idResearch.status.name
             research.progress = idResearch.progress
             research.name = idResearch.name
             research.description = idResearch.description

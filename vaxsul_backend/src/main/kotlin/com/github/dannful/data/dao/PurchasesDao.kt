@@ -2,6 +2,7 @@ package com.github.dannful.data.dao
 
 import com.github.dannful.data.entity.Purchases
 import com.github.dannful.domain.model.IdPurchase
+import com.github.dannful.domain.model.PurchaseStatus
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -24,6 +25,6 @@ class PurchasesDao(idEntityID: EntityID<Int>) : IntEntity(idEntityID) {
         timestamp = timestamp,
         totalSpent = totalSpent,
         userId = userId.value,
-        status = status
+        status = PurchaseStatus.valueOf(status)
     )
 }

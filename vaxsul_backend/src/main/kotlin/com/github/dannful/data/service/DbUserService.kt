@@ -28,7 +28,7 @@ class DbUserService(
                 email = user.email
                 name = user.name
                 password = user.password
-                role = user.role
+                role = user.role.name
                 cpf = user.cpf
                 phone = user.phone
                 birthday = user.birthday
@@ -61,7 +61,7 @@ class DbUserService(
             user.email = idUser.email
             user.name = idUser.name
             user.password = idUser.password
-            user.role = idUser.role
+            user.role = idUser.role.name
             user.cpf = idUser.cpf
             user.phone = idUser.phone
             user.birthday = idUser.birthday
