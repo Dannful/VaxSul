@@ -34,7 +34,7 @@ export default function VaccineDetails() {
 
   if (isLoading) return <LoadingWidget />;
   if (error)
-    return <ErrorWidget message="Erro ao carregar os detalhes da vacina." />;
+    return <ErrorWidget message="Erro ao carregar os detalhes do produto." />;
   if (!vaccine) return <p className="text-black">Vacina não encontrada.</p>;
   return <VaccineComponent vaccine={vaccine} isSalesManager={isSalesManager} />;
 }
@@ -83,11 +83,11 @@ function VaccineComponent({
   };
 
   const handleDelete = async () => {
-    if (confirm("Tem certeza de que deseja deletar esta vacina?")) {
+    if (confirm("Tem certeza de que deseja deletar este produto?")) {
       if (vaccine.id != null) {
         let deleteResult = await deleteVaccine(vaccine.id);
         if (deleteResult.error) {
-          alert("Erro ao deletar a vacina. Por favor, tente novamente mais tarde.");
+          alert("Erro ao deletar o produto. Por favor, tente novamente mais tarde.");
         } else {
           router.push("/vaccine");
         }
@@ -102,7 +102,7 @@ function VaccineComponent({
       titleBar={
         <div className="flex items-center justify-center w-full">
           <h1 className="text-xl font-semibold text-white">
-            Detalhes da Vacina
+            Detalhes do produto
           </h1>
         </div>
       }
@@ -187,7 +187,7 @@ function VaccineComponent({
                   onClick={handleDelete}
                   className="bg-red-600 text-white rounded-lg px-4 py-2 mt-4 hover:bg-red-700 transition duration-300"
                 >
-                  Deletar Vacina
+                  Deletar
                 </button>
               )}
             </div>
