@@ -89,6 +89,13 @@ export const vaxSulApi = createApi({
       }),
       invalidatesTags: () => ["vaccine"],
     }),
+    deleteVaccine: builder.mutation<void, number>({
+      query: (id) => ({
+        url: `vaccines/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: () => ["vaccine"],
+    }),
     getCurrentUser: builder.query<User, void>({
       query: () => "users/current",
       providesTags: ["user"],
@@ -122,6 +129,7 @@ export const {
   useGetResearchByIdQuery,
   useNewResearchMutation,
   useNewVaccineMutation,
+  useDeleteVaccineMutation, 
   useGetCurrentUserQuery,
   useGetPurchasesQuery,
   useUpdateUserMutation,

@@ -7,6 +7,8 @@ import {
   useGetVaccineByIdQuery,
   useNewPurchaseMutation,
   useNewVaccineMutation,
+  useGetCurrentUserQuery,
+  useDeleteVaccineMutation,
 } from "@/service/vaxsul";
 import { useParams, useRouter } from "next/navigation";
 import { ChangeEvent, FormEvent, useState } from "react";
@@ -15,7 +17,9 @@ import { Vaccine } from "@/types/vaccine";
 export default function VaccineDetails() {
   const { id } = useParams();
   const router = useRouter();
+  const user = useGetCurrentUserQuery();
   const validId = !Array.isArray(id) && id;
+  const isSalesManager = user.data?.role === "SALES_MANAGER" ?? false;
   const {
     data: vaccine,
     error,
@@ -32,27 +36,29 @@ export default function VaccineDetails() {
   if (error)
     return <ErrorWidget message="Erro ao carregar os detalhes da vacina." />;
   if (!vaccine) return <p className="text-black">Vacina não encontrada.</p>;
-  return <VaccineComponent vaccine={vaccine} />;
+  return <VaccineComponent vaccine={vaccine} isSalesManager={isSalesManager} />;
 }
 
-function VaccineComponent({ vaccine }: { vaccine: Vaccine }) {
+function VaccineComponent({
+  vaccine,
+  isSalesManager,
+}: {
+  vaccine: Vaccine;
+  isSalesManager: boolean;
+}) {
   const [quantity, setQuantity] = useState(1);
   const router = useRouter();
+  const [updateVaccine] = useNewVaccineMutation();
+  const [newPurchase] = useNewPurchaseMutation();
+  const [deleteVaccine] = useDeleteVaccineMutation();
+
   const handleQuantityChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = Math.min(
       Math.max(Number(e.target.value), 1),
-      vaccine.amountInStock,
+      vaccine.amountInStock
     );
     setQuantity(value);
   };
-  const [updateVaccine, updateVaccineResult] = useNewVaccineMutation();
-  const [newPurchase, newPurchaseResult] = useNewPurchaseMutation();
-
-  if (updateVaccineResult.isError || newPurchaseResult.isError) {
-    return (
-      <ErrorWidget message="Falha ao processar sua requisição. Por favor, tente novamente mais tarde ou contate o dev lixo que fez essa página." />
-    );
-  }
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -74,6 +80,19 @@ function VaccineComponent({ vaccine }: { vaccine: Vaccine }) {
       return;
     }
     router.push("/vaccine");
+  };
+
+  const handleDelete = async () => {
+    if (confirm("Tem certeza de que deseja deletar esta vacina?")) {
+      if (vaccine.id != null) {
+        let deleteResult = await deleteVaccine(vaccine.id);
+        if (deleteResult.error) {
+          alert("Erro ao deletar a vacina. Por favor, tente novamente mais tarde.");
+        } else {
+          router.push("/vaccine");
+        }
+      }
+    }
   };
 
   const totalPrice = vaccine.pricePerUnit * quantity;
@@ -138,29 +157,39 @@ function VaccineComponent({ vaccine }: { vaccine: Vaccine }) {
                   </span>
                 </div>
               </div>
-              <form className="flex flex-col items-end" onSubmit={handleSubmit}>
-                <div className="flex items-center mb-4">
-                  <input
-                    type="number"
-                    min={1}
-                    max={vaccine.amountInStock}
-                    value={quantity}
-                    onChange={handleQuantityChange}
-                    placeholder="Quantidade"
-                    className="border border-gray-300 rounded-lg px-3 py-1 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 mr-2"
-                    style={{ width: "100px" }}
-                  />
-                  <button
-                    type="submit"
-                    className="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 transition duration-300"
-                  >
-                    Comprar
-                  </button>
-                </div>
-                <p className="text-lg text-gray-700">
-                  Preço total: R$ {totalPrice.toFixed(2)}
-                </p>
-              </form>
+              {!isSalesManager && ( 
+                <form className="flex flex-col items-end" onSubmit={handleSubmit}>
+                  <div className="flex items-center mb-4">
+                    <input
+                      type="number"
+                      min={1}
+                      max={vaccine.amountInStock}
+                      value={quantity}
+                      onChange={handleQuantityChange}
+                      placeholder="Quantidade"
+                      className="border border-gray-300 rounded-lg px-3 py-1 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 mr-2"
+                      style={{ width: "100px" }}
+                    />
+                    <button
+                      type="submit"
+                      className="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 transition duration-300"
+                    >
+                      Comprar
+                    </button>
+                  </div>
+                  <p className="text-lg text-gray-700">
+                    Preço total: R$ {totalPrice.toFixed(2)}
+                  </p>
+                </form>
+              )}
+              {isSalesManager && ( 
+                <button
+                  onClick={handleDelete}
+                  className="bg-red-600 text-white rounded-lg px-4 py-2 mt-4 hover:bg-red-700 transition duration-300"
+                >
+                  Deletar Vacina
+                </button>
+              )}
             </div>
           )}
         </div>
