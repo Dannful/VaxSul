@@ -121,15 +121,15 @@ export default function VaccineResearchDetails() {
     <Page
       titleBar={
         <div className="flex items-center justify-center w-full">
-          <h1 className="text-xl font-semibold text-white">
+          <h1 className="text-xl font-semibold text-white text-center">
             Detalhes da Pesquisa
           </h1>
         </div>
       }
     >
       <div className="flex-1 p-6 flex justify-center">
-        <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-4xl">
-          <div className="grid grid-cols-2 gap-6">
+        <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-6xl"> 
+          <div className="grid grid-cols-1 gap-6">
             <ResearchDetails 
               research={research} 
               editing={editing} 
@@ -138,9 +138,9 @@ export default function VaccineResearchDetails() {
             />
           </div>
           <ActionButtons
-            research = {research} 
+            research={research} 
             editing={editing} 
-            isResearcher = {isResearcher ?? false}
+            isResearcher={isResearcher ?? false}
             handleSaveChanges={handleSaveChanges} 
             handleCancelEdit={handleCancelEdit} 
             handleEditClick={handleEditClick} 
@@ -190,7 +190,7 @@ const ResearchDetails: React.FC<{
               onChange={handleInputChange}
               className="border rounded px-4 py-2 w-full text-black"
             >
-              {["IN_PROGRESS", "PAUSED", "COMPLETED", "DROPPED"].map(status => (
+              {["IN_PROGRESS", "PAUSED", "COMPLETED", "DROPPED"].map((status) => (
                 <option key={status} value={status}>
                   {STATUS_TEXT[status]}
                 </option>
@@ -219,7 +219,7 @@ const ResearchDetails: React.FC<{
               rows={5}
             />
           </label>
-          {editValues.researchStatus === "COMPLETED" && ( 
+          {editValues.researchStatus === "COMPLETED" && (
             <label className="block mb-2 text-black">
               Relatório:
               <textarea
@@ -234,18 +234,20 @@ const ResearchDetails: React.FC<{
         </div>
       ) : (
         <div>
-          <h2 className="text-2xl font-semibold mb-4 text-black">{research.name}</h2>
-          <p className="text-lg mb-4 text-black">Data de Início: {formatDateTime(research.startDate)}</p>
-          <p className="text-lg mb-4 text-black">Status: {STATUS_TEXT[research.status]}</p>
+          <h2 className="text-2xl font-semibold mb-4 text-black text-center">{research.name}</h2> {/* Centered the research name */}
+          <p className="text-lg mb-4 text-black text-center">
+            Data de Início: {formatDateTime(research.startDate)}
+          </p>
+          <p className="text-lg mb-4 text-black text-center">Status: {STATUS_TEXT[research.status]}</p> {/* Centered the status */}
           <div className="w-full bg-gray-200 rounded-full h-6 mb-4">
             <div
               className="h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
               style={{
                 width: `${research.progress}%`,
                 backgroundColor: `hsl(${((research.progress ?? 0) / 100) * 120}, 100%, 40%)`, // Adjust color based on progress
-                paddingLeft: '20px',
-                paddingRight: '20px',
-                boxSizing: 'border-box'
+                paddingLeft: "20px",
+                paddingRight: "20px",
+                boxSizing: "border-box",
               }}
             >
               {research.progress}%
@@ -295,7 +297,7 @@ const ActionButtons: React.FC<{
           </button>
         </>
       ) : (
-        (isResearcher && !(research.status in ["COMPLETED", "APPROVED", "REJECTED"]) ) && (
+        (isResearcher && !["COMPLETED", "APPROVED", "REJECTED"].includes(research.status)) && (
           <button
             type="button"
             onClick={handleEditClick}
