@@ -22,7 +22,7 @@ export default function ProductCatalog() {
   const searchRequest = useSearchVaccineQuery(searchQuery);
   const router = useRouter();
   const user = useGetCurrentUserQuery();
-  const isSalesManager = user.data?.role === "SALES_MANAGER" ?? false;
+  const isSalesManager = user.data?.role === "SALES_MANAGER";
 
   if (searchRequest.isLoading || searchRequest.isUninitialized) {
     return <LoadingWidget />;

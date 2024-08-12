@@ -44,23 +44,28 @@ export default function ResearchCatalog() {
 
   const researches = researchSearch.data;
 
-  const sortedData = researches.sort((a, b) => {
+  const sortedData = [...researches]
+  .filter((res) => res.name && res.startDate)
+  .sort((a, b) => {
     if (sortType === "name") {
-      return a.name.localeCompare(b.name);
+      return (a.name || '').localeCompare(b.name || '');
     } else if (sortType === "progress") {
       return (a.progress ?? 0) - (b.progress ?? 0);
     } else if (sortType === "status") {
       const statusOrder = ["COMPLETED", "IN_PROGRESS", "PAUSED", "DROPPED", "APPROVED", "REJECTED"];
-      return statusOrder.indexOf(a.status) - statusOrder.indexOf(b.status);
+      return (statusOrder.indexOf(a.status ?? '') - statusOrder.indexOf(b.status ?? ''));
     } else if (sortType === "startDate") {
       return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
     }
-    return 0; // No sorting if sortType invalid or not set
+    return 0; 
   });
 
+
   const filteredData = sortedData.filter((res) =>
-    res.name.toLowerCase().includes(researchSearchQuery.toLowerCase())
+    (res.name || '').toLowerCase().includes(researchSearchQuery.toLowerCase())
   );
+
+
 
   const toggleFilterMenu = () => {
     setFilterMenuVisible(!filterMenuVisible);
@@ -180,7 +185,7 @@ export default function ResearchCatalog() {
             {isResearchLead && AddResearchButton}
           </div>
         </div>
-        <VaccineResearchList research={sortedData} />
+        <VaccineResearchList research={filteredData} />
       </div>
       {newVaccineFormVisible && (
         <NewResearchForm
@@ -246,23 +251,23 @@ return (
 }
 
 const NewResearchForm = ({ 
-onSubmit, 
-onCancel, 
-editValues, 
-setEditValues 
+  onSubmit, 
+  onCancel, 
+  editValues, 
+  setEditValues 
 }: { 
-onSubmit: (e: FormEvent<HTMLFormElement>) => void;
-onCancel: () => void;
-editValues: {
-  researchName: string;
-  researchDescription: string;
-};
-setEditValues: React.Dispatch<React.SetStateAction<{
-  researchName: string;
-  researchDescription: string;
-}>>;
+  onSubmit: (e: FormEvent<HTMLFormElement>) => void;
+  onCancel: () => void;
+  editValues: {
+    researchName: string;
+    researchDescription: string;
+  };
+  setEditValues: React.Dispatch<React.SetStateAction<{
+    researchName: string;
+    researchDescription: string;
+  }>>;
 }) => {
-return (
+  return (
   <div className="fixed inset-0 bg-gray-800 bg-opacity-60 flex items-center justify-center z-50">
     <div className="bg-gray-900 text-white p-6 rounded-lg shadow-lg w-96">
       <h3 className="text-2xl text-green-400 font-semibold mb-4">Nova Pesquisa</h3>
@@ -309,32 +314,32 @@ return (
       </form>
     </div>
   </div>
-);
+  );
 }
 
 const STATUS_TEXT: Record<string, string> = {
-"IN_PROGRESS": "Em progresso",
-"PAUSED": "Pausada",
-"COMPLETED": "Finalizada",
-"DROPPED": "Cancelada",
-"APPROVED": "Aprovada",
-"REJECTED": "Rejeitada"
+  "IN_PROGRESS": "Em progresso",
+  "PAUSED": "Pausada",
+  "COMPLETED": "Finalizada",
+  "DROPPED": "Cancelada",
+  "APPROVED": "Aprovada",
+  "REJECTED": "Rejeitada"
 };
 
 const STATUS_COLOR: Record<string, string> = {
-"IN_PROGRESS": "text-blue-500",
-"PAUSED": "text-gray-500",
-"COMPLETED": "text-green-600",
-"DROPPED": "text-red-600",
-"APPROVED": "text-green-400",
-"REJECTED": "text-red-400"
+  "IN_PROGRESS": "text-blue-500",
+  "PAUSED": "text-gray-500",
+  "COMPLETED": "text-green-600",
+  "DROPPED": "text-red-600",
+  "APPROVED": "text-green-400",
+  "REJECTED": "text-red-400"
 };
 
 const formatDateTime = (date: string) => 
 new Date(date).toLocaleString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
 });

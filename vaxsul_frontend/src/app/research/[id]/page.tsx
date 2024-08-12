@@ -2,18 +2,17 @@
 
 import { useState, ChangeEvent, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { useGetVaccineByIdQuery, useGetResearchByIdQuery, useNewResearchMutation, useNewVaccineMutation, useGetCurrentUserQuery } from '@/service/vaxsul';
+import { useGetResearchByIdQuery, useNewResearchMutation, useNewVaccineMutation, useGetCurrentUserQuery } from '@/service/vaxsul';
 import { LoadingWidget } from '../../components/LoadingWidget';
 import { ErrorWidget } from '../../components/ErrorWidget';
-import { useRouter } from "next/navigation";
-import { Vaccine } from '@/types/vaccine';
 import { Research } from '@/types/research';
+import { Vaccine } from '@/types/vaccine';
 import Page from '../../components/Page';
 
 export default function VaccineResearchDetails() {
   const { id } = useParams();
-  const [newResearch, newResearchResult] = useNewResearchMutation();
-  const [newVaccine, newVaccineResult] = useNewVaccineMutation();
+  const [ newResearch ]  = useNewResearchMutation();
+  const [ newVaccine]  = useNewVaccineMutation();
   const user = useGetCurrentUserQuery();
 
   const validId = !Array.isArray(id) && id;
@@ -33,7 +32,6 @@ export default function VaccineResearchDetails() {
     researchProgress: 0,
     researchReport: '',
   });
-  const [sellableCheck, setSellableCheck] = useState(false);
 
   useEffect(() => {
     if (research) {
@@ -61,6 +59,7 @@ export default function VaccineResearchDetails() {
   }
 
   const isResearcher = user.data && user.data.role === "RESEARCHER";
+  const isResearchLead = user.data && user.data.role === "RESEARCH_LEAD";
   
   const handleEditClick = () => {
     setEditValues({
@@ -117,6 +116,22 @@ export default function VaccineResearchDetails() {
     window.location.reload();
   };
 
+  const handleApproveClick = () => {
+    newResearch({
+      ...research,
+      status: "APPROVED",
+    });
+    window.location.reload();
+  };
+
+  const handleRejectClick = () => {
+    newResearch({
+      ...research,
+      status: "REJECTED",
+    });
+    window.location.reload();
+  };
+
   return (
     <Page
       titleBar={
@@ -137,7 +152,7 @@ export default function VaccineResearchDetails() {
               handleInputChange={handleInputChange} 
             />
           </div>
-          <ActionButtons
+          <EditButtons
             research={research} 
             editing={editing} 
             isResearcher={isResearcher ?? false}
@@ -145,6 +160,12 @@ export default function VaccineResearchDetails() {
             handleCancelEdit={handleCancelEdit} 
             handleEditClick={handleEditClick} 
           />
+          <ApproveRejectButtons 
+            research = {research}
+            isResearchLead = {isResearchLead ?? false}
+            handleApproveClick = {handleApproveClick}
+            handleRejectClick = {handleRejectClick}
+            />
         </div>
       </div>
     </Page>
@@ -260,9 +281,7 @@ const ResearchDetails: React.FC<{
   );
 };
 
-
-// Component for displaying action buttons
-const ActionButtons: React.FC<{
+const EditButtons: React.FC<{
   research: Research,
   isResearcher: boolean;
   editing: boolean;
@@ -311,6 +330,33 @@ const ActionButtons: React.FC<{
   );
 };
 
+const ApproveRejectButtons: React.FC<{
+  research: Research,
+  isResearchLead: boolean;
+  handleApproveClick: () => void;
+  handleRejectClick: () => void;
+}> = ({ research, isResearchLead, handleApproveClick, handleRejectClick }) => {
+  return (
+    (research.status === "COMPLETED" && isResearchLead) && (
+      <div>
+        <button
+          type="button"
+          onClick={handleApproveClick}
+          className="bg-green-500 text-white text-lg px-6 py-2 rounded hover:bg-green-700"
+        >
+          Aprovar Produção da Vacina
+        </button>
+        <button
+          type="button"
+          onClick={handleRejectClick}
+          className="bg-red-500 text-white text-lg px-6 py-2 rounded hover:bg-red-700 ml-4"
+        >
+          Rejeitar Produção da Vacina
+        </button>
+      </div>
+    )
+  );
+};
 
 const STATUS_TEXT: Record<string, string> = {
   "IN_PROGRESS": "Em progresso",
