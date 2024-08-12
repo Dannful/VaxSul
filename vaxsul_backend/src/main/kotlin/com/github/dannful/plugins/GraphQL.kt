@@ -11,8 +11,6 @@ import io.ktor.server.application.*
 import io.ktor.server.sessions.*
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.koin.ktor.ext.inject
 
 fun Application.configureGraphQL() {
@@ -100,7 +98,7 @@ fun Application.configureGraphQL() {
             query("researches") {
                 resolver { context: Context ->
                     val role = context.get<Role>() ?: throw UnauthorizedException(Role.RESEARCHER)
-                    if (role !in Role.RESEARCHER.getParentRoles())
+                    if (role !in Role.RESEARCHER.getParentRoles().plus(Role.RESEARCH_LEAD))
                         throw UnauthorizedException(Role.RESEARCHER)
                     researchService.getResearches()
                 }
@@ -136,6 +134,11 @@ fun Application.configureGraphQL() {
             query("purchase") {
                 resolver { id: Int ->
                     purchaseService.getById(id)
+                }
+            }
+            query("userPurchase") {
+                resolver { userId: Int ->
+                    purchaseService.getForUser(userId)
                 }
             }
             mutation("newPurchase") {
