@@ -1,7 +1,7 @@
 package com.github.dannful.data.dao
 
 import com.github.dannful.data.entity.Users
-import com.github.dannful.domain.model.User
+import com.github.dannful.domain.model.IdUser
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -19,7 +19,7 @@ class UsersDao(id: EntityID<Int>) : IntEntity(id) {
     var birthday by Users.birthday
     var laboratoryId by Users.laboratoryId
 
-    fun toUser(): User = User(
+    fun toUser() = IdUser(
         id = id.value,
         email = email,
         name = name,

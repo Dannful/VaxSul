@@ -1,6 +1,7 @@
 package com.github.dannful.data.service
 
 import com.github.dannful.data.dao.LaboratoriesDao
+import com.github.dannful.domain.model.IdLaboratory
 import com.github.dannful.domain.model.Laboratory
 import com.github.dannful.domain.service.DispatcherProvider
 import com.github.dannful.domain.service.LaboratoryService
@@ -12,29 +13,21 @@ class DbLaboratoryService(
     private val dispatcherProvider: DispatcherProvider
 ) : LaboratoryService {
 
-    override suspend fun addLaboratory(laboratory: Laboratory) {
+    override suspend fun addLaboratory(laboratory: Laboratory): IdLaboratory =
         newSuspendedTransaction(context = dispatcherProvider.io, db = database) {
-            if (laboratory.id != null) {
-                val foundLaboratory = LaboratoriesDao.findById(laboratory.id) ?: return@newSuspendedTransaction
-                foundLaboratory.description = laboratory.description
-                foundLaboratory.cnpj = laboratory.cnpj
-                foundLaboratory.name = laboratory.name
-                return@newSuspendedTransaction
-            }
             LaboratoriesDao.new {
                 name = laboratory.name
                 cnpj = laboratory.cnpj
                 description = laboratory.description
-            }
+            }.toLaboratory()
         }
-    }
 
-    override suspend fun getLaboratories(): List<Laboratory> =
+    override suspend fun getLaboratories(): List<IdLaboratory> =
         newSuspendedTransaction(context = dispatcherProvider.io, db = database) {
             LaboratoriesDao.all().map { it.toLaboratory() }
         }
 
-    override suspend fun getLaboratory(id: Int): Laboratory? =
+    override suspend fun getLaboratory(id: Int): IdLaboratory? =
         newSuspendedTransaction(context = dispatcherProvider.io, db = database) {
             LaboratoriesDao.findById(id)?.toLaboratory()
         }
@@ -44,4 +37,13 @@ class DbLaboratoryService(
             LaboratoriesDao.findById(id)?.delete()
         }
     }
+
+    override suspend fun updateLaboratory(idLaboratory: IdLaboratory): IdLaboratory? =
+        newSuspendedTransaction(context = dispatcherProvider.io, db = database) {
+            val lab = LaboratoriesDao.findById(idLaboratory.id) ?: return@newSuspendedTransaction null
+            lab.name = idLaboratory.name
+            lab.cnpj = idLaboratory.cnpj
+            lab.description = idLaboratory.description
+            lab.toLaboratory()
+        }
 }

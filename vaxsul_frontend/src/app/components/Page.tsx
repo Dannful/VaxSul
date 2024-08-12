@@ -26,9 +26,6 @@ export default function Page({
   };
   const router = useRouter();
 
-  const toggleFilterMenu = () => {
-    setFilterMenuVisible(!filterMenuVisible);
-  };
   return (
     <div
       className="flex flex-col min-h-screen"

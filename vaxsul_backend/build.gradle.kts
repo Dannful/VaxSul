@@ -32,6 +32,10 @@ ktor {
 }
 
 dependencies {
+    implementation("com.apurebase:kgraphql:0.19.0")
+    implementation("com.apurebase:kgraphql-ktor:0.19.0")
+
+
     implementation("io.ktor:ktor-server-core-jvm")
     implementation("io.ktor:ktor-server-auth-jvm")
     implementation("io.ktor:ktor-server-resources-jvm")

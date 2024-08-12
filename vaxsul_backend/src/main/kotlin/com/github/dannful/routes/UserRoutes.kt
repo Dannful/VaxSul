@@ -2,10 +2,7 @@ package com.github.dannful.routes
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import com.github.dannful.domain.model.Credentials
-import com.github.dannful.domain.model.JWTData
-import com.github.dannful.domain.model.User
-import com.github.dannful.domain.model.UserSession
+import com.github.dannful.domain.model.*
 import com.github.dannful.domain.service.UserService
 import com.github.dannful.util.Constants
 import io.ktor.http.*
@@ -33,23 +30,6 @@ fun Application.userRoutes() {
                 userService.deleteUser(it.id)
                 call.respond(HttpStatusCode.OK)
             }
-        }
-        post<Users.New> {
-            val user = call.receiveNullable<User>() ?: run {
-                call.respond(HttpStatusCode.BadRequest)
-                return@post
-            }
-            val session = call.sessions.get<UserSession>() ?: run {
-                call.respond(HttpStatusCode.Unauthorized)
-                return@post
-            }
-            val foundUser = userService.getUserByEmail(session.email)
-            if(user.id != foundUser?.id) {
-                call.respond(HttpStatusCode.Unauthorized)
-                return@post
-            }
-            userService.addUser(user)
-            call.respond(HttpStatusCode.OK)
         }
         get<Users.User> {
             val user = userService.getUserById(it.id) ?: run {
@@ -79,6 +59,27 @@ fun Application.userRoutes() {
                 user
             )
             call.respond(HttpStatusCode.OK)
+        }
+        post<Users.New> {
+            val user = call.receiveNullable<IdUser>() ?: run {
+                call.respond(HttpStatusCode.BadRequest, "Invalid user schema")
+                return@post
+            }
+            val session = call.sessions.get<UserSession>() ?: run {
+                call.respond(HttpStatusCode.Unauthorized)
+                return@post
+            }
+            if (userService.getUserById(user.id)?.email != session.email) {
+                call.respond(
+                    HttpStatusCode.Unauthorized
+                )
+                return@post
+            }
+            val updatedUser = userService.updateUser(user) ?: run {
+                call.respond(HttpStatusCode.InternalServerError)
+                return@post
+            }
+            call.respond(HttpStatusCode.OK, updatedUser)
         }
         post<Logout> {
             call.sessions.get<UserSession>() ?: run {

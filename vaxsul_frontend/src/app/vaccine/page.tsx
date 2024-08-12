@@ -3,41 +3,58 @@
 import { ErrorWidget } from "@/app/components/ErrorWidget";
 import { LoadingWidget } from "@/app/components/LoadingWidget";
 import Page from "@/app/components/Page";
-import { useSearchVaccineQuery } from "@/service/vaxsul";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Vaccine, VaccineSearch } from "@/types/vaccine";
-import { useGetCurrentUserQuery } from "@/service/vaxsul";
+import { SEARCH_VACCINES, useGetCurrentUserQuery } from "@/service/vaxsul";
 import Link from "next/link";
+import { DocumentNode, TypedDocumentNode, useQuery } from "@apollo/client";
+import {
+  IdVaccine,
+  IdVaccineFragment,
+  VaccineQuery,
+} from "@/__generated__/graphql";
+
+const DEFAULT_QUERY: VaccineQuery = {
+  count: 12,
+  amountInStock: 1,
+};
 
 export default function ProductCatalog() {
   const [filterMenuVisible, setFilterMenuVisible] = useState(false);
   const [accountMenuVisible, setAccountMenuVisible] = useState(false);
   const [sortType, setSortType] = useState("");
-  const [searchQuery, setSearchQuery] = useState<VaccineSearch>({
-    count: 12,
-    name: "",
-    amountInStock: 1,
-  });
-  const searchRequest = useSearchVaccineQuery(searchQuery);
+  const [searchTerm, setSearchTerm] = useState("");
+  const { loading, error, data, refetch, variables } = useQuery(
+    SEARCH_VACCINES,
+    {
+      variables: {
+        vaccineQuery: DEFAULT_QUERY,
+      },
+    },
+  );
   const router = useRouter();
   const user = useGetCurrentUserQuery();
   const isSalesManager = user.data?.role === "SALES_MANAGER";
 
-  if (searchRequest.isLoading || searchRequest.isUninitialized) {
+  if (loading) {
     return <LoadingWidget />;
   }
 
-  if (searchRequest.isError) {
+  if (error || !data) {
     return (
       <ErrorWidget message="Erro ao carregar o catálogo. Por favor, tente novamente mais tarde ou contate o dev lixo que fez essa página." />
     );
   }
 
-  const vaccinesResponse = searchRequest.data;
-
   const handleLoadMore = () => {
-    setSearchQuery({ ...searchQuery, count: (searchQuery.count ?? 0) + 12 });
+    console.log(variables?.vaccineQuery.count);
+    refetch({
+      vaccineQuery: {
+        ...variables?.vaccineQuery,
+        count: (variables?.vaccineQuery.count ?? 0) + 12,
+      },
+    });
   };
 
   const toggleFilterMenu = () => {
@@ -51,10 +68,18 @@ export default function ProductCatalog() {
           type="text"
           placeholder="Pesquisar"
           className="bg-gray-40 bg-opacity-60 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 w-2/5 md:w-1/4"
-          value={searchQuery.name}
-          onChange={(e) =>
-            setSearchQuery({ ...searchQuery, name: e.target.value })
-          }
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              refetch({
+                vaccineQuery: {
+                  ...variables?.vaccineQuery,
+                  name: searchTerm,
+                },
+              });
+            }
+          }}
         />
         <div className="relative ml-2">
           <button
@@ -112,10 +137,10 @@ export default function ProductCatalog() {
           </div>
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
-          <VaccineList vaccines={vaccinesResponse.second} />
+          <VaccineList vaccines={data.searchVaccine.vaccines} />
         </div>
 
-        {vaccinesResponse.second.length < vaccinesResponse.first && (
+        {data.searchVaccine.vaccines.length < data.searchVaccine.count && (
           <button
             onClick={handleLoadMore}
             className="text-white bg-blue-500 bg-opacity-80 hover:bg-opacity-30 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out"
@@ -128,10 +153,10 @@ export default function ProductCatalog() {
   );
 }
 
-function VaccineList({ vaccines }: { vaccines: Vaccine[] }) {
+function VaccineList({ vaccines }: { vaccines: IdVaccineFragment[] }) {
   return (
     <>
-      {vaccines.map((product: Vaccine) => (
+      {vaccines.map((product) => (
         <div
           key={product.id}
           className="bg-white bg-opacity-30 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300 ease-in-out"

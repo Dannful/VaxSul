@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import StoreProvider from "./StoreProvider";
-import { PublicEnvScript } from "next-runtime-env";
+import { env, PublicEnvScript } from "next-runtime-env";
+import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
+import { WithApolloClient } from "./apolloProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,7 +25,9 @@ export default function RootLayout({
         <PublicEnvScript />
       </head>
       <StoreProvider>
-        <body className={inter.className}>{children}</body>
+        <WithApolloClient>
+          <body className={inter.className}>{children}</body>
+        </WithApolloClient>
       </StoreProvider>
     </html>
   );

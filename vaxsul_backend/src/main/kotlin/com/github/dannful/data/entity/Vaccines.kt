@@ -5,7 +5,6 @@ import org.jetbrains.exposed.sql.ReferenceOption
 
 object Vaccines : IntIdTable() {
 
-    val laboratoryId = reference("laboratoryId", Laboratories)
     val dose = integer("dose").check(name = "check_valid_dose") {
         it greaterEq 1
     }
@@ -20,5 +19,5 @@ object Vaccines : IntIdTable() {
             Researches,
             onDelete = ReferenceOption.SET_NULL,
             onUpdate = ReferenceOption.CASCADE
-        ).nullable().default(null)
+        )
 }

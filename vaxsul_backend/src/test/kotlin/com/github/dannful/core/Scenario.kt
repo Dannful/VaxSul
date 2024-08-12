@@ -122,6 +122,7 @@ class Scenario {
             name = "romano",
             description = "description",
             report = "report",
+            laboratoryId = 1
         )
         researchService.addResearch(
             research
@@ -131,8 +132,9 @@ class Scenario {
 
     suspend fun addVaccine(): Vaccine {
         addLaboratory()
+        addResearch()
         val vaccine = Vaccine(
-            laboratoryId = 1,
+            researchId = 1,
             pricePerUnit = 1.0f,
             amountInStock = 3,
             dose = 1,
@@ -164,6 +166,7 @@ class Scenario {
             totalSpent = 30f,
             amount = 3,
             timestamp = LocalDateTime(3000, 3, 3, 3, 3, 3),
+            status = PurchaseStatus.IN_VALIDATION
         )
         purchaseService.add(purchase)
         return purchase

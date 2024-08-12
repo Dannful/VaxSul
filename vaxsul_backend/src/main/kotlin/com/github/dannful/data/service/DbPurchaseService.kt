@@ -4,6 +4,7 @@ import com.github.dannful.data.dao.PurchasesDao
 import com.github.dannful.data.entity.Purchases
 import com.github.dannful.data.entity.Users
 import com.github.dannful.data.entity.Vaccines
+import com.github.dannful.domain.model.IdPurchase
 import com.github.dannful.domain.model.Purchase
 import com.github.dannful.domain.service.DispatcherProvider
 import com.github.dannful.domain.service.PurchaseService
@@ -17,37 +18,38 @@ class DbPurchaseService(
     private val database: Database
 ) : PurchaseService {
 
-    override suspend fun add(purchase: Purchase) {
+    override suspend fun add(purchase: Purchase): IdPurchase =
         newSuspendedTransaction(context = dispatcherProvider.io, db = database) {
-            if (purchase.id != null) {
-                val foundPurchase = PurchasesDao.findById(purchase.id) ?: return@newSuspendedTransaction
-                if (purchase.userId != null)
-                    foundPurchase.userId = EntityID(purchase.userId, Users)
-                foundPurchase.vaccineId = EntityID(purchase.vaccineId, Users)
-                foundPurchase.amount = purchase.amount
-                if (purchase.timestamp != null)
-                    foundPurchase.timestamp = purchase.timestamp
-                foundPurchase.totalSpent = purchase.totalSpent
-                return@newSuspendedTransaction
-            }
             PurchasesDao.new {
-                if (purchase.userId != null)
-                    userId = EntityID(purchase.userId, Users)
+                userId = EntityID(purchase.userId, Users)
                 vaccineId = EntityID(purchase.vaccineId, Vaccines)
                 amount = purchase.amount
                 totalSpent = purchase.totalSpent
+                status = purchase.status
                 if (purchase.timestamp != null)
                     timestamp = purchase.timestamp
-            }
+            }.toPurchase()
         }
-    }
 
-    override suspend fun getForUser(userId: Int): List<Purchase> =
+    override suspend fun updatePurchase(idPurchase: IdPurchase): IdPurchase? =
+        newSuspendedTransaction(context = dispatcherProvider.io, db = database) {
+            val purchase = PurchasesDao.findById(idPurchase.id) ?: return@newSuspendedTransaction null
+            purchase.userId = EntityID(idPurchase.userId, Users)
+            purchase.vaccineId = EntityID(idPurchase.vaccineId, Vaccines)
+            purchase.amount = idPurchase.amount
+            purchase.totalSpent = idPurchase.totalSpent
+            purchase.status = idPurchase.status
+            if (idPurchase.timestamp != null)
+                purchase.timestamp = idPurchase.timestamp
+            purchase.toPurchase()
+        }
+
+    override suspend fun getForUser(userId: Int): List<IdPurchase> =
         newSuspendedTransaction(context = dispatcherProvider.io, db = database) {
             PurchasesDao.find(op = Purchases.userId eq userId).map { it.toPurchase() }
         }
 
-    override suspend fun getById(id: Int): Purchase? =
+    override suspend fun getById(id: Int): IdPurchase? =
         newSuspendedTransaction(context = dispatcherProvider.io, db = database) {
             PurchasesDao.findById(id)?.toPurchase()
         }

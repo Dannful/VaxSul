@@ -1,5 +1,6 @@
 package com.github.dannful.data.entity
 
+import com.github.dannful.domain.model.PurchaseStatus
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.kotlin.datetime.CurrentTimestamp
@@ -17,4 +18,5 @@ object Purchases : IntIdTable() {
     val totalSpent = float("totalSpent").check(name = "is_total_spent_valid") {
         it greater 0f
     }
+    val status = enumeration<PurchaseStatus>("status")
 }

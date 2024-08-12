@@ -1,7 +1,7 @@
 package com.github.dannful.data.dao
 
 import com.github.dannful.data.entity.Purchases
-import com.github.dannful.domain.model.Purchase
+import com.github.dannful.domain.model.IdPurchase
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -15,13 +15,15 @@ class PurchasesDao(idEntityID: EntityID<Int>) : IntEntity(idEntityID) {
     var amount by Purchases.amount
     var timestamp by Purchases.timestamp
     var totalSpent by Purchases.totalSpent
+    var status by Purchases.status
 
-    fun toPurchase() = Purchase(
+    fun toPurchase() = IdPurchase(
         id = id.value,
         vaccineId = vaccineId.value,
         amount = amount,
         timestamp = timestamp,
         totalSpent = totalSpent,
-        userId = userId.value
+        userId = userId.value,
+        status = status
     )
 }

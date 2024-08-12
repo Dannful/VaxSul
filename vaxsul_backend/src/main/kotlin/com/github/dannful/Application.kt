@@ -11,10 +11,11 @@ fun main(args: Array<String>) {
 fun Application.module() {
     configureKoin()
     configureDatabases()
-    configureSessions()
-    configureSecurity()
     configureMonitoring()
     configureSerialization()
-    configureRouting()
     configureCORS()
+    configureSessions()
+    configureSecurity()
+    configureRouting()
+    configureGraphQL()
 }

@@ -4,15 +4,19 @@ import { ErrorWidget } from "@/app/components/ErrorWidget";
 import { LoadingWidget } from "@/app/components/LoadingWidget";
 import Page from "@/app/components/Page";
 import {
-  useGetVaccineByIdQuery,
-  useNewPurchaseMutation,
-  useNewVaccineMutation,
   useGetCurrentUserQuery,
-  useDeleteVaccineMutation,
+  VACCINE_BY_ID,
+  UPDATE_VACCINE,
+  NEW_PURCHASE,
+  DELETE_VACCINE,
+  SEARCH_VACCINES,
 } from "@/service/vaxsul";
 import { useParams, useRouter } from "next/navigation";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { Vaccine } from "@/types/vaccine";
+import { useMutation, useQuery } from "@apollo/client";
+import { IdVaccineFragment, PurchaseStatus } from "@/__generated__/graphql";
+import { serializeDateTime } from "@/app/util/DateSerializer";
 
 export default function VaccineDetails() {
   const { id } = useParams();
@@ -20,42 +24,58 @@ export default function VaccineDetails() {
   const user = useGetCurrentUserQuery();
   const validId = !Array.isArray(id) && id;
   const isSalesManager = user.data?.role === "SALES_MANAGER" ?? false;
-  const {
-    data: vaccine,
-    error,
-    isLoading,
-  } = useGetVaccineByIdQuery(Number(validId), {
-    skip: !validId,
+  const { loading, error, data } = useQuery(VACCINE_BY_ID, {
+    variables: {
+      id: Number(id),
+    },
   });
 
-  if (!validId) {
-    return <p className="text-black">Vacina não encontrada.</p>;
-  }
-
-  if (isLoading) return <LoadingWidget />;
+  if (loading) return <LoadingWidget />;
   if (error)
     return <ErrorWidget message="Erro ao carregar os detalhes do produto." />;
-  if (!vaccine) return <p className="text-black">Vacina não encontrada.</p>;
-  return <VaccineComponent vaccine={vaccine} isSalesManager={isSalesManager} />;
+  if (!data?.vaccine)
+    return <p className="text-black">Vacina não encontrada.</p>;
+  return (
+    <VaccineComponent
+      vaccine={data.vaccine}
+      isSalesManager={isSalesManager}
+      userId={user.data?.id ?? -1}
+    />
+  );
 }
 
 function VaccineComponent({
   vaccine,
   isSalesManager,
+  userId,
 }: {
-  vaccine: Vaccine;
+  vaccine: IdVaccineFragment;
   isSalesManager: boolean;
+  userId: number;
 }) {
   const [quantity, setQuantity] = useState(1);
   const router = useRouter();
-  const [updateVaccine] = useNewVaccineMutation();
-  const [newPurchase] = useNewPurchaseMutation();
-  const [deleteVaccine] = useDeleteVaccineMutation();
+  const [updateVaccine] = useMutation(UPDATE_VACCINE, {
+    variables: {
+      id: vaccine.id,
+      vaccine: {
+        amountInStock: vaccine.amountInStock,
+        description: vaccine.description,
+        dose: vaccine.dose,
+        name: vaccine.name,
+        pricePerUnit: vaccine.pricePerUnit,
+        researchId: vaccine.research.id,
+      },
+    },
+    refetchQueries: [SEARCH_VACCINES, VACCINE_BY_ID],
+  });
+  const [newPurchase] = useMutation(NEW_PURCHASE);
+  const [deleteVaccine] = useMutation(DELETE_VACCINE);
 
   const handleQuantityChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = Math.min(
       Math.max(Number(e.target.value), 1),
-      vaccine.amountInStock
+      vaccine.amountInStock,
     );
     setQuantity(value);
   };
@@ -63,20 +83,34 @@ function VaccineComponent({
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     let vaccineResult = await updateVaccine({
-      ...vaccine,
-      amountInStock: vaccine.amountInStock - quantity,
+      variables: {
+        id: vaccine.id,
+        vaccine: {
+          amountInStock: vaccine.amountInStock - quantity,
+          description: vaccine.description,
+          dose: vaccine.dose,
+          name: vaccine.name,
+          pricePerUnit: vaccine.pricePerUnit,
+          researchId: vaccine.research.id,
+        },
+      },
     });
-    if (vaccineResult.error) {
+    if (vaccineResult.errors) {
       return;
     }
-    let today = new Date().toISOString();
     let purchaseResult = await newPurchase({
-      vaccineId: vaccine.id ?? -1,
-      amount: quantity,
-      totalSpent: quantity * vaccine.pricePerUnit,
-      timestamp: today.slice(0, today.length - 5),
+      variables: {
+        purchase: {
+          vaccineId: vaccine.id ?? -1,
+          amount: quantity,
+          totalSpent: quantity * vaccine.pricePerUnit,
+          timestamp: serializeDateTime(new Date()),
+          status: PurchaseStatus.Approved,
+          userId: userId,
+        },
+      },
     });
-    if (purchaseResult.error) {
+    if (purchaseResult.errors) {
       return;
     }
     router.push("/vaccine");
@@ -85,9 +119,13 @@ function VaccineComponent({
   const handleDelete = async () => {
     if (confirm("Tem certeza de que deseja deletar este produto?")) {
       if (vaccine.id != null) {
-        let deleteResult = await deleteVaccine(vaccine.id);
-        if (deleteResult.error) {
-          alert("Erro ao deletar o produto. Por favor, tente novamente mais tarde.");
+        let deleteResult = await deleteVaccine({
+          variables: { id: vaccine.id },
+        });
+        if (deleteResult.errors) {
+          alert(
+            "Erro ao deletar o produto. Por favor, tente novamente mais tarde.",
+          );
         } else {
           router.push("/vaccine");
         }
@@ -135,63 +173,60 @@ function VaccineComponent({
             <p className="text-lg text-gray-700">
               Dose: <span className="font-semibold">{vaccine.dose}</span>
             </p>
-            {vaccine.laboratoryId && (
-              <p className="text-lg text-gray-700">
-                Laboratório:{" "}
-                <span className="font-semibold">{vaccine.laboratoryId}</span>
-              </p>
-            )}
+            <p className="text-lg text-gray-700">
+              Laboratório:{" "}
+              <span className="font-semibold">
+                {vaccine.research.laboratory.name}
+              </span>
+            </p>
+            )
           </div>
 
-          {vaccine.sellable && (
-            <div className="mt-6">
-              <div className="border-t border-gray-300 pt-6 mb-6">
-                <div className="flex justify-between text-gray-700 text-lg mb-2">
-                  <span>Quantidade em estoque:</span>
-                  <span className="font-semibold">{vaccine.amountInStock}</span>
-                </div>
-                <div className="flex justify-between text-gray-700 text-lg mb-4">
-                  <span>Preço:</span>
-                  <span className="font-semibold">
-                    R$ {vaccine.pricePerUnit}
-                  </span>
-                </div>
+          <div className="mt-6">
+            <div className="border-t border-gray-300 pt-6 mb-6">
+              <div className="flex justify-between text-gray-700 text-lg mb-2">
+                <span>Quantidade em estoque:</span>
+                <span className="font-semibold">{vaccine.amountInStock}</span>
               </div>
-              {!isSalesManager && ( 
-                <form className="flex flex-col items-end" onSubmit={handleSubmit}>
-                  <div className="flex items-center mb-4">
-                    <input
-                      type="number"
-                      min={1}
-                      max={vaccine.amountInStock}
-                      value={quantity}
-                      onChange={handleQuantityChange}
-                      placeholder="Quantidade"
-                      className="border border-gray-300 rounded-lg px-3 py-1 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 mr-2"
-                      style={{ width: "100px" }}
-                    />
-                    <button
-                      type="submit"
-                      className="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 transition duration-300"
-                    >
-                      Comprar
-                    </button>
-                  </div>
-                  <p className="text-lg text-gray-700">
-                    Preço total: R$ {totalPrice.toFixed(2)}
-                  </p>
-                </form>
-              )}
-              {isSalesManager && ( 
-                <button
-                  onClick={handleDelete}
-                  className="bg-red-600 text-white rounded-lg px-4 py-2 mt-4 hover:bg-red-700 transition duration-300"
-                >
-                  Deletar
-                </button>
-              )}
+              <div className="flex justify-between text-gray-700 text-lg mb-4">
+                <span>Preço:</span>
+                <span className="font-semibold">R$ {vaccine.pricePerUnit}</span>
+              </div>
             </div>
-          )}
+            {!isSalesManager && (
+              <form className="flex flex-col items-end" onSubmit={handleSubmit}>
+                <div className="flex items-center mb-4">
+                  <input
+                    type="number"
+                    min={1}
+                    max={vaccine.amountInStock}
+                    value={quantity}
+                    onChange={handleQuantityChange}
+                    placeholder="Quantidade"
+                    className="border border-gray-300 rounded-lg px-3 py-1 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 mr-2"
+                    style={{ width: "100px" }}
+                  />
+                  <button
+                    type="submit"
+                    className="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 transition duration-300"
+                  >
+                    Comprar
+                  </button>
+                </div>
+                <p className="text-lg text-gray-700">
+                  Preço total: R$ {totalPrice.toFixed(2)}
+                </p>
+              </form>
+            )}
+            {isSalesManager && (
+              <button
+                onClick={handleDelete}
+                className="bg-red-600 text-white rounded-lg px-4 py-2 mt-4 hover:bg-red-700 transition duration-300"
+              >
+                Deletar
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </Page>

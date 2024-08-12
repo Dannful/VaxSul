@@ -8,9 +8,5 @@ fun Application.configureRouting() {
     install(Resources)
 
     userRoutes()
-    vaccineRoutes()
-    researchRoutes()
-    purchaseRoutes()
-    laboratoryRoutes()
     healthRoute()
 }

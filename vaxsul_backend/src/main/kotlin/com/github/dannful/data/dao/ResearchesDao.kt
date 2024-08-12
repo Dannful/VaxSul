@@ -1,7 +1,7 @@
 package com.github.dannful.data.dao
 
 import com.github.dannful.data.entity.Researches
-import com.github.dannful.domain.model.Research
+import com.github.dannful.domain.model.IdResearch
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -16,14 +16,16 @@ class ResearchesDao(id: EntityID<Int>) : IntEntity(id) {
     var name by Researches.name
     var description by Researches.description
     var report by Researches.report
+    var laboratoryId by Researches.laboratoryId
 
-    fun toResearch() = Research(
+    fun toResearch() = IdResearch(
         id = id.value,
         startDate = startDate,
         status = status,
         progress = progress,
         name = name,
         description = description,
-        report = report
+        report = report,
+        laboratoryId = laboratoryId.value
     )
 }

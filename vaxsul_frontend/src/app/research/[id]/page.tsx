@@ -1,74 +1,87 @@
 "use client";
 
-import { useState, ChangeEvent, useEffect } from 'react';
-import { useParams } from 'next/navigation';
-import { useGetResearchByIdQuery, useNewResearchMutation, useNewVaccineMutation, useGetCurrentUserQuery } from '@/service/vaxsul';
-import { LoadingWidget } from '../../components/LoadingWidget';
-import { ErrorWidget } from '../../components/ErrorWidget';
-import { Research } from '@/types/research';
-import { Vaccine } from '@/types/vaccine';
-import Page from '../../components/Page';
+import { useState, ChangeEvent, useEffect } from "react";
+import { useParams } from "next/navigation";
+import {
+  useGetResearchByIdQuery,
+  useGetCurrentUserQuery,
+  RESEARCH_BY_ID,
+  NEW_RESEARCH,
+  NEW_VACCINE,
+  UPDATE_VACCINE,
+  UPDATE_RESEARCH,
+  RESEARCHES_QUERY,
+  SEARCH_VACCINES,
+  VACCINE_BY_ID,
+} from "@/service/vaxsul";
+import { LoadingWidget } from "../../components/LoadingWidget";
+import { ErrorWidget } from "../../components/ErrorWidget";
+import { Vaccine } from "@/types/vaccine";
+import Page from "../../components/Page";
+import { useMutation, useQuery } from "@apollo/client";
+import {
+  IdResearch,
+  IdResearchFragment,
+  PurchaseStatus,
+  Research,
+  ResearchStatus,
+} from "@/__generated__/graphql";
+import { User } from "@/types/user";
+import { deserializeDateTime } from "@/app/util/DateSerializer";
+import { countReset } from "console";
 
 export default function VaccineResearchDetails() {
   const { id } = useParams();
-  const [ newResearch ]  = useNewResearchMutation();
-  const [ newVaccine]  = useNewVaccineMutation();
   const user = useGetCurrentUserQuery();
 
   const validId = !Array.isArray(id) && id;
-  const {
-    data: research,
-    error,
-    isLoading,
-  } = useGetResearchByIdQuery(Number(validId), {
-    skip: !validId,
+  const { data, loading, error } = useQuery(RESEARCH_BY_ID, {
+    variables: {
+      id: Number(id),
+    },
   });
 
+  if (loading) {
+    return <LoadingWidget />;
+  }
+
+  if (error || !data?.research || !user.data) {
+    return (
+      <ErrorWidget message="Falha ao carregar pesquisa. Por favor, tente novamente mais tarde ou contate o dev lixo que fez essa página." />
+    );
+  }
+
+  return <ResearchComponent research={data.research} user={user.data} />;
+}
+
+function ResearchComponent({
+  research,
+  user,
+}: {
+  research: IdResearchFragment;
+  user: User;
+}) {
+  const [updateResearch] = useMutation(UPDATE_RESEARCH, {
+    refetchQueries: [RESEARCHES_QUERY, RESEARCH_BY_ID],
+  });
+  const [newVaccine] = useMutation(UPDATE_VACCINE, {
+    refetchQueries: [SEARCH_VACCINES, VACCINE_BY_ID],
+  });
   const [editing, setEditing] = useState(false);
-  const [editValues, setEditValues] = useState({
-    researchName: '',
-    researchDescription: '',
-    researchStatus: '',
-    researchProgress: 0,
-    researchReport: '',
+  const [editValues, setEditValues] = useState<Research>({
+    name: research.name,
+    description: research.description,
+    status: research.status,
+    progress: research.progress,
+    report: research.report,
+    startDate: research.startDate,
+    laboratoryId: research.laboratory.id,
   });
 
-  useEffect(() => {
-    if (research) {
-      setEditValues({
-        researchName: research.name,
-        researchDescription: research.description,
-        researchStatus: research.status,
-        researchProgress: research.progress ?? 0,
-        researchReport: research.report,
-      });
-    }
-  }, [research]);
+  const isResearcher = user.role === "RESEARCHER";
+  const isResearchLead = user.role === "RESEARCH_LEAD";
 
-  if (!validId) {
-    return <p className="text-black">Pesquisa não encontrada.</p>;
-  }
-
-  if (isLoading) return <LoadingWidget />;
-  if (error)
-    return <ErrorWidget message="Erro ao carregar os detalhes da pesquisa." />;
-  if (!research) return <p className="text-black">Pesquisa não encontrada.</p>;
-  
-  if (!validId) {
-    return <p className="text-black">Vacina não encontrada.</p>;
-  }
-
-  const isResearcher = user.data && user.data.role === "RESEARCHER";
-  const isResearchLead = user.data && user.data.role === "RESEARCH_LEAD";
-  
   const handleEditClick = () => {
-    setEditValues({
-      researchName: research.name ?? '',
-      researchDescription: research.description ?? '',
-      researchStatus: research.status ?? '',
-      researchProgress: research.progress ?? 0,
-      researchReport: research.report ?? '',
-    });
     setEditing(true);
   };
 
@@ -76,58 +89,71 @@ export default function VaccineResearchDetails() {
     setEditing(false);
   };
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement> | ChangeEvent<HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setEditValues(prev => ({ ...prev, [name]: value }));
-  };
-
   const validateInput = () => {
-    if (editValues.researchStatus === "APPROVED" || editValues.researchStatus === "REJECTED") {
+    if (
+      research.status === ResearchStatus.Approved ||
+      research.status === ResearchStatus.Rejected
+    ) {
       alert("Você não pode editar pesquisas aprovadas ou rejeitadas.");
       return false;
     }
-    if (editValues.researchStatus === "COMPLETED" && editValues.researchProgress < 100) {
+    if (
+      editValues.status === ResearchStatus.Completed &&
+      editValues.progress < 100
+    ) {
       alert("O progresso da pesquisa deve ser 100% para ser finalizada.");
       return false;
     }
-    if (editValues.researchProgress >= 100 && editValues.researchStatus !== "COMPLETED") {
-      alert("O status da pesquisa deve ser finalizada se o progresso for 100%.");
+    if (
+      editValues.progress >= 100 &&
+      editValues.status !== ResearchStatus.Completed
+    ) {
+      alert(
+        "O status da pesquisa deve ser finalizada se o progresso for 100%.",
+      );
       return false;
     }
-    if (editValues.researchStatus === "COMPLETED" && !editValues.researchReport) {
+    if (editValues.status === "COMPLETED" && editValues.report.length === 0) {
       alert("O relatório é obrigatório para pesquisas finalizadas.");
       return false;
     }
     return true;
   };
 
-
   const handleSaveChanges = () => {
-    if (!validateInput()) return;
+    if (isResearcher && !validateInput()) return;
 
-    newResearch({
-      ...research,
-      name: editValues.researchName,
-      description: editValues.researchDescription,
-      status: editValues.researchStatus as "IN_PROGRESS" | "PAUSED" | "COMPLETED" | "DROPPED",
-      progress: editValues.researchProgress,
-      report: editValues.researchReport,
+    console.log(editValues);
+    updateResearch({
+      variables: {
+        id: research.id,
+        research: editValues,
+      },
     });
-    window.location.reload();
   };
 
   const handleApproveClick = () => {
-    newResearch({
-      ...research,
-      status: "APPROVED",
+    updateResearch({
+      variables: {
+        id: research.id,
+        research: {
+          ...editValues,
+          status: ResearchStatus.Approved,
+        },
+      },
     });
     window.location.reload();
   };
 
   const handleRejectClick = () => {
-    newResearch({
-      ...research,
-      status: "REJECTED",
+    updateResearch({
+      variables: {
+        id: research.id,
+        research: {
+          ...editValues,
+          status: ResearchStatus.Rejected,
+        },
+      },
     });
     window.location.reload();
   };
@@ -143,52 +169,46 @@ export default function VaccineResearchDetails() {
       }
     >
       <div className="flex-1 p-6 flex justify-center">
-        <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-6xl"> 
+        <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-6xl">
           <div className="grid grid-cols-1 gap-6">
-            <ResearchDetails 
-              research={research} 
-              editing={editing} 
-              editValues={editValues} 
-              handleInputChange={handleInputChange} 
+            <ResearchEditForm
+              research={research}
+              editing={editing}
+              editValues={editValues}
+              handleInputChange={setEditValues}
             />
           </div>
           <EditButtons
-            research={research} 
-            editing={editing} 
+            research={research}
+            editing={editing}
             isResearcher={isResearcher ?? false}
-            handleSaveChanges={handleSaveChanges} 
-            handleCancelEdit={handleCancelEdit} 
-            handleEditClick={handleEditClick} 
+            handleSaveChanges={handleSaveChanges}
+            handleCancelEdit={handleCancelEdit}
+            handleEditClick={handleEditClick}
           />
-          <ApproveRejectButtons 
-            research = {research}
-            isResearchLead = {isResearchLead ?? false}
-            handleApproveClick = {handleApproveClick}
-            handleRejectClick = {handleRejectClick}
-            />
+          <ApproveRejectButtons
+            research={research}
+            isResearchLead={isResearchLead ?? false}
+            handleApproveClick={handleApproveClick}
+            handleRejectClick={handleRejectClick}
+          />
         </div>
       </div>
     </Page>
   );
 }
 
-const ResearchDetails: React.FC<{
-  research: Research;
-  editing: boolean;
-  editValues: {
-    researchName: string;
-    researchDescription: string;
-    researchProgress: number;
-    researchStatus: string;
-    researchReport:string;
-  };
-  handleInputChange: (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement> | ChangeEvent<HTMLSelectElement>) => void;
-}> = ({
+function ResearchEditForm({
   research,
   editing,
   editValues,
   handleInputChange,
-}) => {
+}: {
+  research: IdResearchFragment;
+  editing: boolean;
+  editValues: Research;
+  handleInputChange: (update: Research) => void;
+}) {
   return (
     <div>
       {editing ? (
@@ -198,8 +218,10 @@ const ResearchDetails: React.FC<{
             <input
               type="text"
               name="researchName"
-              value={editValues.researchName}
-              onChange={handleInputChange}
+              value={editValues.name}
+              onChange={(e) =>
+                handleInputChange({ ...editValues, name: e.target.value })
+              }
               className="border rounded px-4 py-2 w-full text-black"
             />
           </label>
@@ -207,11 +229,16 @@ const ResearchDetails: React.FC<{
             Status:
             <select
               name="researchStatus"
-              value={editValues.researchStatus}
-              onChange={handleInputChange}
+              value={editValues.status}
+              onChange={(e) =>
+                handleInputChange({
+                  ...editValues,
+                  status: Object.values(ResearchStatus)[e.target.selectedIndex],
+                })
+              }
               className="border rounded px-4 py-2 w-full text-black"
             >
-              {["IN_PROGRESS", "PAUSED", "COMPLETED", "DROPPED"].map((status) => (
+              {Object.values(ResearchStatus).map((status) => (
                 <option key={status} value={status}>
                   {STATUS_TEXT[status]}
                 </option>
@@ -225,8 +252,13 @@ const ResearchDetails: React.FC<{
               name="researchProgress"
               min={0}
               max={100}
-              value={editValues.researchProgress}
-              onChange={handleInputChange}
+              value={editValues.progress}
+              onChange={(e) =>
+                handleInputChange({
+                  ...editValues,
+                  progress: Number(e.target.value),
+                })
+              }
               className="border rounded px-4 py-2 w-full text-black"
             />
           </label>
@@ -234,19 +266,26 @@ const ResearchDetails: React.FC<{
             Descrição da Pesquisa:
             <textarea
               name="researchDescription"
-              value={editValues.researchDescription}
-              onChange={handleInputChange}
+              value={editValues.description}
+              onChange={(e) =>
+                handleInputChange({
+                  ...editValues,
+                  description: e.target.value,
+                })
+              }
               className="border rounded px-4 py-2 w-full text-black"
               rows={5}
             />
           </label>
-          {editValues.researchStatus === "COMPLETED" && (
+          {editValues.status === ResearchStatus.Completed && (
             <label className="block mb-2 text-black">
               Relatório:
               <textarea
                 name="researchReport"
-                value={editValues.researchReport}
-                onChange={handleInputChange}
+                value={editValues.report}
+                onChange={(e) =>
+                  handleInputChange({ ...editValues, report: e.target.value })
+                }
                 className="border rounded px-4 py-2 w-full text-black"
                 rows={5}
               />
@@ -255,11 +294,17 @@ const ResearchDetails: React.FC<{
         </div>
       ) : (
         <div>
-          <h2 className="text-2xl font-semibold mb-4 text-black text-center">{research.name}</h2> {/* Centered the research name */}
+          <h2 className="text-2xl font-semibold mb-4 text-black text-center">
+            {research.name}
+          </h2>{" "}
+          {/* Centered the research name */}
           <p className="text-lg mb-4 text-black text-center">
             Data de Início: {formatDateTime(research.startDate)}
           </p>
-          <p className="text-lg mb-4 text-black text-center">Status: {STATUS_TEXT[research.status]}</p> {/* Centered the status */}
+          <p className="text-lg mb-4 text-black text-center">
+            Status: {STATUS_TEXT[research.status]}
+          </p>{" "}
+          {/* Centered the status */}
           <div className="w-full bg-gray-200 rounded-full h-6 mb-4">
             <div
               className="h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
@@ -274,21 +319,31 @@ const ResearchDetails: React.FC<{
               {research.progress}%
             </div>
           </div>
-          <p className="text-lg mb-4 text-black whitespace-pre-wrap">{research.description}</p>
-          {["COMPLETED", "APPROVED", "REJECTED"].includes(research.status) && (
+          <p className="text-lg mb-4 text-black whitespace-pre-wrap">
+            {research.description}
+          </p>
+          {[
+            ResearchStatus.Completed,
+            ResearchStatus.Approved,
+            ResearchStatus.Rejected,
+          ].includes(research.status) && (
             <div className="mb-4">
-              <h3 className="text-xl font-semibold text-center text-black mb-2">Relatório</h3>
-              <p className="text-lg text-black whitespace-pre-wrap mx-auto w-3/4">{research.report}</p>
+              <h3 className="text-xl font-semibold text-center text-black mb-2">
+                Relatório
+              </h3>
+              <p className="text-lg text-black whitespace-pre-wrap mx-auto w-3/4">
+                {research.report}
+              </p>
             </div>
           )}
         </div>
       )}
     </div>
   );
-};
+}
 
 const EditButtons: React.FC<{
-  research: Research,
+  research: IdResearchFragment;
   isResearcher: boolean;
   editing: boolean;
   handleSaveChanges: () => void;
@@ -300,11 +355,11 @@ const EditButtons: React.FC<{
   editing,
   handleSaveChanges,
   handleCancelEdit,
-  handleEditClick
+  handleEditClick,
 }) => {
   return (
     <div className="flex space-x-4 mt-6">
-      {(editing && isResearcher) ? (
+      {editing && isResearcher ? (
         <>
           <button
             type="button"
@@ -322,7 +377,12 @@ const EditButtons: React.FC<{
           </button>
         </>
       ) : (
-        (isResearcher && !["COMPLETED", "APPROVED", "REJECTED"].includes(research.status)) && (
+        isResearcher &&
+        ![
+          ResearchStatus.Completed,
+          ResearchStatus.Approved,
+          ResearchStatus.Rejected,
+        ].includes(research.status) && (
           <button
             type="button"
             onClick={handleEditClick}
@@ -337,13 +397,14 @@ const EditButtons: React.FC<{
 };
 
 const ApproveRejectButtons: React.FC<{
-  research: Research,
+  research: IdResearchFragment;
   isResearchLead: boolean;
   handleApproveClick: () => void;
   handleRejectClick: () => void;
 }> = ({ research, isResearchLead, handleApproveClick, handleRejectClick }) => {
   return (
-    (research.status === "COMPLETED" && isResearchLead) && (
+    research.status === "COMPLETED" &&
+    isResearchLead && (
       <div>
         <button
           type="button"
@@ -364,20 +425,20 @@ const ApproveRejectButtons: React.FC<{
   );
 };
 
-const STATUS_TEXT: Record<string, string> = {
-  "IN_PROGRESS": "Em progresso",
-  "PAUSED": "Pausada",
-  "COMPLETED": "Finalizada",
-  "DROPPED": "Cancelada",
-  "APPROVED" : "Aprovada",
-  "REJECTED" : "Rejeitada"
+const STATUS_TEXT: Record<ResearchStatus, string> = {
+  IN_PROGRESS: "Em progresso",
+  PAUSED: "Pausada",
+  COMPLETED: "Finalizada",
+  DROPPED: "Cancelada",
+  APPROVED: "Aprovada",
+  REJECTED: "Rejeitada",
 };
 
-const formatDateTime = (date: string) => 
-  new Date(date).toLocaleString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-});
+const formatDateTime = (date: string) =>
+  deserializeDateTime(date).toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
