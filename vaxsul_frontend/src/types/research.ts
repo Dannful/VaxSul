@@ -8,8 +8,13 @@ export const ResearchSchema = z.object({
         z.literal("PAUSED"),
         z.literal("COMPLETED"),
         z.literal("DROPPED"),
+        z.literal("APPROVED"),
+        z.literal("REJECTED"),
       ]),
     progress: z.number().optional(),
+    name: z.string(),
+    description: z.string(),
+    report: z.string(),
 });
 
 

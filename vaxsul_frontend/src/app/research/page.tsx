@@ -3,7 +3,6 @@
   import { useLogoutMutation, useSearchVaccineQuery, useNewResearchMutation, useNewVaccineMutation, useGetAllResearchQuery, useGetCurrentUserQuery } from "@/service/vaxsul";
   import { LoadingWidget } from "../components/LoadingWidget";
   import { ErrorWidget } from "../components/ErrorWidget";
-  import { Vaccine, VaccineSearch } from "@/types/vaccine";
   import { Research } from "@/types/research";
   import Link from "next/link";
   import { useRouter } from "next/navigation";
@@ -11,78 +10,57 @@
 
   export default function ResearchCatalog() {
     const [editValues, setEditValues] = useState({
-      vaccineName: '',
-      vaccineDescription: '',
-      vaccineDoses: 1,
+      researchName: '',
+      researchDescription: '',
     });
 
     const [sortType, setSortType] = useState("");
     const [filterMenuVisible, setFilterMenuVisible] = useState(false);
-    const [accountMenuVisible, setAccountMenuVisible] = useState(false);
     const [newVaccineFormVisible, setNewVaccineFormVisible] = useState(false);
 
-    const [vaccineSearchQuery, setVaccineSearchQuery] = useState<VaccineSearch>({
-      name: "",
-    });
-    const vaccineSearchRequest = useSearchVaccineQuery(vaccineSearchQuery);
+    const [researchSearchQuery, setResearchSearchQuery] = useState("");
+
     const researchSearch = useGetAllResearchQuery();
     const [newResearch, newResearchResult] = useNewResearchMutation();
-    const [newVaccine, newVaccineResult] = useNewVaccineMutation();
     
-
-    const [filter, setFilter] = useState("");
-    const [logout, logoutResult] = useLogoutMutation();
     const router = useRouter();
     const user = useGetCurrentUserQuery();
 
-    const isResearcher = user.data && (user.data.role === "RESEARCH_LEAD" || user.data.role === "RESEARCHER");
+    const isResearcher = user.data && user.data.role === "RESEARCHER";
     const isResearchLead = user.data && user.data.role === "RESEARCH_LEAD";
 
-    if (vaccineSearchRequest.isLoading || vaccineSearchRequest.isUninitialized || 
-        researchSearch.isLoading || researchSearch.isUninitialized || 
+    if (researchSearch.isLoading || researchSearch.isUninitialized || 
         user.isLoading || user.isUninitialized) {
-    return <LoadingWidget />;
+      return <LoadingWidget />;
     }
 
-    if (!isResearcher) return <ErrorWidget message="Você não tem permissão para ver esta página." />;
+    if (!isResearcher && !isResearchLead) return <ErrorWidget message="Você não tem permissão para ver esta página." />;
 
-    if (vaccineSearchRequest.isError || researchSearch.isError || user.isError ) {
+    if (researchSearch.isError || user.isError ) {
       return (
-        <ErrorWidget message="Erro ao carregar. Por favor, tente novamente mais tarde ou contate o dev lixo que fez essa página." />
+        <ErrorWidget message="Erro ao carregar as pesquisas. Por favor, tente novamente mais tarde ou contate o dev lixo que fez essa página." />
       );
     }
 
-    const vaccines = vaccineSearchRequest.data;
     const researches = researchSearch.data;
 
-    const combinedData = vaccines.second // Combinar dados das vacinas com as pesquisas
-    .map((vaccine) => {
-      const research = researches.find((research) => research.id === vaccine.researchId);
-      if (!research) return null;
-      return {
-        vaccine, 
-        research,
-      };
-    })
-    .filter((data) => data !== null);
-
-    const sortedData = combinedData.sort((a, b) => {
+    const sortedData = researches.sort((a, b) => {
       if (sortType === "name") {
-        return a.vaccine.name.localeCompare(b.vaccine.name);
+        return a.name.localeCompare(b.name);
       } else if (sortType === "progress") {
-        return (a.research.progress ?? 0) - (b.research.progress ?? 0);
+        return (a.progress ?? 0) - (b.progress ?? 0);
       } else if (sortType === "status") {
-        const statusOrder = ["IN_PROGRESS", "PAUSED", "COMPLETED", "DROPPED"];
-        return statusOrder.indexOf(a.research.status) - statusOrder.indexOf(b.research.status);
+        const statusOrder = ["COMPLETED", "IN_PROGRESS", "PAUSED", "DROPPED", "APPROVED", "REJECTED"];
+        return statusOrder.indexOf(a.status) - statusOrder.indexOf(b.status);
       } else if (sortType === "startDate") {
-        return new Date(a.research.startDate).getTime() - new Date(b.research.startDate).getTime();
+        return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
       }
       return 0; // No sorting if sortType invalid or not set
     });
 
-    const toggleAccountMenu = () => {
-      setAccountMenuVisible(!accountMenuVisible);
-    };
+    const filteredData = sortedData.filter((res) =>
+      res.name.toLowerCase().includes(researchSearchQuery.toLowerCase())
+    );
 
     const toggleFilterMenu = () => {
       setFilterMenuVisible(!filterMenuVisible);
@@ -90,19 +68,32 @@
 
     const handleNewResearchSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
+<<<<<<< HEAD
+      const { researchName, researchDescription } = editValues;
+      if (!researchName || !researchDescription) return alert("Preencha todos os campos.");
+
+=======
       const { vaccineName, vaccineDescription, vaccineDoses } = editValues;
       if (!vaccineName || !vaccineDescription || vaccineDoses === 0) return alert("Preencha todos os campos.");
   
+>>>>>>> 49a21d6e21a816ab87fd0cf794e28540125a60df
       if (user.data.laboratoryId === null || user.data.laboratoryId === undefined) {
         alert("Você não está associado a um laboratório. Por favor, contate o administrador."); // Verificar se o usuário está associado a um laboratório
         return;
       }
   
       const newRes = await newResearch({ 
+        name: researchName,
+        description: researchDescription,
         startDate: new Date().toISOString().split(".")[0], 
-        status: "IN_PROGRESS" 
+        status: "IN_PROGRESS",
+        report: "",
       });
       if (newRes.error) return alert("Erro ao criar pesquisa.");
+<<<<<<< HEAD
+
+      router.push("/research/" + newRes.data.id);
+=======
   
       const newVac = await newVaccine({
         dose: vaccineDoses,
@@ -117,6 +108,7 @@
       if (newVac.error) return alert("Erro ao criar vacina.");
   
       router.push("/research/" + newVac.data.id);
+>>>>>>> 49a21d6e21a816ab87fd0cf794e28540125a60df
     };
 
     const titleBar = (
@@ -126,10 +118,8 @@
             type="text"
             placeholder="Pesquisar"
             className="bg-gray-40 bg-opacity-60 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 w-2/5 md:w-1/4"
-            value={vaccineSearchQuery.name}
-            onChange={(e) =>
-              setVaccineSearchQuery({ ...vaccineSearchQuery, name: e.target.value })
-            }
+            value={researchSearchQuery}
+            onChange={(e) => setResearchSearchQuery(e.target.value)}
           />
           <div className="relative ml-2">
             <button
@@ -213,10 +203,10 @@
               {isResearchLead && AddResearchButton}
             </div>
           </div>
-          <VaccineResearchList combinedData={sortedData} />
+          <VaccineResearchList research={sortedData} />
         </div>
         {newVaccineFormVisible && (
-          <NewVaccineForm
+          <NewResearchForm
             onSubmit={handleNewResearchSubmit}
             onCancel={() => setNewVaccineFormVisible(false)}
             editValues={editValues}
@@ -227,45 +217,45 @@
     );    
   }
 
-const VaccineResearchList = ({ combinedData }: { combinedData: { vaccine: Vaccine; research: Research }[] }) => {
+const VaccineResearchList = ({ research }: {research: Research[] }) => {
   return (
     <ul className="w-full space-y-6">
-      {combinedData.map((data) => (
+      {research.map((res) => (
         <li
-        key={data.vaccine.id}
+        key={res.id}
         className="bg-white bg-opacity-30 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300 ease-in-out p-4 flex flex-col lg:flex-row items-start justify-between"
         >
           <div className="flex-1">
-            <h3 className={`text-xl ${STATUS_COLOR[data.research.status]} font-semibold pb-2`}>
-              Pesquisa: {data.vaccine.name}
+            <h3 className={`text-xl ${STATUS_COLOR[res.status]} font-semibold pb-2`}>
+              Pesquisa: {res.name}
             </h3>
             <p className="text-lg text-gray-700 mb-4">
-              {data.vaccine.description}
+              {res.description}
             </p>
             <div className="w-full bg-gray-200 rounded-full h-6 mb-4">
               <div
                 className="h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
                 style={{
-                  width: `${data.research.progress}%`,
-                  backgroundColor: `hsl(${((data.research.progress ?? 0) / 100) * 120}, 100%, 40%)`, // Ajustar cor baseado no progresso
+                  width: `${res.progress}%`,
+                  backgroundColor: `hsl(${((res.progress ?? 0) / 100) * 120}, 100%, 40%)`, // Ajustar cor baseado no progresso
                   paddingLeft: '20px', 
                   paddingRight: '20px',
                   boxSizing: 'border-box'
                 }}
               >
-              {data.research.progress}%
+              {res.progress}%
               </div>
             </div>
           </div>
           <div className="flex flex-col lg:ml-6 lg:w-1/3">
             <p className="text-lg text-gray-700 mb-4">
-              Data de início: {formatDateTime(data.research.startDate)}
+              Data de início: {formatDateTime(res.startDate)}
             </p>
             <p className="text-lg text-gray-700 mb-4">
-              Status: {STATUS_TEXT[data.research.status]}
+              Status: {STATUS_TEXT[res.status]}
             </p>
             <div className="flex justify-end">
-              <Link href={`/research/${data.vaccine.id}`}>
+              <Link href={`/research/${res.id}`}>
                 <button className="text-sm text-white bg-green-500 hover:bg-green-600 px-4 py-2 rounded-full focus:outline-none">
                   Detalhes da Pesquisa
                 </button>
@@ -278,7 +268,7 @@ const VaccineResearchList = ({ combinedData }: { combinedData: { vaccine: Vaccin
   );
 }
 
-const NewVaccineForm = ({ 
+const NewResearchForm = ({ 
   onSubmit, 
   onCancel, 
   editValues, 
@@ -287,14 +277,12 @@ const NewVaccineForm = ({
   onSubmit: (e: FormEvent<HTMLFormElement>) => void;
   onCancel: () => void;
   editValues: {
-    vaccineName: string;
-    vaccineDescription: string;
-    vaccineDoses: number;
+    researchName: string;
+    researchDescription: string;
   };
   setEditValues: React.Dispatch<React.SetStateAction<{
-    vaccineName: string;
-    vaccineDescription: string;
-    vaccineDoses: number;
+    researchName: string;
+    researchDescription: string;
   }>>;
 }) => {
   return (
@@ -303,25 +291,42 @@ const NewVaccineForm = ({
         <h3 className="text-2xl text-green-400 font-semibold mb-4">Nova Pesquisa</h3>
         <form onSubmit={onSubmit}>
           <div className="mb-4">
+<<<<<<< HEAD
+            <label className="block text-gray-300 text-sm font-medium mb-2" htmlFor="researchName">
+              Nome da pesquisa
+=======
             <label className="block text-gray-300 text-sm font-medium mb-2" htmlFor="vaccineName">
               Nome da Vacina
+>>>>>>> 49a21d6e21a816ab87fd0cf794e28540125a60df
             </label>
             <input
-              id="vaccineName"
+              id="researchName"
               type="text"
               required
+<<<<<<< HEAD
+              onChange={(e) => setEditValues({ ...editValues, researchName: e.target.value })}
+=======
               onChange={(e) => setEditValues({ ...editValues, vaccineName: e.target.value })}
+>>>>>>> 49a21d6e21a816ab87fd0cf794e28540125a60df
               className="bg-gray-700 text-gray-300 border border-gray-600 rounded-lg w-full py-2 px-3 focus:outline-none focus:border-green-500"
             />
           </div>
           <div className="mb-4">
+<<<<<<< HEAD
+          <label className="block text-gray-300 text-sm font-medium mb-2" htmlFor="description">
+              Descrição da pesquisa
+=======
             <label className="block text-gray-300 text-sm font-medium mb-2" htmlFor="description">
               Descrição da Vacina
+>>>>>>> 49a21d6e21a816ab87fd0cf794e28540125a60df
             </label>
             <textarea
               id="description"
               rows={6}
               required
+<<<<<<< HEAD
+              onChange={(e) => setEditValues({ ...editValues, researchDescription: e.target.value })}
+=======
               onChange={(e) => setEditValues({ ...editValues, vaccineDescription: e.target.value })}
               className="bg-gray-700 text-gray-300 border border-gray-600 rounded-lg w-full py-2 px-3 focus:outline-none focus:border-green-500"
             />
@@ -335,6 +340,7 @@ const NewVaccineForm = ({
               type="number"
               required
               onChange={(e) => setEditValues({ ...editValues, vaccineDoses: parseInt(e.target.value) })}
+>>>>>>> 49a21d6e21a816ab87fd0cf794e28540125a60df
               className="bg-gray-700 text-gray-300 border border-gray-600 rounded-lg w-full py-2 px-3 focus:outline-none focus:border-green-500"
             />
           </div>
@@ -364,14 +370,18 @@ const STATUS_TEXT: Record<string, string> = {
   "IN_PROGRESS": "Em progresso",
   "PAUSED": "Pausada",
   "COMPLETED": "Finalizada",
-  "DROPPED": "Cancelada"
+  "DROPPED": "Cancelada",
+  "APPROVED": "Aprovada",
+  "REJECTED": "Rejeitada"
 };
 
 const STATUS_COLOR: Record<string, string> = {
   "IN_PROGRESS": "text-blue-500",
   "PAUSED": "text-gray-500",
-  "COMPLETED": "text-green-500",
-  "DROPPED": "text-red-500"
+  "COMPLETED": "text-green-600",
+  "DROPPED": "text-red-600",
+  "APPROVED": "text-green-400",
+  "REJECTED": "text-red-400"
 };
 
 const formatDateTime = (date: string) => 
