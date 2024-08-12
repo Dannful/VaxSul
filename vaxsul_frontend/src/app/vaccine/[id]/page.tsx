@@ -22,7 +22,7 @@ export default function VaccineDetails() {
   const router = useRouter();
   const user = useGetCurrentUserQuery();
   const validId = !Array.isArray(id) && id;
-  const isSalesManager = user.data?.role === "SALES_MANAGER" ?? false;
+  const isSalesManager = user.data?.role === "SALES_MANAGER";
   const { loading, error, data } = useQuery(VACCINE_BY_ID, {
     variables: {
       id: Number(id),

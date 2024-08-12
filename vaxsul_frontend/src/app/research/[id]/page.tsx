@@ -26,11 +26,12 @@ import {
 } from "@/__generated__/graphql";
 import { User } from "@/types/user";
 import { deserializeDateTime } from "@/app/util/DateSerializer";
-import { countReset } from "console";
+import { useRouter } from "next/navigation";
 
 export default function VaccineResearchDetails() {
   const { id } = useParams();
   const user = useGetCurrentUserQuery();
+  const router = useRouter();
 
   const validId = !Array.isArray(id) && id;
   const { data, loading, error } = useQuery(RESEARCH_BY_ID, {
@@ -128,6 +129,7 @@ function ResearchComponent({
         research: editValues,
       },
     });
+    setEditing(false);
   };
 
   const handleApproveClick = () => {
@@ -140,7 +142,6 @@ function ResearchComponent({
         },
       },
     });
-    window.location.reload();
   };
 
   const handleRejectClick = () => {
@@ -153,7 +154,6 @@ function ResearchComponent({
         },
       },
     });
-    window.location.reload();
   };
 
   return (
@@ -207,6 +207,9 @@ function ResearchEditForm({
   editValues: Research;
   handleInputChange: (update: Research) => void;
 }) {
+
+  const researcherValidStatus = [ResearchStatus.InProgress, ResearchStatus.Completed, ResearchStatus.Paused, ResearchStatus.Dropped]
+  
   return (
     <div>
       {editing ? (
@@ -231,12 +234,12 @@ function ResearchEditForm({
               onChange={(e) =>
                 handleInputChange({
                   ...editValues,
-                  status: Object.values(ResearchStatus)[e.target.selectedIndex],
+                  status: researcherValidStatus[e.target.selectedIndex],
                 })
               }
               className="border rounded px-4 py-2 w-full text-black"
             >
-              {Object.values(ResearchStatus).map((status) => (
+              {researcherValidStatus.map((status) => (
                 <option key={status} value={status}>
                   {STATUS_TEXT[status]}
                 </option>

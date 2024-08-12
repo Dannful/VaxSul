@@ -163,6 +163,14 @@ export const NEW_PURCHASE = gql(`
   }
 `);
 
+export const UPDATE_PURCHASE = gql(`
+  mutation UpdatePurchase($id: Int!, $purchase: Purchase!) {
+    updatePurchase(id: $id, purchase: $purchase) {
+      ...IdPurchase
+    }
+  }
+`);
+
 export const NEW_RESEARCH = gql(`
   mutation NewResearch($research: Research!) {
     newResearch(research: $research) {
@@ -193,4 +201,20 @@ export const RESEARCH_BY_ID = gql(`
       ...IdResearch
     }
   }
+`);
+
+export const PURCHASES_QUERY = gql(`
+  query Purchases {
+    purchases {
+      ...IdPurchase
+    }
+  }
+`);
+
+export const PURCHASES_BY_UID_QUERY = gql(`
+  query PurchaseByUserId($id: Int!) {
+    userPurchases(id: $id) {
+      ...IdPurchase
+  }
+}
 `);

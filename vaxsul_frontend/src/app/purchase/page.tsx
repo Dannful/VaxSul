@@ -3,22 +3,24 @@ import { useState } from "react";
 import Page from "../components/Page";
 import { LoadingWidget } from "../components/LoadingWidget";
 import { ErrorWidget } from "../components/ErrorWidget";
+import { useMutation, useQuery } from "@apollo/client";
+import { PURCHASES_QUERY, PURCHASES_BY_UID_QUERY, useGetCurrentUserQuery } from "@/service/vaxsul";
 
 export default function Transactions() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
+  const user = useGetCurrentUserQuery();
+  
+  const { loading, error, data } = useQuery(PURCHASES_QUERY);
 
-  const transactions = [
-    { id: 1, vaccineName: "Vacina A", quantity: 10, total: 100.00, status: "Pendente", userName: "Usuário 1", labName: "Laboratório A" },
-    { id: 2, vaccineName: "Vacina B", quantity: 5, total: 50.00, status: "Pendente", userName: "Usuário 2", labName: "Laboratório B" },
-  ];
-
-  if (isLoading) {
+  if (loading) {
     return <LoadingWidget />;
   }
 
-  if (isError) {
+  if (error) {
     return <ErrorWidget message="Erro ao carregar as transações." />;
+  }
+
+  if (user.data?.role !== "SALES_MANAGER") {
+    return <ErrorWidget message="Você não tem permissão para ver esta página." />;
   }
 
   const handleApprove = () => {
