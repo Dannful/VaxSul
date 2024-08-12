@@ -11,64 +11,65 @@ import { Research } from '@/types/research';
 import Page from '../../components/Page';
 
 export default function VaccineResearchDetails() {
+  const { id } = useParams();
   const [newResearch, newResearchResult] = useNewResearchMutation();
   const [newVaccine, newVaccineResult] = useNewVaccineMutation();
   const user = useGetCurrentUserQuery();
 
-  const { id } = useParams();
   const validId = !Array.isArray(id) && id;
-
-  const { data: vaccine, error: vaccineError, isLoading: vaccineLoading } = useGetVaccineByIdQuery(Number(validId), {
+  const {
+    data: research,
+    error,
+    isLoading,
+  } = useGetResearchByIdQuery(Number(validId), {
     skip: !validId,
-  });
-
-  const researchId = vaccine?.researchId ?? -1;
-  const { data: research, error: researchError, isLoading: researchLoading } = useGetResearchByIdQuery(researchId, {
-    skip: !researchId,
   });
 
   const [editing, setEditing] = useState(false);
   const [editValues, setEditValues] = useState({
-    vaccineName: vaccine?.name ?? '',
-    vaccineDescription: vaccine?.description ?? '',
-    vaccineDose: vaccine?.dose ?? 0,
-    researchStatus: research?.status ?? '',
-    researchProgress: research?.progress ?? 0,
+    researchName: '',
+    researchDescription: '',
+    researchStatus: '',
+    researchProgress: 0,
+    researchReport: '',
   });
   const [sellableCheck, setSellableCheck] = useState(false);
 
-  // When vaccine data is fetched and `sellableCheck` hasn't been set yet, update it.
   useEffect(() => {
-    if (vaccine) {
-      setSellableCheck(vaccine.sellable);
+    if (research) {
+      setEditValues({
+        researchName: research.name,
+        researchDescription: research.description,
+        researchStatus: research.status,
+        researchProgress: research.progress ?? 0,
+        researchReport: research.report,
+      });
     }
-  }, [vaccine]);
-  
-  const router = useRouter();
+  }, [research]);
 
+  if (!validId) {
+    return <p className="text-black">Pesquisa não encontrada.</p>;
+  }
+
+  if (isLoading) return <LoadingWidget />;
+  if (error)
+    return <ErrorWidget message="Erro ao carregar os detalhes da pesquisa." />;
+  if (!research) return <p className="text-black">Pesquisa não encontrada.</p>;
+  
   if (!validId) {
     return <p className="text-black">Vacina não encontrada.</p>;
   }
 
-  const isResearcher = user.data && (user.data.role === "RESEARCH_LEAD" || user.data.role === "RESEARCHER");
-  const isResearchLead = user.data && user.data.role === "RESEARCH_LEAD";
-
-  if (vaccineLoading || researchLoading) return <LoadingWidget />;
-  if (vaccineError || researchError) return <ErrorWidget message="Erro ao carregar os detalhes." />;
-  if (!vaccine) return <p className="text-black">Vacina não encontrada.</p>;
-  if (!research) return <p className="text-black">Dados da pesquisa não encontrados.</p>;
-  if (!isResearcher) return <ErrorWidget message="Você não tem permissão para ver esta página." />;
-
+  const isResearcher = user.data && user.data.role === "RESEARCHER";
   
   const handleEditClick = () => {
     setEditValues({
-      vaccineName: vaccine.name ?? '',
-      vaccineDescription: vaccine.description ?? '',
-      vaccineDose: vaccine.dose ?? '',
+      researchName: research.name ?? '',
+      researchDescription: research.description ?? '',
       researchStatus: research.status ?? '',
       researchProgress: research.progress ?? 0,
+      researchReport: research.report ?? '',
     });
-    setSellableCheck(vaccine.sellable); // Reset sellable check
     setEditing(true);
   };
 
@@ -81,17 +82,9 @@ export default function VaccineResearchDetails() {
     setEditValues(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleCheckboxChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setSellableCheck(e.target.checked);
-  };
-
   const validateInput = () => {
-    if (!isResearchLead && vaccine.sellable) {
-      alert("Apenas chefes de pesquisa podem alterar informações de vacinas em produção.");
-      return false;
-    }
-    if (sellableCheck && editValues.researchStatus !== "COMPLETED") {
-      alert("A vacina só pode ser produzida se a pesquisa estiver finalizada.");
+    if (editValues.researchStatus === "APPROVED" || editValues.researchStatus === "REJECTED") {
+      alert("Você não pode editar pesquisas aprovadas ou rejeitadas.");
       return false;
     }
     if (editValues.researchStatus === "COMPLETED" && editValues.researchProgress < 100) {
@@ -102,8 +95,8 @@ export default function VaccineResearchDetails() {
       alert("O status da pesquisa deve ser finalizada se o progresso for 100%.");
       return false;
     }
-    if (editValues.researchStatus === "COMPLETED" && editValues.vaccineDose === 0) {
-      alert("A dose da vacina não pode ser 0 ao final da pesquisa.");
+    if (editValues.researchStatus === "COMPLETED" && !editValues.researchReport) {
+      alert("O relatório é obrigatório para pesquisas finalizadas.");
       return false;
     }
     return true;
@@ -112,22 +105,14 @@ export default function VaccineResearchDetails() {
 
   const handleSaveChanges = () => {
     if (!validateInput()) return;
+
     newResearch({
-      id: research.id,
-      startDate: research.startDate,
+      ...research,
+      name: editValues.researchName,
+      description: editValues.researchDescription,
       status: editValues.researchStatus as "IN_PROGRESS" | "PAUSED" | "COMPLETED" | "DROPPED",
       progress: editValues.researchProgress,
-    });
-    newVaccine({
-      id: vaccine.id,
-      dose: editValues.vaccineDose,
-      pricePerUnit: vaccine.pricePerUnit,
-      amountInStock: vaccine.amountInStock,
-      researchId: vaccine.researchId,
-      sellable: sellableCheck,
-      name: editValues.vaccineName,
-      laboratoryId: vaccine.laboratoryId,
-      description: editValues.vaccineDescription,
+      report: editValues.researchReport,
     });
     window.location.reload();
   };
@@ -137,7 +122,7 @@ export default function VaccineResearchDetails() {
       titleBar={
         <div className="flex items-center justify-center w-full">
           <h1 className="text-xl font-semibold text-white">
-            Detalhes da Vacina
+            Detalhes da Pesquisa
           </h1>
         </div>
       }
@@ -145,14 +130,6 @@ export default function VaccineResearchDetails() {
       <div className="flex-1 p-6 flex justify-center">
         <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-4xl">
           <div className="grid grid-cols-2 gap-6">
-            <VaccineDetails 
-              vaccine={vaccine} 
-              editing={editing} 
-              editValues={editValues} 
-              sellableCheck={sellableCheck} 
-              handleInputChange={handleInputChange} 
-              handleCheckboxChange={handleCheckboxChange}
-            />
             <ResearchDetails 
               research={research} 
               editing={editing} 
@@ -160,8 +137,10 @@ export default function VaccineResearchDetails() {
               handleInputChange={handleInputChange} 
             />
           </div>
-          <ActionButtons 
+          <ActionButtons
+            research = {research} 
             editing={editing} 
+            isResearcher = {isResearcher ?? false}
             handleSaveChanges={handleSaveChanges} 
             handleCancelEdit={handleCancelEdit} 
             handleEditClick={handleEditClick} 
@@ -172,116 +151,37 @@ export default function VaccineResearchDetails() {
   );
 }
 
-function Header() {
-  return (
-    <header className="bg-gray-700 text-white p-4">
-      <h1 className="text-xl font-semibold">Detalhes da Pesquisa</h1>
-    </header>
-  );
-}
-
-function Footer() {
-  return (
-    <footer className="bg-gray-700 text-white text-center p-4">
-      <a href="/research">Voltar ao Catálogo</a>
-    </footer>
-  );
-}
-
-const VaccineDetails: React.FC<{
-  vaccine: Vaccine;
-  editing: boolean;
-  editValues: {
-    vaccineName: string;
-    vaccineDescription: string;
-    vaccineDose: number;
-  };
-  sellableCheck: boolean;
-  handleInputChange: (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>) => void;
-  handleCheckboxChange: (e: ChangeEvent<HTMLInputElement>) => void;
-}> = ({
-  vaccine,
-  editing,
-  editValues,
-  sellableCheck,
-  handleInputChange,
-  handleCheckboxChange
-}) => {
-  return (
-    <div>
-      <h2 className="text-2xl font-semibold mb-4 text-black">Vacina</h2>
-      {editing ? (
-        <div>
-          <label className="block mb-2 text-black">
-            Nome da Vacina:
-            <input
-              type="text"
-              name="vaccineName"
-              value={editValues.vaccineName}
-              onChange={handleInputChange}
-              className="border rounded px-4 py-2 w-full text-black"
-            />
-          </label>
-          <label className="block mb-2 text-black">
-            Descrição da Vacina:
-            <textarea
-              name="vaccineDescription"
-              value={editValues.vaccineDescription}
-              onChange={handleInputChange}
-              className="border rounded px-4 py-2 w-full text-black"
-              rows={5} // Adjust the number of rows as needed
-            />
-          </label>
-          <label className="block mb-2 text-black">
-            Doses:
-            <input
-              type="number"
-              name="vaccineDose"
-              value={editValues.vaccineDose.toString()}
-              onChange={handleInputChange}
-              className="border rounded px-4 py-2 w-full text-black"
-            />
-          </label>
-          <label className="block mb-2 text-black">
-            Produção autorizada:
-            <input
-              type="checkbox"
-              checked={sellableCheck}
-              onChange={handleCheckboxChange}
-              className="ml-2"
-            />
-          </label>
-        </div>
-      ) : (
-        <div>
-          <h2 className="text-2xl font-semibold mb-4 text-black">{vaccine.name}</h2>
-          <p className="text-lg mb-4 text-black whitespace-pre-wrap">{vaccine.description}</p>
-          <p className="text-lg mb-4 text-black">Doses: {vaccine.dose}</p>
-          <p className="text-lg mb-4 text-black">Produção autorizada: {vaccine.sellable ? "Sim" : "Não"}</p>
-        </div>
-      )}
-    </div>
-  );
-};
 const ResearchDetails: React.FC<{
   research: Research;
   editing: boolean;
   editValues: {
-    researchStatus: string;
+    researchName: string;
+    researchDescription: string;
     researchProgress: number;
+    researchStatus: string;
+    researchReport:string;
   };
-  handleInputChange: (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) => void;
+  handleInputChange: (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement> | ChangeEvent<HTMLSelectElement>) => void;
 }> = ({
   research,
   editing,
   editValues,
-  handleInputChange
+  handleInputChange,
 }) => {
   return (
     <div>
-      <h2 className="text-2xl font-semibold mb-4 text-black">Pesquisa</h2>
       {editing ? (
         <div>
+          <label className="block mb-2 text-black">
+            Nome da Pesquisa:
+            <input
+              type="text"
+              name="researchName"
+              value={editValues.researchName}
+              onChange={handleInputChange}
+              className="border rounded px-4 py-2 w-full text-black"
+            />
+          </label>
           <label className="block mb-2 text-black">
             Status:
             <select
@@ -290,8 +190,10 @@ const ResearchDetails: React.FC<{
               onChange={handleInputChange}
               className="border rounded px-4 py-2 w-full text-black"
             >
-              {Object.entries(STATUS_TEXT).map(([key, value]) => (
-                <option key={key} value={key}>{value}</option>
+              {["IN_PROGRESS", "PAUSED", "COMPLETED", "DROPPED"].map(status => (
+                <option key={status} value={status}>
+                  {STATUS_TEXT[status]}
+                </option>
               ))}
             </select>
           </label>
@@ -307,9 +209,32 @@ const ResearchDetails: React.FC<{
               className="border rounded px-4 py-2 w-full text-black"
             />
           </label>
+          <label className="block mb-2 text-black">
+            Descrição da Pesquisa:
+            <textarea
+              name="researchDescription"
+              value={editValues.researchDescription}
+              onChange={handleInputChange}
+              className="border rounded px-4 py-2 w-full text-black"
+              rows={5}
+            />
+          </label>
+          {editValues.researchStatus === "COMPLETED" && ( 
+            <label className="block mb-2 text-black">
+              Relatório:
+              <textarea
+                name="researchReport"
+                value={editValues.researchReport}
+                onChange={handleInputChange}
+                className="border rounded px-4 py-2 w-full text-black"
+                rows={5}
+              />
+            </label>
+          )}
         </div>
       ) : (
         <div>
+          <h2 className="text-2xl font-semibold mb-4 text-black">{research.name}</h2>
           <p className="text-lg mb-4 text-black">Data de Início: {formatDateTime(research.startDate)}</p>
           <p className="text-lg mb-4 text-black">Status: {STATUS_TEXT[research.status]}</p>
           <div className="w-full bg-gray-200 rounded-full h-6 mb-4">
@@ -326,6 +251,7 @@ const ResearchDetails: React.FC<{
               {research.progress}%
             </div>
           </div>
+          <p className="text-lg mb-4 text-black whitespace-pre-wrap">{research.description}</p>
         </div>
       )}
     </div>
@@ -335,11 +261,15 @@ const ResearchDetails: React.FC<{
 
 // Component for displaying action buttons
 const ActionButtons: React.FC<{
+  research: Research,
+  isResearcher: boolean;
   editing: boolean;
   handleSaveChanges: () => void;
   handleCancelEdit: () => void;
   handleEditClick: () => void;
 }> = ({
+  research,
+  isResearcher,
   editing,
   handleSaveChanges,
   handleCancelEdit,
@@ -347,7 +277,7 @@ const ActionButtons: React.FC<{
 }) => {
   return (
     <div className="flex space-x-4 mt-6">
-      {editing ? (
+      {(editing && isResearcher) ? (
         <>
           <button
             type="button"
@@ -365,13 +295,15 @@ const ActionButtons: React.FC<{
           </button>
         </>
       ) : (
-        <button
-          type="button"
-          onClick={handleEditClick}
-          className="bg-yellow-500 text-white text-lg px-6 py-2 rounded hover:bg-yellow-700"
-        >
-          Editar
-        </button>
+        (isResearcher && !(research.status in ["COMPLETED", "APPROVED", "REJECTED"]) ) && (
+          <button
+            type="button"
+            onClick={handleEditClick}
+            className="bg-yellow-500 text-white text-lg px-6 py-2 rounded hover:bg-yellow-700"
+          >
+            Editar
+          </button>
+        )
       )}
     </div>
   );
@@ -382,7 +314,9 @@ const STATUS_TEXT: Record<string, string> = {
   "IN_PROGRESS": "Em progresso",
   "PAUSED": "Pausada",
   "COMPLETED": "Finalizada",
-  "DROPPED": "Cancelada"
+  "DROPPED": "Cancelada",
+  "APPROVED" : "Aprovada",
+  "REJECTED" : "Rejeitada"
 };
 
 const formatDateTime = (date: string) => 
