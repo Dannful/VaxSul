@@ -92,18 +92,18 @@
       e.preventDefault();
       const { vaccineName, vaccineDescription, vaccineDoses } = editValues;
       if (!vaccineName || !vaccineDescription || vaccineDoses === 0) return alert("Preencha todos os campos.");
-
+  
       if (user.data.laboratoryId === null || user.data.laboratoryId === undefined) {
         alert("Você não está associado a um laboratório. Por favor, contate o administrador."); // Verificar se o usuário está associado a um laboratório
         return;
       }
-
+  
       const newRes = await newResearch({ 
         startDate: new Date().toISOString().split(".")[0], 
         status: "IN_PROGRESS" 
       });
       if (newRes.error) return alert("Erro ao criar pesquisa.");
-
+  
       const newVac = await newVaccine({
         dose: vaccineDoses,
         pricePerUnit: 0,
@@ -115,7 +115,7 @@
         description: vaccineDescription,
       });
       if (newVac.error) return alert("Erro ao criar vacina.");
-
+  
       router.push("/research/" + newVac.data.id);
     };
 
@@ -298,36 +298,36 @@ const NewVaccineForm = ({
   }>>;
 }) => {
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-80">
-        <h3 className="text-xl text-green-500 font-bold mb-4">Nova pesquisa:</h3>
+    <div className="fixed inset-0 bg-gray-800 bg-opacity-60 flex items-center justify-center z-50">
+      <div className="bg-gray-900 text-white p-6 rounded-lg shadow-lg w-96">
+        <h3 className="text-2xl text-green-400 font-semibold mb-4">Nova Pesquisa</h3>
         <form onSubmit={onSubmit}>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="vaccineName">
-              Nome da vacina
+            <label className="block text-gray-300 text-sm font-medium mb-2" htmlFor="vaccineName">
+              Nome da Vacina
             </label>
             <input
               id="vaccineName"
               type="text"
               required
               onChange={(e) => setEditValues({ ...editValues, vaccineName: e.target.value })}
-              className="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-gray-700 text-gray-300 border border-gray-600 rounded-lg w-full py-2 px-3 focus:outline-none focus:border-green-500"
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">
-              Descrição da vacina
+            <label className="block text-gray-300 text-sm font-medium mb-2" htmlFor="description">
+              Descrição da Vacina
             </label>
             <textarea
               id="description"
-              rows={10}
+              rows={6}
               required
               onChange={(e) => setEditValues({ ...editValues, vaccineDescription: e.target.value })}
-              className="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-gray-700 text-gray-300 border border-gray-600 rounded-lg w-full py-2 px-3 focus:outline-none focus:border-green-500"
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="vaccineDoses">
+            <label className="block text-gray-300 text-sm font-medium mb-2" htmlFor="vaccineDoses">
               Doses
             </label>
             <input
@@ -335,20 +335,20 @@ const NewVaccineForm = ({
               type="number"
               required
               onChange={(e) => setEditValues({ ...editValues, vaccineDoses: parseInt(e.target.value) })}
-              className="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-gray-700 text-gray-300 border border-gray-600 rounded-lg w-full py-2 px-3 focus:outline-none focus:border-green-500"
             />
           </div>
           <div className="flex justify-between">
             <button
               type="button"
-              className="text-white bg-red-500 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out"
+              className="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out"
               onClick={onCancel}
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="text-white bg-green-500 hover:bg-green-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out"
+              className="text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-150 ease-in-out"
             >
               Confirmar
             </button>
@@ -358,6 +358,7 @@ const NewVaccineForm = ({
     </div>
   );
 }
+
 
 const STATUS_TEXT: Record<string, string> = {
   "IN_PROGRESS": "Em progresso",
