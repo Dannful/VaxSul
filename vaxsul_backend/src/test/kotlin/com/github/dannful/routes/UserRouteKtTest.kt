@@ -6,11 +6,9 @@ import com.github.dannful.domain.model.IdUser
 import com.github.dannful.domain.model.Role
 import io.ktor.client.call.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
-import kotlinx.serialization.json.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -61,33 +59,69 @@ class UserRouteKtTest {
     }
 
     @Test
-    fun `When UPDATE research by ID, returns OK`() = testApplication {
+    fun `When user LOG OUT, returns OK`() = testApplication {
         environment {
             config = ApplicationConfig("test-application.conf")
         }
         val scenario = Scenario()
         scenario.setupClient(this, role = Role.RESEARCHER)
-        scenario.addLaboratory()
-        scenario.addResearch()
 
-        val response = scenario.httpClient.post("/graphql") {
+        val response = scenario.httpClient.post("/logout")
+
+        assertEquals(HttpStatusCode.OK, response.status)
+    }
+
+    @Test
+    fun `When UPDATE user, returns OK`() = testApplication {
+        environment {
+            config = ApplicationConfig("test-application.conf")
+        }
+        val scenario = Scenario()
+        val user = scenario.setupClient(this, role = Role.RESEARCHER)
+
+        val newUser = IdUser(
+            id = 1,
+            email = user.email,
+            password = user.password,
+            laboratoryId = user.laboratoryId,
+            role = user.role,
+            birthday = user.birthday,
+            phone = user.phone,
+            cpf = user.cpf,
+            name = "DIOGENES ASSADO"
+        )
+        val response = scenario.httpClient.post("/users/new") {
             contentType(ContentType.Application.Json)
-            setBody(buildJsonObject {
-                put(
-                    "query",
-                    "mutation { updateResearch(id: 1, research: { laboratoryId: 1, startDate: \"2024-01-01T13:00:00\", status: COMPLETED, progress: 3, name: \"hello\", description: \"eae\", report: \"romano\" }) { report } }"
-                )
-            })
+            setBody(
+                newUser
+            )
         }
 
         assertEquals(HttpStatusCode.OK, response.status)
-        assertEquals(buildJsonObject {
-            put("data", buildJsonObject {
-                put("updateResearch",
-                    buildJsonObject {
-                        put("report", "romano")
-                    })
-            })
-        }, response.body())
+        assertEquals(newUser, scenario.userService.getUserById(1))
+    }
+
+    @Test
+    fun `When GET user auth, returns OK with auth`() = testApplication {
+        environment {
+            config = ApplicationConfig("test-application.conf")
+        }
+        val scenario = Scenario()
+        val user = scenario.setupClient(this, role = Role.RESEARCHER)
+
+        val response = scenario.httpClient.get("/users/current")
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertEquals(IdUser(
+            id = 1,
+            email = user.email,
+            password = user.password,
+            laboratoryId = user.laboratoryId,
+            role = user.role,
+            birthday = user.birthday,
+            phone = user.phone,
+            cpf = user.cpf,
+            name = user.name
+        ), response.body())
     }
 }

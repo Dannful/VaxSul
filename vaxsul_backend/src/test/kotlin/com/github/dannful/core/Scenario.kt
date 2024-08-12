@@ -60,23 +60,6 @@ class Scenario {
         }
     }
 
-    fun setupClient(applicationTestBuilder: ApplicationTestBuilder) {
-        httpClient = applicationTestBuilder.createClient {
-            install(ContentNegotiation) {
-                json()
-            }
-            install(Auth) {
-                basic {
-                    credentials {
-                        BasicAuthCredentials(username = "adm", password = "123")
-                    }
-                    sendWithoutRequest { true }
-                }
-            }
-            install(HttpCookies)
-        }
-    }
-
     suspend fun setupClient(applicationTestBuilder: ApplicationTestBuilder, role: Role): User {
         httpClient = applicationTestBuilder.createClient {
             install(ContentNegotiation) {
@@ -141,20 +124,6 @@ class Scenario {
         )
         vaccineService.addVaccine(vaccine)
         return vaccine
-    }
-
-    suspend fun addUser(): User {
-        val user = User(
-            email = "romano@email.com",
-            name = "romano",
-            password = "test",
-            role = Role.USER,
-            cpf = "12345667",
-            phone = "12345567",
-            birthday = LocalDate(2024, 3, 3)
-        )
-        userService.addUser(user)
-        return user
     }
 
     suspend fun addPurchase(): Purchase {

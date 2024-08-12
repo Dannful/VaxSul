@@ -9,7 +9,6 @@ import com.github.dannful.util.Constants
 import io.ktor.http.*
 import io.ktor.resources.*
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.resources.*
 import io.ktor.server.resources.post
