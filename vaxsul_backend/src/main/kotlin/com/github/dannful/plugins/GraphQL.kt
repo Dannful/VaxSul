@@ -76,12 +76,12 @@ fun Application.configureGraphQL() {
                 IdPurchase::vaccineId.ignore()
                 property("user") {
                     resolver { purchase ->
-                        userService.getUserById(purchase.userId)
+                        userService.getUserById(purchase.userId)!!
                     }
                 }
                 property("vaccine") {
                     resolver { purchase ->
-                        vaccineService.getVaccineById(purchase.vaccineId)
+                        vaccineService.getVaccineById(purchase.vaccineId)!!
                     }
                 }
             }
