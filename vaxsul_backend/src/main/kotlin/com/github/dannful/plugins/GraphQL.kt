@@ -97,7 +97,7 @@ fun Application.configureGraphQL() {
             }
             query("researches") {
                 resolver { context: Context ->
-                    val role = context.get<Role>() ?: throw UnauthorizedException(Role.RESEARCHER)
+                    val role = context.get<Role>() ?: throw UnauthorizedException(Role.RESEARCHER, Role.SALES_MANAGER)
                     if (role !in Role.RESEARCHER.getParentRoles().plus(Role.SALES_MANAGER))
                         throw UnauthorizedException(Role.RESEARCHER)
                     researchService.getResearches()
@@ -159,9 +159,9 @@ fun Application.configureGraphQL() {
             }
             mutation("newVaccine") {
                 resolver { context: Context, vaccine: Vaccine ->
-                    val role = context.get<Role>() ?: throw UnauthorizedException(Role.RESEARCH_LEAD)
-                    if (role !in Role.RESEARCH_LEAD.getParentRoles())
-                        throw UnauthorizedException(Role.RESEARCH_LEAD)
+                    val role = context.get<Role>() ?: throw UnauthorizedException(Role.SALES_MANAGER)
+                    if (role !in Role.SALES_MANAGER.getParentRoles())
+                        throw UnauthorizedException(Role.SALES_MANAGER)
                     vaccineService.addVaccine(vaccine)
                 }
             }
@@ -272,5 +272,5 @@ fun Application.configureGraphQL() {
 }
 
 private class UnauthorizedException(
-    role: Role
-) : Exception("Unauthorized: this requires the role of $role")
+    vararg role: Role
+) : Exception("Unauthorized: this requires the role of ${role.joinToString()}")
