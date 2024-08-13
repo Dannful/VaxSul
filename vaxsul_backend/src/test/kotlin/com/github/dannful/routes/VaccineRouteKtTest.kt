@@ -51,7 +51,7 @@ class VaccineRouteKtTest {
             config = ApplicationConfig("test-application.conf")
         }
         val scenario = Scenario()
-        scenario.setupClient(this, role = Role.USER)
+        scenario.setupClient(this, role = Role.SALES_MANAGER)
         scenario.addLaboratory()
         scenario.addResearch()
         scenario.addVaccine()

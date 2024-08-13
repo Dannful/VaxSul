@@ -245,7 +245,10 @@ fun Application.configureGraphQL() {
                 }
             }
             mutation("updateVaccine") {
-                resolver { id: Int, vaccine: Vaccine ->
+                resolver { context: Context, id: Int, vaccine: Vaccine ->
+                    val role = context.get<Role>() ?: throw UnauthorizedException(Role.SALES_MANAGER)
+                    if (role !in Role.SALES_MANAGER.getParentRoles())
+                        throw UnauthorizedException(Role.SALES_MANAGER)
                     vaccineService.updateVaccine(
                         IdVaccine(
                             id = id,
