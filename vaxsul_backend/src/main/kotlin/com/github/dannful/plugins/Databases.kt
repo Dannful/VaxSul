@@ -14,6 +14,6 @@ fun Application.configureDatabases() {
     TransactionManager.defaultDatabase = database
 
     transaction(database) {
-        SchemaUtils.create(Users, Researches, Vaccines, ResearchDesignations, Laboratories, Purchases)
+        SchemaUtils.create(Users, Researches, Vaccines, Laboratories, Purchases)
     }
 }

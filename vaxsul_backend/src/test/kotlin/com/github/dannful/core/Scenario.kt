@@ -5,8 +5,6 @@ import com.github.dannful.data.service.*
 import com.github.dannful.domain.model.*
 import com.github.dannful.domain.service.*
 import io.ktor.client.*
-import io.ktor.client.plugins.auth.*
-import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.cookies.*
 import io.ktor.client.request.*
@@ -55,8 +53,8 @@ class Scenario {
             dispatcherProvider = DefaultDispatcherProvider(), database = database
         )
         transaction {
-            SchemaUtils.drop(Users, Vaccines, Researches, ResearchDesignations, Purchases, Laboratories)
-            SchemaUtils.create(Users, Vaccines, Researches, ResearchDesignations, Purchases, Laboratories)
+            SchemaUtils.drop(Users, Vaccines, Researches, Purchases, Laboratories)
+            SchemaUtils.create(Users, Vaccines, Researches, Purchases, Laboratories)
         }
     }
 
