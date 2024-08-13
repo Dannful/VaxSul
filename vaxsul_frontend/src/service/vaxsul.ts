@@ -83,6 +83,7 @@ const PURCHASE_FRAGMENT = gql(`
     id
     user {
       id
+      name
     }
     vaccine {
       id
@@ -212,8 +213,8 @@ export const PURCHASES_QUERY = gql(`
 `);
 
 export const PURCHASES_BY_UID_QUERY = gql(`
-  query PurchaseByUserId($id: Int!) {
-    userPurchases(id: $id) {
+  query PurchaseByUserId($UserId: Int!) {
+    userPurchases(userId: $UserId) {
       ...IdPurchase
   }
 }

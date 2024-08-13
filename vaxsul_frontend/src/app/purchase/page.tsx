@@ -4,33 +4,60 @@ import Page from "../components/Page";
 import { LoadingWidget } from "../components/LoadingWidget";
 import { ErrorWidget } from "../components/ErrorWidget";
 import { useMutation, useQuery } from "@apollo/client";
-import { PURCHASES_QUERY, PURCHASES_BY_UID_QUERY, useGetCurrentUserQuery } from "@/service/vaxsul";
+import { PURCHASES_QUERY, PURCHASES_BY_UID_QUERY, useGetCurrentUserQuery, UPDATE_PURCHASE } from "@/service/vaxsul";
+import { IdPurchase, IdPurchaseFragment, Purchase, PurchaseStatus } from "@/__generated__/graphql";
 
 export default function Transactions() {
   const user = useGetCurrentUserQuery();
+  const [updatePurchase] = useMutation(UPDATE_PURCHASE, {
+    refetchQueries: [PURCHASES_QUERY],
+  });
   
-  //const { loading, error, data } = useQuery(PURCHASES_QUERY);
 
-  //if (loading) {
-  //  return <LoadingWidget />;
-  //}
-//
-  //if (error) {
-  //  return <ErrorWidget message="Erro ao carregar as transações." />;
-  //}
+  const { loading, error, data } = useQuery(PURCHASES_QUERY);
 
-  const transactions = [{ id: 1, vaccineName: "Coronavac", quantity: 100, labName: "Butantan", userName: "João", total: 1000, status: "Pendente" }];
+  if (loading) {
+    return <LoadingWidget />;
+  }
 
-  if (user.data?.role !== "SALES_MANAGER") {
+  if (error || !data?.purchases) {
+    return <ErrorWidget message="Erro ao carregar as transações." />;
+  }
+
+  if (user.data?.role != "SALES_MANAGER") {
     return <ErrorWidget message="Você não tem permissão para ver esta página." />;
   }
 
-  const handleApprove = () => {
-    // Mestre Vini Lorde do backend trate isso pfv
+  const transactions = data.purchases;
+
+  const handleApprove = (purchase: IdPurchaseFragment) => {
+    updatePurchase({
+      variables: {
+        id: purchase.id,
+        purchase: { 
+          amount: purchase.amount,
+          totalSpent: purchase.totalSpent,
+          userId: purchase.user.id,
+          vaccineId: purchase.vaccine.id,
+          status: PurchaseStatus.Approved,
+        },
+      },
+    });
   };
 
-  const handleReject = () => {
-    // Mestre Vini Lorde do backend trate isso pfv
+  const handleReject = (purchase: IdPurchaseFragment) => {
+    updatePurchase({
+      variables: {
+        id: purchase.id,
+        purchase: { 
+          amount: purchase.amount,
+          totalSpent: purchase.totalSpent,
+          userId: purchase.user.id,
+          vaccineId: purchase.vaccine.id,
+          status: PurchaseStatus.Rejected,
+        },
+      },
+    });
   };
 
   return (
@@ -46,9 +73,9 @@ export default function Transactions() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Pedido</th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Vacina</th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Qtd</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Laboratório</th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Comprador</th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -58,22 +85,22 @@ export default function Transactions() {
             <tbody className="bg-white divide-y divide-gray-200">
               {transactions.map((transaction) => (
                 <tr key={transaction.id}>
-                  <td className="px-6 py-4 text-center text-sm text-gray-500">{transaction.vaccineName}</td>
-                  <td className="px-6 py-4 text-center text-sm text-gray-500">{transaction.quantity}</td>
-                  <td className="px-6 py-4 text-center text-sm text-gray-500">{transaction.labName}</td>
-                  <td className="px-6 py-4 text-center text-sm text-gray-500">{transaction.userName}</td>
-                  <td className="px-6 py-4 text-center text-sm text-gray-500">R$ {transaction.total.toFixed(2)}</td>
-                  <td className="px-6 py-4 text-center text-sm text-gray-500">{transaction.status}</td>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{transaction.id}</th>
+                  <td className="px-6 py-4 text-center text-sm text-gray-500">{transaction.vaccine?.name}</td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-500">{transaction.amount}</td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-500">{transaction.user?.name}</td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-500">R$ {transaction.totalSpent.toFixed(2)}</td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-500">{PURCHASE_STATUS_TEXT[transaction.status]}</td>
                   <td className="px-6 py-4 text-center text-sm font-medium">
                     <button
                       className="text-green-600 hover:text-green-900 mr-4"
-                      onClick={() => handleApprove()}
+                      onClick={() => handleApprove(transaction)}
                     >
                       Aprovar
                     </button>
                     <button
                       className="text-red-600 hover:text-red-900"
-                      onClick={() => handleReject()}
+                      onClick={() => handleReject(transaction)}
                     >
                       Rejeitar
                     </button>
@@ -86,4 +113,11 @@ export default function Transactions() {
       </div>
     </Page>
   );
+}
+
+const PURCHASE_STATUS_TEXT: Record<PurchaseStatus, string>= {
+  [PurchaseStatus.Approved]: "Aprovado",
+  [PurchaseStatus.Rejected]: "Rejeitado",
+  [PurchaseStatus.InValidation]: "Em Validação",
+  [PurchaseStatus.WaitPayment]: "Aguardando Pagamento",
 }

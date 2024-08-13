@@ -18,9 +18,7 @@ import { ErrorWidget } from "../../components/ErrorWidget";
 import Page from "../../components/Page";
 import { useMutation, useQuery } from "@apollo/client";
 import {
-  IdResearch,
   IdResearchFragment,
-  PurchaseStatus,
   Research,
   ResearchStatus,
 } from "@/__generated__/graphql";
@@ -209,7 +207,7 @@ function ResearchEditForm({
 }) {
 
   const researcherValidStatus = [ResearchStatus.InProgress, ResearchStatus.Completed, ResearchStatus.Paused, ResearchStatus.Dropped]
-  
+
   return (
     <div>
       {editing ? (
@@ -241,7 +239,7 @@ function ResearchEditForm({
             >
               {researcherValidStatus.map((status) => (
                 <option key={status} value={status}>
-                  {STATUS_TEXT[status]}
+                  {RESEARCH_STATUS_TEXT[status]}
                 </option>
               ))}
             </select>
@@ -303,7 +301,7 @@ function ResearchEditForm({
             Data de Início: {formatDateTime(research.startDate)}
           </p>
           <p className="text-lg mb-4 text-black text-center">
-            Status: {STATUS_TEXT[research.status]}
+            Status: {RESEARCH_STATUS_TEXT[research.status]}
           </p>{" "}
           {/* Centered the status */}
           <div className="w-full bg-gray-200 rounded-full h-6 mb-4">
@@ -426,7 +424,7 @@ const ApproveRejectButtons: React.FC<{
   );
 };
 
-const STATUS_TEXT: Record<ResearchStatus, string> = {
+const RESEARCH_STATUS_TEXT: Record<ResearchStatus, string> = {
   IN_PROGRESS: "Em progresso",
   PAUSED: "Pausada",
   COMPLETED: "Finalizada",
