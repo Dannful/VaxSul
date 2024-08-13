@@ -98,7 +98,7 @@ fun Application.configureGraphQL() {
             query("researches") {
                 resolver { context: Context ->
                     val role = context.get<Role>() ?: throw UnauthorizedException(Role.RESEARCHER)
-                    if (role !in Role.RESEARCHER.getParentRoles().plus(Role.RESEARCH_LEAD))
+                    if (role !in Role.RESEARCHER.getParentRoles().plus(Role.SALES_MANAGER))
                         throw UnauthorizedException(Role.RESEARCHER)
                     researchService.getResearches()
                 }

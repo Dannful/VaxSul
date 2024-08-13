@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Footer from "./Footer";
-import { useGetCurrentUserQuery } from "@/service/vaxsul";
+import { useGetCurrentUserQuery, useLogoutMutation } from "@/service/vaxsul";
 
 export default function Page({
   titleBar,
@@ -12,6 +12,7 @@ export default function Page({
   children: React.ReactNode;
 }) {
   const [accountMenuVisible, setAccountMenuVisible] = useState(false);
+  const [logout] = useLogoutMutation();
   const user = useGetCurrentUserQuery();
 
   const isResearcher = user.data && user.data.role === "RESEARCHER";
@@ -90,7 +91,7 @@ export default function Page({
                 <span className="text-sm">Pesquisas</span>
               </button>
             )}
-          
+
             <button
               className="flex items-center px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-700 cursor-pointer w-full text-left"
               onClick={() => router.push("/purchase")}
@@ -161,7 +162,8 @@ export default function Page({
                         <button
                           className="btn w-full text-left block px-4 py-2 text-gray-800 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                           onClick={async (event) => {
-                            router.push("/logout");
+                            await logout();
+                            router.push("/login");
                           }}
                         >
                           Sair
