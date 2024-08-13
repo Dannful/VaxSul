@@ -91,20 +91,22 @@ export default function Transactions() {
                   <td className="px-6 py-4 text-center text-sm text-gray-500">{transaction.user?.name}</td>
                   <td className="px-6 py-4 text-center text-sm text-gray-500">R$ {transaction.totalSpent.toFixed(2)}</td>
                   <td className="px-6 py-4 text-center text-sm text-gray-500">{PURCHASE_STATUS_TEXT[transaction.status]}</td>
-                  <td className="px-6 py-4 text-center text-sm font-medium">
-                    <button
-                      className="text-green-600 hover:text-green-900 mr-4"
-                      onClick={() => handleApprove(transaction)}
-                    >
-                      Aprovar
-                    </button>
-                    <button
-                      className="text-red-600 hover:text-red-900"
-                      onClick={() => handleReject(transaction)}
-                    >
-                      Rejeitar
-                    </button>
-                  </td>
+                  {transaction.status === PurchaseStatus.InValidation && 
+                    <td className="px-6 py-4 text-center text-sm font-medium">
+                      <button
+                        className="text-green-600 hover:text-green-900 mr-4"
+                        onClick={() => handleApprove(transaction)}
+                      >
+                        Aprovar
+                      </button>
+                      <button
+                        className="text-red-600 hover:text-red-900"
+                        onClick={() => handleReject(transaction)}
+                      >
+                        Rejeitar
+                      </button>
+                    </td>
+                  }
                 </tr>
               ))}
             </tbody>

@@ -104,7 +104,7 @@ function VaccineComponent({
           amount: quantity,
           totalSpent: quantity * vaccine.pricePerUnit,
           timestamp: serializeDateTime(new Date()),
-          status: PurchaseStatus.Approved,
+          status: PurchaseStatus.InValidation,
           userId: userId,
         },
       },
