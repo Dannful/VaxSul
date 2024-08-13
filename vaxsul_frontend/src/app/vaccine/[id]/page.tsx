@@ -70,7 +70,9 @@ function VaccineComponent({
     refetchQueries: [SEARCH_VACCINES, VACCINE_BY_ID],
   });
   const [newPurchase] = useMutation(NEW_PURCHASE);
-  const [deleteVaccine] = useMutation(DELETE_VACCINE);
+  const [deleteVaccine] = useMutation(DELETE_VACCINE, {
+    refetchQueries: [SEARCH_VACCINES, VACCINE_BY_ID],
+  });
 
   const handleQuantityChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = Math.min(

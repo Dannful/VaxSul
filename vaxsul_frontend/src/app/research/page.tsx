@@ -5,6 +5,7 @@ import {
   useGetCurrentUserQuery,
   RESEARCHES_QUERY,
   NEW_RESEARCH,
+  RESEARCH_BY_ID,
 } from "@/service/vaxsul";
 import { LoadingWidget } from "../components/LoadingWidget";
 import { ErrorWidget } from "../components/ErrorWidget";
@@ -33,7 +34,9 @@ export default function ResearchCatalog() {
 
   const { loading, error, data } = useQuery(RESEARCHES_QUERY);
 
-  const [newResearch] = useMutation(NEW_RESEARCH);
+  const [newResearch] = useMutation(NEW_RESEARCH, {
+    refetchQueries: [RESEARCHES_QUERY, RESEARCH_BY_ID],
+  });
 
   const router = useRouter();
   const user = useGetCurrentUserQuery();
@@ -401,4 +404,3 @@ const formatDateTime = (date: string) =>
     hour: "2-digit",
     minute: "2-digit",
   });
-  
