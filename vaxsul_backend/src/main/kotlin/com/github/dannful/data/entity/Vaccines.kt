@@ -17,7 +17,7 @@ object Vaccines : IntIdTable() {
         reference(
             "researchId",
             Researches,
-            onDelete = ReferenceOption.SET_NULL,
+            onDelete = ReferenceOption.CASCADE,
             onUpdate = ReferenceOption.CASCADE
         )
 }
