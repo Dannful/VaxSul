@@ -4,8 +4,8 @@ import Page from "../components/Page";
 import { LoadingWidget } from "../components/LoadingWidget";
 import { ErrorWidget } from "../components/ErrorWidget";
 import { useMutation, useQuery } from "@apollo/client";
-import { PURCHASES_QUERY, PURCHASES_BY_UID_QUERY, useGetCurrentUserQuery, UPDATE_PURCHASE } from "@/service/vaxsul";
-import { IdPurchase, IdPurchaseFragment, Purchase, PurchaseStatus } from "@/__generated__/graphql";
+import { PURCHASES_QUERY, useGetCurrentUserQuery, UPDATE_PURCHASE } from "@/service/vaxsul";
+import { IdPurchaseFragment, PurchaseStatus } from "@/__generated__/graphql";
 
 export default function Transactions() {
   const user = useGetCurrentUserQuery();
@@ -64,7 +64,7 @@ export default function Transactions() {
     <Page
       titleBar={
         <div className="flex items-center justify-center w-full">
-          <h1 className="text-xl font-semibold text-white">Aprovação de Transações</h1>
+          <h1 className="text-xl font-semibold text-white">Histórico de Transações</h1>
         </div>
       }
     >

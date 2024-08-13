@@ -15,6 +15,7 @@ export default function Page({
   const [logout] = useLogoutMutation();
   const user = useGetCurrentUserQuery();
 
+  const isSalesManager = user.data && user.data.role === "SALES_MANAGER";
   const isResearcher = user.data && user.data.role === "RESEARCHER";
   const isResearchLead = user.data && user.data.role === "RESEARCH_LEAD";
 
@@ -91,25 +92,45 @@ export default function Page({
                 <span className="text-sm">Pesquisas</span>
               </button>
             )}
-
-            <button
-              className="flex items-center px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-700 cursor-pointer w-full text-left"
-              onClick={() => router.push("/purchase")}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 mr-2"
-                viewBox="0 0 20 20"
-                fill="currentColor"
+            {isSalesManager ? (
+              <button
+                className="flex items-center px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-700 cursor-pointer w-full text-left"
+                onClick={() => router.push("/transactions")}
               >
-                <path
-                  fillRule="evenodd"
-                  d="M13.707 10.293a1 1 0 000-1.414L10.414 6.88a1 1 0 10-1.414 1.414L11.586 10l-2.586 2.586a1 1 0 101.414 1.414l3.293-3.293a1 1 0 000-1.414z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <span className="text-sm">Compras</span>
-            </button>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-2"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M13.707 10.293a1 1 0 000-1.414L10.414 6.88a1 1 0 10-1.414 1.414L11.586 10l-2.586 2.586a1 1 0 101.414 1.414l3.293-3.293a1 1 0 000-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span className="text-sm">Transações</span>
+              </button>
+            ) : (
+              <button
+                className="flex items-center px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-700 cursor-pointer w-full text-left"
+                onClick={() => router.push("/my-orders")}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-2"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M13.707 10.293a1 1 0 000-1.414L10.414 6.88a1 1 0 10-1.414 1.414L11.586 10l-2.586 2.586a1 1 0 101.414 1.414l3.293-3.293a1 1 0 000-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span className="text-sm">Meus Pedidos</span>
+              </button>
+            )}
           </nav>
         </aside>
 
