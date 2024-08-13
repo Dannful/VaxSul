@@ -262,6 +262,16 @@ fun Application.configureGraphQL() {
                     )
                 }
             }
+            mutation("updateVaccineStock") {
+                resolver { id: Int, decrement: Int ->
+                    val vaccine = vaccineService.getVaccineById(id) ?: throw InvalidIdException()
+                    vaccineService.updateVaccine(
+                        vaccine.copy(
+                            amountInStock = vaccine.amountInStock - decrement
+                        )
+                    )
+                }
+            }
             mutation("deleteVaccine") {
                 resolver { context: Context, id: Int ->
                     val role = context.get<Role>() ?: throw UnauthorizedException(Role.SALES_MANAGER)
@@ -277,3 +287,5 @@ fun Application.configureGraphQL() {
 private class UnauthorizedException(
     vararg role: Role
 ) : Exception("Unauthorized: this requires the role of ${role.joinToString()}")
+
+private class InvalidIdException : Exception("Invalid ID provided for query")

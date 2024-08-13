@@ -78,6 +78,38 @@ class VaccineRouteKtTest {
     }
 
     @Test
+    fun `When CONSUME vaccine stock, returns OK`() = testApplication {
+        environment {
+            config = ApplicationConfig("test-application.conf")
+        }
+        val scenario = Scenario()
+        scenario.setupClient(this, role = Role.USER)
+        scenario.addLaboratory()
+        scenario.addResearch()
+        scenario.addVaccine()
+
+        val response = scenario.httpClient.post("/graphql") {
+            contentType(ContentType.Application.Json)
+            setBody(buildJsonObject {
+                put(
+                    "query",
+                    "mutation { updateVaccineStock(id: 1, decrement: 1) { amountInStock } }"
+                )
+            })
+        }
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertEquals(buildJsonObject {
+            put("data", buildJsonObject {
+                put("updateVaccineStock",
+                    buildJsonObject {
+                        put("amountInStock", 2)
+                    })
+            })
+        }, response.body())
+    }
+
+    @Test
     fun `When CREATE vaccine, returns OK`() = testApplication {
         environment {
             config = ApplicationConfig("test-application.conf")
