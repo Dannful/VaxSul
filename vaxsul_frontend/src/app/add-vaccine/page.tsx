@@ -10,7 +10,7 @@ import {
   SEARCH_VACCINES,
   VACCINE_BY_ID,
 } from "@/service/vaxsul";
-import { Vaccine } from "@/__generated__/graphql";
+import { ResearchStatus, Vaccine } from "@/__generated__/graphql";
 import { useRouter } from "next/navigation";
 
 export default function AddVaccine() {
@@ -39,7 +39,7 @@ export default function AddVaccine() {
     );
   }
 
-  const researchOptions = data.researches;
+  const researchOptions = data.researches.filter((research) => research.status === ResearchStatus.Approved);
 
   const handleAddVaccine = () => {
     addNewVaccine({

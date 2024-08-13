@@ -53,12 +53,13 @@ function VaccineComponent({
   userId: number;
 }) {
   const [quantity, setQuantity] = useState(1);
+  const [stock, setStock] = useState(vaccine.amountInStock);
   const router = useRouter();
   const [updateVaccine] = useMutation(UPDATE_VACCINE, {
     variables: {
       id: vaccine.id,
       vaccine: {
-        amountInStock: vaccine.amountInStock,
+        amountInStock: stock,
         description: vaccine.description,
         dose: vaccine.dose,
         name: vaccine.name,
@@ -79,13 +80,18 @@ function VaccineComponent({
     setQuantity(value);
   };
 
+  const handleStockChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = Math.max(Number(e.target.value), 0);
+    setStock(value);
+  };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     let vaccineResult = await updateVaccine({
       variables: {
         id: vaccine.id,
         vaccine: {
-          amountInStock: vaccine.amountInStock - quantity,
+          amountInStock: stock - quantity,
           description: vaccine.description,
           dose: vaccine.dose,
           name: vaccine.name,
@@ -114,6 +120,25 @@ function VaccineComponent({
     }
     router.push("/vaccine");
   };
+
+  const handleStockSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    updateVaccine({
+      variables: {
+        id: vaccine.id,
+        vaccine: {
+          amountInStock: stock,
+          description: vaccine.description,
+          dose: vaccine.dose,
+          name: vaccine.name,
+          pricePerUnit: vaccine.pricePerUnit,
+          researchId: vaccine.research.id,
+        },
+      },
+    });
+  };
+  
 
   const handleDelete = async () => {
     if (confirm("Tem certeza de que deseja deletar este produto?")) {
@@ -178,14 +203,22 @@ function VaccineComponent({
                 {vaccine.research.laboratory.name}
               </span>
             </p>
-            )
           </div>
 
           <div className="mt-6">
             <div className="border-t border-gray-300 pt-6 mb-6">
               <div className="flex justify-between text-gray-700 text-lg mb-2">
                 <span>Quantidade em estoque:</span>
-                <span className="font-semibold">{vaccine.amountInStock}</span>
+                {isSalesManager ? (
+                  <input
+                    type="number"
+                    value={stock}
+                    onChange={handleStockChange}
+                    className="border border-gray-300 rounded-lg px-3 py-1 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+                  />
+                ) : (
+                  <span className="font-semibold">{vaccine.amountInStock}</span>
+                )}
               </div>
               <div className="flex justify-between text-gray-700 text-lg mb-4">
                 <span>Preço:</span>
@@ -218,13 +251,24 @@ function VaccineComponent({
               </form>
             )}
             {isSalesManager && (
-              <button
-                onClick={handleDelete}
-                className="bg-red-600 text-white rounded-lg px-4 py-2 mt-4 hover:bg-red-700 transition duration-300"
-              >
-                Deletar
-              </button>
+              <div className="flex justify-between">
+                <button
+                  onClick={handleDelete}
+                  className="bg-red-600 text-white rounded-lg px-4 py-2 hover:bg-red-700 transition duration-300"
+                >
+                  Deletar
+                            </button>
+                            <form onSubmit={handleStockSubmit}>
+                  <button
+                    type="submit"
+                    className="bg-green-600 text-white rounded-lg px-4 py-2 hover:bg-green-700 transition duration-300"
+                  >
+                    Salvar Estoque
+                  </button>
+                </form>
+              </div>
             )}
+
           </div>
         </div>
       </div>
