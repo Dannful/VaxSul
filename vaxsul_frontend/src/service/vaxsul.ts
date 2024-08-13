@@ -132,6 +132,14 @@ export const VACCINE_BY_ID = gql(`
   }
 `);
 
+export const UPDATE_VACCINE_STOCK = gql(`
+  mutation UpdateVaccineStock($id: Int!, $decrement: Int!) {
+    updateVaccineStock(id: $id, decrement: $decrement) {
+      ...IdVaccine
+    }
+  }
+`);
+
 export const UPDATE_VACCINE = gql(`
   mutation UpdateVaccine($id: Int!, $vaccine: Vaccine!) {
     updateVaccine(id: $id, vaccine: $vaccine) {

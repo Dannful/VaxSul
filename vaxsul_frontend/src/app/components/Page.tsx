@@ -114,7 +114,7 @@ export default function Page({
             ) : (
               <button
                 className="flex items-center px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-700 cursor-pointer w-full text-left"
-                onClick={() => router.push("/my-orders")}
+                onClick={() => router.push("/my-purchases")}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

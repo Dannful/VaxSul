@@ -10,6 +10,7 @@ import {
   NEW_PURCHASE,
   DELETE_VACCINE,
   SEARCH_VACCINES,
+  UPDATE_VACCINE_STOCK,
 } from "@/service/vaxsul";
 import { useParams, useRouter } from "next/navigation";
 import { ChangeEvent, FormEvent, useState } from "react";
@@ -55,16 +56,23 @@ function VaccineComponent({
   const [quantity, setQuantity] = useState(1);
   const [stock, setStock] = useState(vaccine.amountInStock);
   const router = useRouter();
+  const [updateVaccineStock] = useMutation(UPDATE_VACCINE_STOCK, {
+    variables: {
+      id: vaccine.id,
+      decrement: quantity,
+    },
+    refetchQueries: [SEARCH_VACCINES, VACCINE_BY_ID],
+  });
   const [updateVaccine] = useMutation(UPDATE_VACCINE, {
     variables: {
       id: vaccine.id,
       vaccine: {
-        amountInStock: stock,
+        amountInStock: vaccine.amountInStock,
         description: vaccine.description,
         dose: vaccine.dose,
         name: vaccine.name,
         pricePerUnit: vaccine.pricePerUnit,
-        researchId: vaccine.research.id,
+        researchId: vaccine.pricePerUnit,
       },
     },
     refetchQueries: [SEARCH_VACCINES, VACCINE_BY_ID],
@@ -89,17 +97,10 @@ function VaccineComponent({
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    let vaccineResult = await updateVaccine({
+    let vaccineResult = await updateVaccineStock({
       variables: {
         id: vaccine.id,
-        vaccine: {
-          amountInStock: stock - quantity,
-          description: vaccine.description,
-          dose: vaccine.dose,
-          name: vaccine.name,
-          pricePerUnit: vaccine.pricePerUnit,
-          researchId: vaccine.research.id,
-        },
+        decrement: quantity,
       },
     });
     if (vaccineResult.errors) {
@@ -125,7 +126,7 @@ function VaccineComponent({
 
   const handleStockSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     updateVaccine({
       variables: {
         id: vaccine.id,
@@ -140,7 +141,6 @@ function VaccineComponent({
       },
     });
   };
-  
 
   const handleDelete = async () => {
     if (confirm("Tem certeza de que deseja deletar este produto?")) {
@@ -259,8 +259,8 @@ function VaccineComponent({
                   className="bg-red-600 text-white rounded-lg px-4 py-2 hover:bg-red-700 transition duration-300"
                 >
                   Deletar
-                            </button>
-                            <form onSubmit={handleStockSubmit}>
+                </button>
+                <form onSubmit={handleStockSubmit}>
                   <button
                     type="submit"
                     className="bg-green-600 text-white rounded-lg px-4 py-2 hover:bg-green-700 transition duration-300"
@@ -270,7 +270,6 @@ function VaccineComponent({
                 </form>
               </div>
             )}
-
           </div>
         </div>
       </div>
